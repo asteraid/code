@@ -1,0 +1,180 @@
+extends layouts/extensions
+
+block content
+    include includes/header-nav
+
+    include includes/sidebar
+
+    include includes/style-switcher
+    div(id="modal-dialog", style="display: none;")
+    #content
+        include includes/content-header
+        .container-fluid
+            .row-fluid(style="margin-top: 3px;")
+                .span12
+                    .widget-box(style="margin-top: 0px;")
+                        .widget-title
+                        .widget-content.nopadding
+                            table( id="tblContent", class="table table-bordered table-striped table-hover")
+                                thead
+                                    tr
+                                        th Id
+                                        th Name
+                                        th Comment
+                            div( style="margin: -38px 0 0 0;", align="center", class="buttons_operation")
+                                button(id="btnAdd", class="btn")
+                                    i.icon-plus
+                                    &nbsp;Add
+                                button(id="btnEdit", class="btn dependent", disabled)
+                                    i.icon-pencil
+                                    &nbsp;Edit
+                                button(id="btnDelete", class="btn dependent", disabled)
+                                    i.icon-remove
+                                    &nbsp;Delete
+    style
+        .select2-drop {z-index: 99999;}
+        .left {text-align: left;}
+
+    include includes/footer
+
+    script( src="js/select2.min.js")
+    script( src="js/jquery.dataTables.js")
+    script( src="js/custom/dataTableExt.js")
+
+    style
+        .table-hover tbody > tr:hover > td {
+            background-color: #c3c3c3;
+                color: #fff;
+        }
+        .table-hover tbody > tr.row_selected > td {background: #c3c3c3; color: #fff;}
+
+    script
+        var currentRow = {};
+        var templateJSON = {};
+        var modal = '';
+
+        var columns = [{"mData":"id"}, {"mData":"name"}, {"mData":"comment"}];
+        var columnsDefs = [{"bSearchable": false, "bVisible": false, "aTargets": [0]}];
+        var oTable = setDataTableTest('tblContent', "/data/templates/list", columns, columnsDefs, 'template');
+
+        var btns = [
+                {
+                  text: "Save",
+                  "class": 'btn',
+                  click: function() {
+                    if($('form[name="form-basic"]').valid()) {
+                        var action = '/data/templates/save';
+                        var data = '';
+                        var modalId = '#modal-dialog';
+
+                        textConfig_1 = getConfig('form[name="form-basic"], form[name="form-advanced"]');
+                        textConfig_2 = $('textarea[name="config_2"]').val();
+
+                        configSeparator = 'separator=';
+
+                        if(textConfig_2 == '')
+                            arrConfig = splitTextarea(textConfig_1);
+                        else
+                            arrConfig = splitTextarea(textConfig_1).concat(configSeparator).concat(splitTextarea(textConfig_2));
+
+                        var arrConfigRes = [];
+                        var nameTemplate = '';
+                        var commentTemplate = '';
+                        var idTemplate = 0;
+                        var actionTemplate = 'create';
+                        var p = '', v = '';
+
+                        //находим имя и удаляем его из массива, перед этим присваиваем его переменной
+                        $.each(arrConfig, function(index, el) {
+                             if(match = el.match(/\[(.*)\]/))
+                                nameTemplate = match[1];
+                             else
+                                arrConfigRes.push(el);
+                        });
+
+                        commentTemplate = $('textarea[name="comment"]').val();
+
+                        //разбираем массив и записываем в 2 переменных параметры - p, и значения - v
+                        $.each(arrConfigRes, function(index, el){
+                            arrEl = el.split('=');
+                            p += arrEl[0] + ';';
+                            v += arrEl[1] + ';';
+                        });
+
+                        //удаляем лишнюю ";" в конце строк
+                        p = p.slice(0, -1);
+                        v = v.slice(0, -1);
+
+                        if($('input[name="id"]').val()) {
+                            idTemplate = $('input[name="id"]').val();
+                            actionTemplate = 'edit';
+                        }
+
+                        var self = this;
+                        $.ajax({
+                             type: 'POST',
+                             url: action,
+                             data: {params: p, values: v, name: nameTemplate, comment: commentTemplate, action: actionTemplate, id: idTemplate},
+                             dataType: 'json',
+                             async: false,
+                             success: function(data) {
+                                 if(data.success) {
+                                     oTable.fnReloadAjax();
+                                     $(self).dialog('close');
+                                     changeBtnApply(1);
+                                 } else showDialog('Information', data.message, 'auto', 'auto');
+                             }
+                        });
+                        setButtonsState('tblContent');
+                    }
+                }
+            }
+        ];
+
+        $('#tblContent tr').live('dblclick', function() {
+            showDialog('Edit Template', {url:'/modal/template/edit'}, '700', 'auto', btns);
+        });
+
+        $('#btnAdd').click(function() {
+            showDialog('Add Template', {url:'/modal/template/add'}, '700', 'auto', btns);
+        });
+
+        $('#btnEdit').click(function() {
+            showDialog('Edit Template', {url:'/modal/template/edit'}, '700', 'auto', btns);
+        });
+
+        $('#btnDelete').click(function() {
+            var btnsDelete =
+                [
+                    {
+                        text: 'Ok',
+                        "class": 'btn btn-primary',
+                        click: function() {
+                            $(this).dialog('close');
+                            $.ajax({
+                                type: 'POST',
+                                url: '/data/templates/delete',
+                                data: {id: currentRow.id, name: currentRow.name},
+                                dataType: 'json',
+                                async: false,
+                                success: function(data) {
+                                    if(data.success) {
+                                        oTable.fnReloadAjax();
+                                        $('#btnEdit, #btnDelete').attr('disabled', true);
+                                        changeBtnApply(1);
+                                    } else showDialog('Information', data.message, 'auto', 'auto');
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        "class": 'btn btn-primary',
+                        click: function() {
+                            $(this).dialog('close');
+                        }
+                    }
+                ];
+
+            showDialog('Information', '<p align="center">Delete this template?</p>', 'auto', 'auto', btnsDelete);                
+        });

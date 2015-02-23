@@ -1,0 +1,132 @@
+extends layouts/callflows
+
+block content
+    include includes/header-nav
+
+    include includes/sidebar
+
+    include includes/style-switcher
+    
+    #item-switcher
+        #switcher
+            i.icon-arrow-left.icon-white
+        #switcher-title
+            span Items
+        .item-box
+
+    #content
+        include includes/content-header
+        p( style='margin:5px;')
+            button( data-action='save_conf', class="btn btn-success tip-bottom", type="button", title='Save Callflow' ) Save
+            button( data-action='view_json', class="btn btn-info tip-bottom", type="button", title='View result json for debug version only' ) View JSON
+            button( data-action='view_conf', class="btn btn-inverse tip-bottom", type="button", title='View result config' ) View Config
+
+        .container-fluid            
+            #callflow.callflow
+
+        #myModal.modal.hide.fade
+            form.form-horizontal
+                .modal-header
+                    button( data-dismiss="modal", class="close", type="button", aria-hidden="true") ×
+                    h3
+                .modal-body
+                .modal-footer
+                    a( data-dismiss="modal", class="btn", href="#") Cancel
+                    button( class="btn btn-primary", type="submit") Confirm
+
+    include includes/footer
+
+    style
+        .table-hover tbody > tr:hover > td {
+            background-color: #f5f5f5;
+        }
+        .table-hover tbody > tr.row_selected > td {background: #f5f5f5;}
+    
+    script( src="/js/jquery.uniform.js")
+    script( src="/js/jquery.validate.js")
+    script( src="/js/select2_3.4.min.js")
+    script( src="/js/modal/ace/ace.js")
+    script( src="/js/callflow.js")
+    script( src="/js/callflow.block.js")
+    script( src="/js/callflow.module.js")
+    script( src="/js/callflow.block.custom.js")
+    script
+        $(document).ready(function(){
+        getPath('rules');
+        $('body').mask(opts);
+        callflow = new callFlowChart();
+
+        // === Item switcher === //
+        $('#switcher i').click(function()
+        {
+                if($(this).hasClass('open'))
+                {
+                        $(this).parent().parent().animate({marginRight:'-=168'});
+                        $(this).removeClass('open');
+                } else 
+                {
+                        $(this).parent().parent().animate({marginRight:'+=168'});
+                        $(this).addClass('open');
+                }
+                $(this).toggleClass('icon-arrow-left');
+                $(this).toggleClass('icon-arrow-right');
+        });
+ 
+        // Создаем блоки контекстов
+        callflow.root = new blockRoot();
+
+        // Загружаем классы блоков
+        $.getJSON('/data/callflow_modules/get_module_class',
+            function(data){
+                 if (data.success) {
+                     for (var i = 0, length = data.rows.length; i < length; i++) {
+                        if (i in data.rows) {
+                            // если у блока есть отдельный класс создаем блок на базе него
+                            if ( data.rows[i].js_class_name && typeof window[data.rows[i].js_class_name] === 'function' ) {
+                                callflow[data.rows[i].name] = new window[data.rows[i].js_class_name](data.rows[i]);
+                            } else {
+                                callflow[data.rows[i].name] = new CallflowBlock(data.rows[i]);
+                            }
+                        }
+                     }
+                 } else {
+                    console.log(data.message);
+                 }
+
+                // Загружаем дерево передаем id callflow
+                callflow.getJsonTree(#{itemId});
+            }
+        );
+
+
+        //Реакция на кнопки 
+        $('button[data-action=view_json]').click(function(){
+            var text = "\"data\": "+printJSON(callflow.jsonData);
+            dialogShow('View JSON',text,700,500);
+        });
+
+        $('button[data-action=view_conf]').click(function(){
+            var text = printConfig(callflow.jsonData);
+            dialogShow('View Config',text,700,500);
+        });
+
+        $('button[data-action=save_conf]').click(function(){
+            $('body').mask(opts);
+            $.post("/data/callflow_save/save",
+                {
+                    id: callflow.callflowId,
+                    data: JSON.stringify([callflow.jsonData])
+                },
+                function(data){
+                    if ( data.success ){
+                        showDialog('Rule','Rule success save',300,'auto');
+                        changeBtnApply(1);
+                    }
+                    else
+                        showDialog('Rule',data.message,'auto','auto');
+                    $('body').unmask();
+                }
+            );
+        });
+
+        });

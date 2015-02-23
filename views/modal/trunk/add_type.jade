@@ -1,0 +1,14 @@
+extends ../layout
+block content
+    .widget-box(style='margin-bottom: 0; margin-top: 0; overflow: hidden;')
+        form.form-horizontal(method='post')
+            input(type='hidden', name='action', value='create')
+            input(type='hidden', name='id', value='0')
+            .control-group
+              label.control-label Trunk type
+              .controls.left
+                select(name='trunk_type')
+                  option(value='SIP') SIP
+                  option(value='H323') H323
+                  option(value='IAX') IAX
+                  select

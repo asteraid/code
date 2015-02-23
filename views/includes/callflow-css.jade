@@ -1,0 +1,304 @@
+style
+    .callflow {
+        margin: 0 auto 10px;
+        width: 100%;
+        /*overflow-x: auto;*/
+        padding-top: 10px;
+        text-align: center;
+    }
+    .callflow .branch {
+        display: block;
+        text-align: center;
+        padding-left: 5px;
+    }
+
+    .callflow .children {
+        display: block;
+        white-space: pre;
+    }
+    .callflow .child {
+        display: inline-block;
+        vertical-align: top;
+        text-align: center;
+        white-space: normal;
+    }
+    .callflow .node {
+        display: inline-block;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+        cursor: grab;
+        position: relative;
+        color: #EBEBEB;
+    }
+    .callflow .node .node-options .delete {
+        background-image: url(/images/btn_delete.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 6px;
+        height: 6px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .callflow .node.ui-state-active {
+        border-radius:10px;
+        border: 3px solid #05addc;
+    }
+
+    .callflow .node.ui-state-inactive {
+        filter:alpha(opacity=50);
+        -moz-opacity:0.5;
+        -khtml-opacity: 0.5;
+        opacity: 0.5;
+    }
+
+    .callflow .node .node-options .delete:hover {
+        background-image: url(/images/btn_delete_blue.png);
+    }
+    /*
+    .callflow .icons_black.node {
+        width: 143px;
+        height: 84px;
+        background: url(/images/blackbox/blackbox_0.png) no-repeat;
+    }
+    */
+
+    .callflow .node {
+        width: 143px;
+        height: 84px;
+        background: none;
+        -webkit-border-radius: 9px;
+        -moz-border-radius: 9px;
+        border-radius: 9px;
+        -webkit-box-shadow: 3px 3px 5px 0px #2d2d2d;
+        -moz-box-shadow: 3px 3px 5px 0px #2d2d2d;
+        box-shadow: 3px 3px 5px 0px #2d2d2d;
+    }
+
+    .callflow .node {
+        background-color: #444;
+    }
+
+    .callflow .module {
+        /*font-size: 13px;*/
+        font-size: 11px;
+        height: 59px;
+        /*margin-top: 25px;*/
+        margin-top: 2px;
+        cursor: default;
+    }
+    .callflow .div_icon {
+        height: 50px;
+    }
+    .callflow .details {
+        font-size: 10px;
+        /*margin-top: -10px;*/
+        margin-top: -20px;
+        overflow: hidden;
+        height: 60px;
+    }
+    .callflow .children > .child > .span_arrow {
+        display: inline-block;
+        #width: 145px;
+        width: 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        margin: 2px 0px 2px;
+        padding: 0px;
+        position: relative;
+    }
+    .callflow .children > .child > .span_arrow.small {
+        height: 31px;
+        background-image: url(/images/center_arrow.png);
+    }
+
+    .callflow .children > .child:first-child > .span_arrow.small {
+        background-image: url(/images/left_arrow.png);
+    }
+
+    .callflow .children > .child:last-child > .span_arrow.small {
+        background-image: url(/images/right_arrow.png);
+    }
+
+    .callflow .children > .child:first-child:last-child > .span_arrow.small {
+        background-image: url(/images/small_arrow.png);
+    }
+    .callflow .children > .child > .span_arrow.large {
+        height: 48px;
+        background-image: url(/images/tall_arrow.png);
+    }
+
+    .callflow .children > .child > .div_line {
+        display: inline-block;
+        height: 6px;
+        width: 100%;
+        background-image: url(/images/line_callflow.png);
+        background-repeat: repeat-x;
+        margin-top: -33px;
+        margin-right: 0px;
+        margin-left: 0px;
+        padding: 0px;
+        float: left;
+    }
+    .callflow .children > .child:first-child > .div_line {
+        width: 50%;
+        float: right;
+    }
+    .callflow .children > .child:last-child > .div_line {
+        width: 50%;
+        float: left;
+    }
+
+    .callflow .children > .child:first-child:last-child > .div_line {
+        display: none;
+    }
+
+    .clear {
+        clear: both;
+    }
+
+    /* Item Switcher */
+    #item-switcher {
+        position: fixed;
+        width: 198px;
+        background-color: #000000;
+        z-index: 10;
+        right: 0;
+        top: 180px;
+        border-radius: 5px 0 0 5px;
+        margin-right: -168px;
+    }
+
+    #item-switcher #switcher{
+        width: 30px;
+        height: 20px;
+        float: left;
+    }
+    #item-switcher #switcher-title {
+        float:left;
+        font-size: 12px;
+        height: 20px;
+        width: 168px;
+        line-height: 25px;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    #switcher i {
+        display: inline-block;
+        margin: 5px 10px 0 10px;
+    }
+    #switcher i:hover {
+        cursor: pointer;
+    }
+
+    #switcher-title span {
+        font-weight: bold;
+        color: #ffffff;
+        display: inline-block;
+        margin: -10px 20px 0 0;
+        vertical-align:middle;
+    }
+    #item-switcher .item-box {
+        float: clear;
+        display: inline-block;
+        width: 168px;
+        margin: 0px 0px 0px 30px;
+    }
+
+    .item {
+        display: inline-block;
+        float: left;
+        width: 83px;
+        height: 57px;
+        text-align: center;
+        padding-top: 1px;
+        padding-left: 1px;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+        cursor: grab;
+        background-color: #777777;
+    }
+
+    .item-content i {
+        margin: 10px 10px 0 10px;
+    }
+
+    .item-content span {
+        font-weight: normal;
+        color: #ffffff;
+        display: block;
+        margin: 0;
+    }
+
+    .item-content {
+        /*background: url(../images/blackbox_small.png) no-repeat;*/
+        height: 56px;
+        width: 82px;
+    }
+
+    .item-content {
+        background-color: #444;
+    }
+
+    [class^="icon-mc"], [class*=" icon-mc"] {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-top: 1px;
+    line-height: 14px;
+    vertical-align: text-top;
+    /*background-image: url("../img/glyphicons-halflings.png");*/
+    background-image: url("/img/icons-mc-aster.png");
+    background-position: 14px 14px;
+    background-repeat: no-repeat;
+    }
+
+
+    .icon-mc-tp {
+      background-position: 0      0;
+    }
+
+    .icon-mc-callout {
+      background-position: -24px 0;
+    }
+
+    .icon-mc-bl {
+      background-position: -48px 0;
+    }
+
+    .icon-mc-tc {
+      background-position: -72px 0;
+    }
+
+    .icon-mc-ivr {
+      background-position: -96px 0;
+    }
+
+    .icon-mc-sound {
+      background-position: -120px 0;
+    }
+
+    .icon-mc-hangup {
+      background-position: -144px 0;
+    }
+
+    .icon-mc-group {
+      background-position: -168px 0;
+    }
+
+    .icon-mc-api {
+      background-position: -192px 0;
+    }
+
+    .icon-mc-custom {
+      background-position: -216px 0;
+    }
+
+    .icon-mc-conf {
+      background-position: -240px 0;
+    }

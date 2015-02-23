@@ -1,0 +1,24 @@
+extends layouts/main
+
+block content
+    include includes/header-nav
+
+    include includes/sidebar
+
+    include includes/style-switcher
+
+    #content
+        include includes/content-header
+        .container-fluid
+            .row-fluid
+            include includes/map.html
+            include includes/charts.html
+    include includes/footer
+
+    script( src="js/flot/excanvas.min.js")
+    script( src="js/flot/jquery.flot.min.js")
+    script( src="js/flot/jquery.flot.pie.min.js")
+    script( src="js/flot/jquery.flot.time.min.js")
+    script( src="js/flot/jquery.flot.resize.min.js")
+    script( src="js/unicorn.charts.js")
+    script( src="js/processed_calls.charts.js")

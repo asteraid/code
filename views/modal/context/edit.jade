@@ -1,0 +1,48 @@
+extends ../layout
+block content
+    .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        form.form-horizontal(name='form-basic', method='post')
+            input(type='hidden', name='action', value='edit')
+            input(type='hidden', name='id', value='')
+            .control-group
+              label.control-label Name
+              .controls.left
+                input.span6(type='text', name='name')
+                input(type='hidden', name='name_old')
+            .control-group
+              label.control-label Comment
+              .controls.left
+                textarea.span6(name='comment')
+        script(type='text/javascript')
+            $('input[name="id"]').val(currentRow.id);
+            
+            $.each(currentRow, function(index, el) {
+                if($('[name="' + index + '"]').length) {
+                    $('[name="' + index + '"]').val(el);
+                    if (index == 'name') $('[name="' + index + '_old"]').val(el);
+                }
+            });
+          
+            $(document).ready(function() {
+                $('form[name="form-basic"]').validate({
+                    errorElement: 'div',
+                    rules: {
+                        'name': {
+                            required: true,
+                            regexp: regexpPattern.name_object,
+                            maxlength: 50
+                        }
+                    },
+                    messages: {
+                        'name': {
+                            required: "Please enter name",
+                            regexp: regexpMessage.name_object,
+                            maxlength: regexpMessage.max_character
+                        }
+                    }
+                });
+
+                $('input').focus(function() {
+                    $(this).valid();
+                });
+            });

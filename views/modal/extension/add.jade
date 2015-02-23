@@ -1,0 +1,62 @@
+extends ../layout
+block content
+    .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        form#form-main.form-horizontal(action='/data/extensions/save_ext', method='post')
+            input(type='hidden', name='action', value='create')
+            .control-group
+              label.control-label Internal Number
+              .controls.left
+                input.span6(type='text', name='ext')
+            .control-group
+              label.control-label Name
+              .controls.left
+                input.span6(type='text', name='ext_name')
+            .control-group
+              label.control-label Password
+              .controls.left
+                input#secret.span6(type='text', name='secret')
+                a#generatePassword.btn.btn-small(data-clipboard-target='secret')
+                  i.icon-refresh
+                  | generate
+            .control-group
+              label.control-label Template
+              .controls.left
+                input(name='ext_template', style='width: 200px;', 'class'='input-select2')
+            .control-group
+              label.control-label Context
+              .controls.left
+                input(name='context', style='width: 200px;', 'class'='input-select2')
+        script(type='text/javascript')
+            var contextsList = getContextsList('all');
+            var templatesList = getTemplatesList();
+
+            select2Input('input[name="context"]', {data: contextsList}, false, false);
+            select2Input('input[name="ext_template"]', {data: templatesList}, false, false);
+          
+            $('#generatePassword').click(function() {
+                $('input[name="secret"]').val(getRandomPassword());
+            });
+          
+            $(document).ready(function() {
+                $("#form-main").validate({
+                    //errorElement: 'div',
+                    rules: {
+                        ext: {
+                            required: true,
+                            regexp: regexpPattern.name_object,
+                            maxlength: 50
+                        },
+                        ext_template: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        ext: {
+                            required: "Please enter internal number",
+                            regexp: regexpMessage.name_object,
+                            maxlength: regexpMessage.max_character
+                        }
+                    }
+                });
+            });
+        script(type='text/javascript', src='/js/custom/jquery.validate.focus.js')

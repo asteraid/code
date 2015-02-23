@@ -1,0 +1,17 @@
+label.error {font-size: 12px; color: #ff0000;}
+
+/* Fix modal window with datepicker issue */
+.datepicker {
+    z-index: 1200;
+}
+
+.bootstrap-timepicker-widget {
+	z-index: 1200;
+}
+
+/*Ajax Combobox Plugin*/
+.ac_container{
+	background-color: #f9f9f9;
+}
+
+.btn-apply > a {color: #fff !important; font-weight: bold !important;}

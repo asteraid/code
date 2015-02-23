@@ -1,0 +1,142 @@
+extends ../layouts/auth
+
+block content
+    .container-fluid
+        .row-fluid
+            .span3
+            .span6
+                .row-fluid
+                    .span12
+                        h4(style="color: #fff;") Installation #{title} (step 1)
+                        .widget-box
+                         form.form-horizontal
+                          input(type="hidden", name="step", value="1")
+                          input(type="hidden", name="overwrite")
+                          .widget-title
+                            span.icon
+                              i.icon-hdd
+                            h5 Database
+                          .widget-content.nopadding
+                              .control-group
+                                label.control-label Host
+                                .controls
+                                  input(type="text", name="host")
+                              .control-group
+                                label.control-label Username
+                                .controls
+                                  input(type="text", name="user")
+                              .control-group
+                                label.control-label Password
+                                .controls
+                                  input(type="password", name="password")
+                              .control-group
+                                label.control-label Password
+                                .controls
+                                  input(type="password", name="password")
+                              .control-group
+                                label.control-label Confirm password
+                                .controls
+                                  input(type="password", name="password_confirm")
+                              .control-group
+                                label.control-label Database name (configuration)
+                                .controls
+                                  input(type="text", name="db_config")
+                                  span.help-block Name of database configuration
+                              .control-group
+                                label.control-label Database name (CDR)
+                                .controls
+                                  input(type="text", name="db_cdr")
+                                  span.help-block Name of database CDR
+                              .form-actions
+                                button.btn.btn-primary(type='submit') Create New DB
+                                span  or 
+                                span
+                                    a(href="/import") Import DB Dump
+            .span3
+    div(id="modal-dialog", style="display: none;")
+
+    link( rel="stylesheet", href="/css/jquery-ui.css")
+    script( src="/js/jquery-ui.custom.js")
+    script(src="/js/custom/jquery.validate.custom.js")
+    script(src="/js/custom/common.js")
+    script
+        var default_values = !{JSON.stringify(default_values)};
+        $(document).ready(function() {
+            //default
+            setValues(default_values, 'default');
+
+            function setValues(data, type) {
+                $.each($('input'), function(index, el) {
+                    var curr_name = $(el).attr('name');
+                    if(data[curr_name] && type == 'default')
+                        $(el).val(data[curr_name]);
+                    else if(data[curr_name] && type != 'default')
+                        $(el).val('');
+                });
+            }
+        
+            $('form').validate({
+                submitHandler: function(form) {
+                    sendData(form);
+                    return false;
+                },
+                rules: {
+                    host: {
+                        required: true
+                    },
+                    user: {
+                        required: true
+                    },
+                    db_config: {
+                        required: true,
+                    },
+                    db_cdr: {
+                        required: true,
+                        notEqual: 'input[name="db_config"]'
+                    }
+                },
+                messages: {
+                    db_cdr: {
+                        notEqual: 'Input the different name (not "Database name (configuration)")'
+                    }
+                }
+            });
+            
+            function sendData(form) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/data/installer',
+                    data: $(form).serialize(),
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+
+                        if(data.success)
+                            window.location.href = '/';
+                        else {
+                            if(data.match) {
+                                var buttons = [
+                                    {
+                                        text: 'Cancel',
+                                        "class": 'btn',
+                                        click: function() {
+                                            $(this).dialog("close");
+                                        }
+                                    },
+                                    {
+                                        text: 'OK',
+                                        "class": 'btn',
+                                        click: function() {
+                                            $('input[name="overwrite"]').val(1);
+                                            sendData(form);
+                                            $(this).dialog("close");
+                                        }
+                                    }
+                                ];
+                                showDialog('Warning!', data.message, 'auto', 'auto', buttons);
+                            } else showDialog('Information', data.message, 'auto', 'auto');
+                        }
+                    }
+                });
+            }
+        });

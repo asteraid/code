@@ -1,0 +1,12 @@
+extends ../layout
+block content
+    .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        form#callflow.form-horizontal(method='post')
+            input(type='hidden', name='id')
+            .control-group
+              label.control-label Name
+              .controls.left
+                input.span6(type='text', name='name')
+        script(type='text/javascript')
+          $('input[name="id"]').val(currentRow.id);
+          $('input[name="name"]').val(currentRow.name);

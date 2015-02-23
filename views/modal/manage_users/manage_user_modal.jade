@@ -1,0 +1,156 @@
+extends ../layout
+block content
+	div.widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+		form#form-main.form-horizontal(action="data/extensions/save_ext", method="post")
+				
+			input(type="hidden", name="action", value=req_params.action)
+			input(type="hidden", name="id")
+			div.control-group
+				label.control-label Login
+				div.controls.left
+					input.span6(type="text", name="login")
+			div.control-group
+				label.control-label Password
+				div.controls.left
+					input.span6(type="text", id="password", name="password")
+					a#generatePassword.btn.btn-small(data-clipboard-target="password")
+						i.icon-refresh
+						span &nbsp;generate
+			div.control-group
+				label.control-label Name
+				div.controls.left
+					input.span6(type="text", name="name")
+			div.control-group
+				label.control-label Surname
+				div.controls.left
+					input.span6(type="text", name="surname")
+			div.control-group
+				label.control-label Second Name
+				div.controls.left
+					input.span6(type="text", name="secname")
+			
+			div.control-group
+				label.control-label User Type
+				.controls.left
+					input.input-select2(name='user_type', type='text', style='width: 150px;', 'class'='input-select2')
+					
+			div.control-group
+				label.control-label User Modules
+				.controls.left
+					input.input-select2(name='user_modules', type='text', style='width: 82% !important;', 'class'='input-select2')
+
+
+
+	script(type="text/javascript")
+
+		var modulesList = [];
+		$.ajax({
+			type: 'GET',
+			url: '/data/manage_users/get_modules_list',
+			dataType: 'json',
+			async: false,
+			success: function(data) {
+				if(data.success){
+					$.each(data.rows, function(index, el) {
+						modulesList.push({id: el.id, text: el.name, icon: el.icon});
+					});
+				}
+				
+				select2Input('input[name="user_modules"]', {data: modulesList}, true, false);
+			}
+		});
+		
+		
+		var userTypesList = [];
+		
+		$.ajax({
+			type: 'GET',
+			url: '/data/manage_users/get_user_types_list',
+			dataType: 'json',
+			async: false,
+			success: function(data) {
+				if(data.success){
+					$.each(data.rows, function(index, el) {
+						userTypesList.push({id: el.id, text: el.name, icon: el.icon});
+					});
+				}
+				
+				select2Input('input[name="user_type"]', {data: userTypesList}, false, false);
+			}
+		});
+		
+		
+
+		var action = '#{req_params.action}';
+		
+
+		if(action && action == 'edit'){
+			// заполняем данными форму
+			$.ajax({
+				type: 'POST',
+				data: {id: currentRow.id},
+				url: '/data/manage_users/get_user_data',
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					if(data.success){
+						$.each(data.data, function(index, el) {
+							
+							if($('[name="' + index + '"]').length) {
+								if (index === 'user_modules') {
+									
+									var selected_modules = [];
+									
+									$.each(modulesList, function(index, element) {
+										$.each(el, function(index, user_module_id){
+											if (element.id === user_module_id) {
+												selected_modules.push(element);
+											}
+										
+										});
+
+										
+									});
+									
+									$('[name="user_modules"]').select2('data', selected_modules);
+							
+								}
+								else if(index === 'user_type'){
+						
+									$('[name="' + index + '"]').select2('val', el);
+								}
+								else {
+									$('[name="' + index + '"]').val(el);
+								}
+							}
+						});
+					}
+				}
+			});
+		}
+		
+		$('#generatePassword').click(function() {
+			$('input[name="password"]').val(getRandomPassword());
+		});
+
+		$(document).ready(function() {
+			$("#form-main").validate({
+				errorElement: 'div',
+				rules: {
+					login: {
+						required: true,
+						regexp: regexpPattern.name_object,
+						maxlength: 50
+					}
+				},
+				messages: {
+					login: {
+						required: "Please enter Login",
+						regexp: regexpMessage.name_object,
+						maxlength: regexpMessage.max_character
+					}
+				}
+			});
+
+		});
+	script(type="text/javascript", src='/js/custom/jquery.validate.focus.js')

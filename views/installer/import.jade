@@ -1,0 +1,117 @@
+extends ../layouts/auth
+
+block content
+    .container-fluid
+        .row-fluid
+            .span3
+            .span6
+                .row-fluid
+                    .span12
+                        h4(style="color: #fff;") Import DB Dump
+                        .widget-box
+                         form.form-horizontal(enctype="multipart/form-data")
+                          input(type="hidden", name="step", value="import")
+                          input(type="hidden", name="overwrite")
+                          .widget-title
+                            span.icon
+                              i.icon-hdd
+                            h5 Database
+                          .widget-content.nopadding
+                              .control-group
+                                label.control-label Host
+                                .controls
+                                  input(type="text", name="host", value="localhost")
+                              .control-group
+                                label.control-label Username
+                                .controls
+                                  input(type="text", name="user")
+                              .control-group
+                                label.control-label Password
+                                .controls
+                                  input(type="password", name="password")
+                              .control-group
+                                label.control-label Database name (configuration)
+                                .controls
+                                  input(type="text", name="db_config")
+                                  span.help-block Name of database configuration
+                              .control-group
+                                label.control-label Dump
+                                .controls
+                                  input(type="file", name="file_config")
+                                  span.help-block Dump file *.sql
+                              .form-actions
+                                button.btn.btn-primary(type='submit') Import DB Dump
+            .span3
+    div(id="modal-dialog", style="display: none;")
+
+    link( rel="stylesheet", href="/css/jquery-ui.css")
+    script( src="/js/jquery-ui.custom.js")
+    script(src="/js/custom/jquery.validate.custom.js")
+    script(src="/js/custom/common.js")
+    script
+        $(document).ready(function() {
+        
+            $('form').validate({
+                submitHandler: function(form) {
+                    sendData(form);
+                    return false;
+                },
+                rules: {
+                    host: {
+                        required: true
+                    },
+                    user: {
+                        required: true
+                    },
+                    db_config: {
+                        required: true,
+                    },
+                    file_config: {
+                        required: true
+                    }
+                },
+                messages: {}
+            });
+            
+            function sendData(form) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/data/installer',
+                    //data: $(form).serialize(),
+                    data: new FormData(form),
+                    processData: false,
+                    contentType: false,
+
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+
+                        if(data.success)
+                            window.location.href = '/';
+                        else {
+                            if(data.match) {
+                                var buttons = [
+                                    {
+                                        text: 'Cancel',
+                                        "class": 'btn',
+                                        click: function() {
+                                            $(this).dialog("close");
+                                        }
+                                    },
+                                    {
+                                        text: 'OK',
+                                        "class": 'btn',
+                                        click: function() {
+                                            $('input[name="overwrite"]').val(1);
+                                            sendData(form);
+                                            $(this).dialog("close");
+                                        }
+                                    }
+                                ];
+                                showDialog('Warning!', data.message, 'auto', 'auto', buttons);
+                            } else showDialog('Information', data.message, 'auto', 'auto');
+                        }
+                    }
+                });
+            }
+        });

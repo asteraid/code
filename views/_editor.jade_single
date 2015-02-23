@@ -1,0 +1,263 @@
+extends layouts/editor
+
+block content
+    include includes/header-nav
+    
+    include includes/sidebar
+    #content
+        include includes/content-header
+        .container-fluid
+            .row-fluid
+                #editor_tabs.span12
+                    ul(id="main-tabs", class="nav nav-pills", style="margin:10px;")
+                    div(id="main-tabs-content", class="tab-content")
+
+                        
+    include includes/footer
+
+    script( src="/js/modal/ace/ace.js", type="text/javascript", charset="utf-8")
+    script( src="/js/modal/ace/mode-ini.js", type="text/javascript", charset="utf-8")
+    script
+        var contexts_id = [];
+        
+        $(document).ready(function() {
+            var data = getConfigList();
+            if(data.success) {
+                var main_tabs_li = '';
+                var main_tabs_content = '';
+
+                $.each(data.configs, function(index, el) {
+                    main_tabs_li = '<li><a href="#tab_'+index+'" data-toggle="tab" tab-number="' + index + '">' + el + '</a></li>';
+                    main_tabs_content = '<div class="tab-pane" id="tab_' + index + '"></div>';
+                    $('#main-tabs').append(main_tabs_li);
+                    $('#main-tabs-content').append(main_tabs_content);
+                });
+
+                $('#main-tabs a[href*="#tab"]').click(function() {
+                    var tab_number = $(this).attr('tab-number');
+                    if(!$('#tab_' + tab_number + ' div').hasClass('tabbable'))
+                        loadConfig(tab_number);
+                });
+
+                //active 0 tab by default
+                $('a[href="#tab_0"]').click();
+            }
+        });
+        
+        function loadConfig(num) {
+
+            var tab_name = $('a[tab-number=' + num + ']').html();
+
+            var data = getConfig(tab_name);
+            if(data.success) {
+                var content         = '',
+                    buttons         = '',
+                    btn_refresh     = '',
+                    btn_save        = '';
+
+                //40px - height servers tabs
+                var editor_height = $('#content').height() - $('#content-header').height() - $('#breadcrumb').height() - $('#main-tabs').height() - 40;
+                console.info(editor_height);
+                content = '<div class="tab-pane" config-name="' + tab_name + '" id="editor_' + num + '" style="margin-top:10px; height: ' + editor_height + 'px;"></div>';
+                buttons = '<button data-action="refresh" class="btn btn-mini btn-primary"><i class="icon-refresh icon-white"></i> Refresh</button>&nbsp;'
+                
+                switch(tab_name) {
+                    case 'extensions.conf':
+                    case 'sip.conf':
+                    case 'ooh323.conf':
+                    case 'iax.conf':
+                    break;
+                    default:
+                        buttons += '<button data-action="save" class="btn btn-mini btn-success"><i class="icon-ok icon-white"></i> Save</button>';
+                }
+                
+                $('#tab_' + num).html('<div class="tabbable tabs-nav">' + buttons + content + '</div>');
+                
+                var current_editor = $('#editor_' + num);
+                current_editor = (current_editor.length > 0 ? current_editor[0] : undefined);
+                setEditorValue(current_editor, data.content);
+                
+                $('button[data-action="refresh"]')
+                    .unbind('click')
+                    .bind('click', function() {
+                        var current_container   = $(this).siblings('div[id*="editor_"]:visible');
+                        if(current_container.length > 0) {
+                            current_container = current_container[0];
+                            var current_config_name = $(current_container).attr('config-name');
+                            setEditorValue(current_container, getConfig(current_config_name).content);
+                        }
+                    });
+
+                $('button[data-action="save"]')
+                    .unbind('click')
+                    .bind('click', function() {
+                        //find visible content
+                        var deleted             = 0;
+                        var current_container   = $(this).siblings('div[id*="editor_"]:visible');
+                        current_container = current_container[0];
+                        var current_config_name = $(current_container).attr('config-name');
+                        var editor_id           = $(current_container).attr('id');
+                        var current_editor      = ace.edit(current_container);
+
+                        if(tab_name == 'extensions-custom.conf') {
+                            var current_containers      = $(this).siblings('div[id*="editor_"]');
+                            var content_all_servers     = '';
+                            $.each(current_containers, function(index, el) {
+                                content_all_servers += ace.edit(el).getSession().getValue();
+                            });
+
+                            deleted = getDeletedContexts(content_all_servers);
+                        }
+
+                        $.ajax({
+                            type: 'GET',
+                            url: '/data/editor/save_config',
+                            data: {
+                                config_content: prep_data2db(current_config_name, current_editor),
+                                config_name: current_config_name,
+                                deleted: deleted
+                            },
+                            dataType: 'json',
+                            async: false,
+                            success: function(data) {
+                                if(data.success) {
+                                    setEditorValue(current_container, getConfig(current_config_name).content);
+                                }
+                                showDialog('Editor',data.message, 300, 'auto');
+                                changeBtnApply(1);
+                            }
+                        });
+                    });
+            }
+        }
+        
+        function getConfigList() {
+            var response = '';
+            
+            $.ajax({
+                type: 'GET',
+                url: '/data/editor/list_configs',
+                dataType: 'json',
+                async: false,
+                success: function(data) {
+                    response = data;
+                }
+            });
+            
+            return response;
+        }
+        
+        function getConfig(name) {
+            var response = '';
+            
+            $.ajax({
+                type: 'GET',
+                url: '/data/editor/get_config',
+                data: {config_name: name},
+                dataType: 'json',
+                async: false,
+                success: function(data) {
+                    response = data;
+                }
+            });
+            
+            return response;
+        }
+        
+        function setEditorValue(element, value) {
+            var editor          = ace.edit(element);
+            var JavaScriptMode  = require("ace/mode/ini").Mode;
+            editor.getSession().setMode(new JavaScriptMode());
+
+            if(value !== undefined) {
+                value = value.replace(/same/g, '  same');
+                editor.setValue(value);
+            }
+            
+            editor.clearSelection();
+            editor.gotoLine(1);
+        }
+        
+        function getDeletedContexts(editor) {
+            //var content             = editor.getValue().split('\n');
+            var content             = editor.split('\n');
+            var context_regex       = /^\[(.+)\]$/;
+
+            //копирование по значению
+            var contexts_id_deleted = contexts_id.slice(0);
+
+            content.forEach(function(row) {
+                var matched_context = row.match(context_regex);
+                if(matched_context) {
+                    for(i=0; i<contexts_id_deleted.length; i++) {
+                        if(contexts_id_deleted[i].name == matched_context[1])
+                            contexts_id_deleted.splice(i, 1);
+                    }
+                }
+            });
+
+            var deleted = [];
+            if(contexts_id_deleted.length > 0) {
+                contexts_id_deleted.forEach(function(row) {
+                    deleted.push(row.id);
+                });
+            }
+
+            return deleted.join();
+        }
+        
+        function prep_data2db(config, editor) {
+                var data = editor.getValue().replace(/'/g,'"');
+                data = data.split('\n');
+                var context_regex = /^\[(.+)\]$/;
+                var good_row_regex = /^\s*(\w+)\s*(?:=>|=)\s*(.+)$/;
+                var last_context    = '';
+                var cat_metric        = 0;
+                var var_metric        = -1;
+                var insert_row        = '';
+                var result            = '';
+                config = config.replace('-custom', '');
+
+                data.forEach(function(row) {
+                    row = $.trim(row);
+                    var matched_context            = row.match(context_regex);
+                    var matched_good_row_regex    = row.match(good_row_regex);
+
+                    if(matched_good_row_regex) {
+                        var_metric++;
+                        var splited_row = row.split('=>');
+                        
+                        insert_row                  = {};
+                        insert_row['config_name']   = config;
+                        insert_row['category']      = last_context;
+                        insert_row['var_name']      = matched_good_row_regex[1];
+                        insert_row['var_val']       = matched_good_row_regex[2];
+                        insert_row['cat_metric']    = cat_metric;
+                        insert_row['var_metric']    = var_metric;
+                        
+                        if(insert_row.hasOwnProperty("category"))
+                            result += "('" + insert_row['config_name'] + "', 0, 0,'" +  insert_row['category'] + "', '" + insert_row['var_name'] + "', '" + insert_row['var_val'] + "', " + insert_row['cat_metric'] + ", " + insert_row['var_metric'] + "),";
+                    } else {
+                        if(matched_context) {
+                            last_context = matched_context[1];
+                            var_metric = -1;
+                            cat_metric++
+
+                            if(config.replace('-custom', '') == 'extensions.conf')
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/data/editor/get_context_id',
+                                    data: {context_name: last_context, config_name: config},
+                                    dataType: 'json',
+                                    async: false,
+                                    success: function(data) {
+                                        data.success ? cat_metric = data.id : cat_metric = 0;
+                                    }
+                                });
+                        }
+                        
+                    }
+                });
+
+                return result.substring(0, result.length-1); 
+        }

@@ -1,0 +1,13 @@
+{
+    "listCanreinvite": {"selected": 1, "data": [{"id": "yes", "text": "yes"}, {"id": "no", "text": "no"}, {"id": "nonat", "text": "nonat"}, {"id": "update", "text": "update"}, {"id": "update,nonat", "text": "update,nonat"}]} ,
+    "listAllow" : {"data": [{"id": "alaw", "text": "alaw"}, {"id": "ulaw", "text": "ulaw"}, {"id": "gsm", "text": "gsm"}]} ,
+    "listType" : {"selected": "2", "data": [{"id": "peer", "text": "peer"}, {"id": "user", "text": "user"}, {"id": "friend", "text": "friend"}]} ,
+    "listQualify" : {"selected": "1", "data": [{"id": "yes", "text": "yes"}, {"id": "no", "text": "no"}]} ,
+    "listInsecure" : {"selected": "0", "data": [{"id": "port", "text": "port"}, {"id": "invite", "text": "invite"}]} ,
+    "listNat": {"data": [{"id": "no", "text": "no"}, {"id": "force_rport", "text": "force_rport"}, {"id": "comedia", "text": "comedia"}]} ,
+    "listRecord" : {"data": [{"id": "in", "text": "in"}, {"id": "out", "text": "out"}]} ,
+    "listDisableRule" : {"selected": "no", "data": [{"id": "yes","text": "yes"}, {"id": "no", "text": "no"}]} ,
+    "listCIDPriority" : {"selected": "TRUNKCID", "data": [{"id": "TRUNKCID", "text": "TRUNKCID"}, {"id": "CLID", "text": "CLID"}]} ,
+    "listTrunkType" : {"selected": "SIP", "data": [{"id": "SIP", "text": "SIP"}, {"id": "OOH323", "text": "OOH323"}]} ,
+    "listStrategy": { "data" : [{"id":"ringall", "text":"ringall"},{"id":"leastrecent", "text":"leastrecent"},{"id":"fewestcalls", "text":"fewestcalls"},{"id":"random", "text":"random"},{"id":"rrmemory", "text":"rrmemory"},{"id":"rrordered", "text":"rrordered"},{"id":"linear", "text":"linear"},{"id":"wrandom", "text":"wrandom"}]}
+}

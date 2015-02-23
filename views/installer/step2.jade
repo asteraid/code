@@ -1,0 +1,70 @@
+extends ../layouts/auth
+
+block content
+    .container-fluid
+        .row-fluid
+            .span3
+            .span6
+                .row-fluid
+                    .span12
+                        h4(style="color: #fff;") Installation #{title} (step 2)
+                        .widget-box
+                         form.form-horizontal
+                          input(type="hidden", name="step", value="2")
+                          .widget-title
+                            span.icon
+                              i.icon-user
+                            h5 Create user
+                          .widget-content.nopadding
+                              .control-group
+                                label.control-label Username
+                                .controls
+                                  input(type="text", name="login")
+                              .control-group
+                                label.control-label Password
+                                .controls
+                                  input(type="password", name="password")
+                              .control-group
+                                label.control-label Confirm password
+                                .controls
+                                  input(type="password", name="password_confirm")
+                              .form-actions
+                                button.btn.btn-primary(type="submit") Save
+            .span3
+    script
+        $(document).ready(function() {
+            $('form').validate({
+                submitHandler: function(form) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/data/installer',
+                        data: $(form).serialize(),
+                        dataType: 'json',
+                        async: false,
+                        success: function(data) {
+                            if(data.success)
+                                window.location.href = '/';
+                            else
+                                console.info(data.message);
+                        }
+                    });
+                    
+                    return false;
+                },
+                rules: {
+                    login: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 4
+                    },
+                    password_confirm: {
+                        required: true,
+                        minlength: 4,
+                        equalTo: 'input[name="password"]'
+                    },
+                },
+                messages: {}
+            });
+        });

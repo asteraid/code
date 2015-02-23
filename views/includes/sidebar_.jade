@@ -1,0 +1,43 @@
+#sidebar
+    ul
+        li( class=itemUrl == '/' ? 'active' : '' )
+            a( href="/") 
+                i.icon.icon-home 
+                span Home Dashboard
+        li( class=itemUrl == '/trunks' ? 'active' : '' ) 
+            a( href="/trunks") 
+                i.icon.icon-road 
+                span Trunks
+                span.label #{trunk_items}
+        li( class=itemUrl == '/contexts' ? 'active' : '' ) 
+            a( href="/contexts") 
+                i.icon.icon-check
+                span Contexts
+                span.label #{context_items}
+        li( class=itemUrl == '/rules' ? 'active' : '' ) 
+            a( href="/rules") 
+                i.icon.icon-check
+                span Rules
+                span.label #{rule_items}
+        li( class=itemUrl == '/templates' ? 'active' : '' ) 
+            a( href="/templates") 
+                i.icon.icon-th-large 
+                span Templates
+                span.label #{template_items}
+        li( class=itemUrl == '/extensions' ? 'active' : '' ) 
+            a( href="/extensions") 
+                i.icon.icon-th-list 
+                span Extentions
+                span.label #{extention_items}
+        li( class=itemUrl == '/callhistory' ? 'active' : '' ) 
+            a( href="/callhistory") 
+                i.icon.icon-list-alt 
+                span Call history
+        li( class=itemUrl == '/editor' ? 'active' : '' ) 
+            a( href="/editor") 
+                i.icon.icon-edit 
+                span Editor
+        li( class=itemUrl == '/logs' ? 'active' : '' ) 
+            a( href="/logs") 
+                i.icon.icon-edit 
+                span Logs

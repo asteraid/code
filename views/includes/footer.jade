@@ -1,0 +1,100 @@
+div(id="modal-dialog", style="display: none;")
+#footer.span12
+
+script(type='text/javascript', src=socketio_src )
+script(type='text/javascript')
+    var user = '#{user}';
+    var company = '#{company}';
+    var companyId = '#{companyId}';
+    var sessionID = '#{sessionID}';
+    var statusBtnApply = '#{statusBtnApply}';
+script
+    if ( typeof(io) == 'undefined' )
+          {
+              alert('socket.io error! restart ...');
+              window.location.reload();
+          }
+    
+script( src="/js/jquery.min.js")
+script( src="/js/jquery.cookie.js")
+script( src="/js/jquery-ui.custom.js")
+script( src="/js/bootstrap.min.js")
+script( src="/js/bootstrap-datepicker.js")
+script( src="/js/bootstrap-timepicker.min.js")
+script( src="/js/bootstrap-colorpicker.js")
+script( src="/js/moment.min.js", type="text/javascript", charset="utf-8")
+script( src="/js/jquery.uniform.js")
+script( src="/js/select2.min.js")
+script( src="/js/unicorn.js")
+
+
+link( rel="stylesheet", href="/js/modal/loadmask/jquery.loadmask.spin.css" )
+style
+    input.error {border: 1px #ff0000 solid;}
+    div.error {color: #ff0000; font-size: 13px;}
+script( src="/js/modal/loadmask/spin.min.js")
+script( src="/js/modal/loadmask/jquery.loadmask.spin.js")
+script( src="/js/custom/common.js")
+script
+    // spinner
+    var opts = {
+        spinner: {
+            lines: 13, // The number of lines to draw
+            length: 20, // The length of each line
+            width: 10, // The line thickness
+            radius: 30, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#000', // #rgb or #rrggbb
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: 'auto', // Top position relative to parent in px
+            left: 'auto' // Left position relative to parent in px
+        },
+        delay: 1000
+    };
+
+    $(document).ready(function(){
+        if(statusBtnApply == "1") changeBtnApply(1);
+
+        //$('#user-nav a[title="Apply config"]').click(function() {
+        $('#user-nav #execApply').click(function() {
+            //console.log('apply config');
+            //var spinner = new Spinner(opts).spin(document.body);
+            $('body').mask(opts);
+            $.post("/data/exec/apply_config",
+                {
+                },
+                function(data){
+                    //spinner.stop();
+                    $('body').unmask();
+                    if ( data.success ){
+                       showDialog('Apply command', "<p>Apply command executed</p>", 300, 'auto');
+                       changeBtnApply(2);
+                    }
+                    else
+                       showDialog('Apply command', "<p>"+data.message+"</p>", 'auto', 'auto');
+                }
+            );
+        });
+        
+        $('#execAsteriskRestart').click(function() {
+            $('body').mask(opts);
+            $.post("/data/exec/asterisk_restart", {},
+                function(data){
+                    //spinner.stop();
+                    $('body').unmask();
+                    if ( data.success ){
+                       showDialog('Apply command', "<p>Asterisk restart command executed</p>", 300, 'auto');
+                    }
+                    else
+                       showDialog('Asterisk restart command', "<p>"+data.message+"</p>", 'auto', 'auto');
+                }
+            );
+        });
+    });

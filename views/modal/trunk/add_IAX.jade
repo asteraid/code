@@ -1,0 +1,100 @@
+extends ../layout_trunk
+block content
+    script(type='text/javascript', src='/js/modal/trunk/create.js')
+    if multi
+      script(type='text/javascript', src='/js/modal/trunk/typeIAX_multi.js')
+    else
+      script(type='text/javascript', src='/js/modal/trunk/typeIAX.js')
+    .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        .widget-title
+            ul.nav.nav-tabs
+              li.active
+                a(href='#tab1', data-toggle='tab') Basic
+              li
+                a(href='#tab2', data-toggle='tab') Advanced
+              li
+                a(href='#tab3', data-toggle='tab') Expert
+          .widget-content.tab-content
+            #tab1.tab-pane.active
+              form(name='form-basic', method='get')
+                .form-horizontal
+                  .control-group
+                    label.control-label Name
+                    .controls.left
+                      input.span6(type='text', name='name')
+                  .control-group
+                    label.control-label Host
+                    .controls.left
+                      input(type='text', name='host', value='dynamic')
+                  .control-group
+                    label.control-label Codecs
+                    .controls.left
+                      input(type='hidden', name='disallow', value='all')
+                      input(type='text', name='allow')
+                  .control-group
+                    label.control-label Context
+                    .controls.left
+                      input.span6(name='context', type='text', value='from-trunk')
+                      
+                  if multi
+                    .control-group
+                      label.control-label Target server
+                      .controls.left
+                        input.input-select2(name='node', type='text')
+
+                  .control-group
+                    label.control-label Disabled
+                    .controls.left
+                      input.input-select2(name='commented', type='text', style='min-width: 200px;')
+                  .control-group
+                    label.control-label Comment
+                    .controls.left
+                      textarea(name='comment')
+            #tab2.tab-pane
+              form(name='form-advanced', method='get')
+                .form-horizontal
+                  .control-group
+                    label.control-label No Transfer
+                    .controls.left
+                      input(name='notransfer', type='text', style='min-width: 200px;', value='yes')
+                  .control-group
+                    label.control-label Qualify
+                    .controls.left
+                      input(name='qualify', type='text', style='min-width: 200px;', value='yes')
+                  .control-group
+                    label.control-label Permit
+                    .controls.left
+                      input(name='permit', type='text', style='min-width: 200px;', value='')
+                  .control-group
+                    label.control-label Deny
+                    .controls.left
+                      input(name='deny', type='text', style='min-width: 200px;', value='')
+                  .control-group
+                    label.control-label Secret
+                    .controls.left
+                      input(name='secret', type='text', style='min-width: 200px;', value='')
+                  .control-group
+                    label.control-label Default IP
+                    .controls.left
+                      input(name='defaultip', type='text', style='min-width: 200px;', value='')
+                  .control-group
+                    label.control-label Type
+                    .controls.left
+                      input(name='type', type='text', style='min-width: 200px;')
+                  .control-group
+                    label.control-label Caller ID
+                    .controls.left
+                      input(name='CallerID', type='text', style='min-width: 200px;', value='')
+            #tab3.tab-pane(style='text-align: center;')
+              form(name='form-expert', method='get')
+                input(type='hidden', name='custom_type', value='IAX2')
+                input(type='hidden', name='action', value='create')
+                .row-fluid(style='text-align: left;')
+                  .span6
+                    h5 Basic + Advanced:
+                    textarea(name='config_1', style='display: none;')
+                    #config_1(style='width: 100%; height: 250px;')
+                  .span6
+                    h5 Expert:
+                    textarea(name='config_2', style='display: none;')
+                    #config_2(style='width: 100%; height: 250px;')

@@ -1,0 +1,11 @@
+#sidebar
+    ul
+        - sidebar_items.forEach(function(item) {
+            li(class="#{item.class}")
+                a(href="#{item.href}")
+                    i(class="#{item.icon}")
+                    span #{item.name}
+                    - if(item.count)
+                    span.label #{item.count}
+                    
+        - })

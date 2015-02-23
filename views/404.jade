@@ -1,0 +1,18 @@
+extends layouts/main
+
+block content
+    include includes/header-nav
+
+    include includes/sidebar
+
+    include includes/style-switcher
+
+    #content
+        include includes/content-header
+        .container-fluid
+            .row-fluid
+                .alert.alert-error
+                    strong Warning!
+                    span This item is under construction!
+
+    include includes/footer404

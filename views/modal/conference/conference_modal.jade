@@ -1,0 +1,91 @@
+extends ../layout
+block content
+	.widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+		div.widget_content
+			form#form-main.form-horizontal(action='/data/conference/save_conference', method='post')
+				input(type='hidden', name='action', value=req_params.action)
+				input(type='hidden', name='id', value=req_params.id)
+				.control-group
+					label.control-label Conference Name
+					.controls.left
+						input.span6(type='text', name='title', value=req_params.title)
+					
+				.control-group
+					label.control-label Conference Number
+					.controls.left
+						input.span6(type='text', name='conf_num', value=req_params.conf_num)
+				
+				.control-group
+					label.control-label Date
+					.controls.left
+						div.input-append.date#start_date(data-date=req_params.start_date, data-date-format="yyyy-mm-dd")
+							input.span2(name="start_date", size="16", type="text", value=req_params.start_date, style="width: 80px !important")
+							span.add-on
+								i.icon-th
+				div.control-group
+					label.control-label Start Time
+					.controls.left
+						div.input-append.bootstrap-timepicker
+							input#start_time.input-small(name="start_time", type="text", value=req_params.start_time, style="width: 80px !important")
+							span.add-on
+								i.icon-time
+				div.control-group
+					label.control-label End Time
+					.controls.left
+						div.input-append.bootstrap-timepicker
+							input#end_time.input-small(name="end_time", type="text", value=req_params.end_time, style="width: 80px !important")
+							span.add-on
+								i.icon-time
+				div.control-group
+					label.control-label Repeat Every
+					.controls.left
+						select(name='repeat_every', style='width: 200px;')
+	
+				div.control-group
+					label.control-label Extensions
+					.controls.left
+						input.input-select2(name='ext_list', type='text', style='width: 82% !important;',  value=req_params.ext_list)
+
+		script(type='text/javascript')
+		
+			//Repeat Every select
+			var repeat_every = '#{req_params.repeat_every}',
+				repeat_every_arr = ['No-Repeat', 'Day', 'Week', 'Month']
+				selected = false;
+				
+				$.each(repeat_every_arr, function(key, value){
+					if(repeat_every != 'undefined' && value == repeat_every){
+						selected = 'selected';
+					}
+					else{
+						selected = '';
+					}
+					
+					$('select[name="repeat_every"]')
+						.append($("<option " + selected + " ></option>")
+						.attr("value", value)
+						.text(value)); 
+					
+				});
+			
+			
+			
+			
+			//Extentions multiselect
+			select2Input('input[name="ext_list"]', {data: getExtensionsList('')}, true, false);
+			
+			var ext_list_str = '#{req_params.ext_list}';
+			
+			if(ext_list_str != 'undefined' && ext_list_str != ''){
+				var ext_list_arr = ext_list_str.split(',');
+				
+				var ext_list = [];
+				
+				for(i in ext_list_arr){
+					var ext = ext_list_arr[i];
+					ext_list.push({id: ext, text: ext});
+				}
+				
+				
+				$('input[name="ext_list"]').select2('data', ext_list);
+			}

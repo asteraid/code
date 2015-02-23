@@ -1,0 +1,10 @@
+#content-header(style="min-height: 0px;")
+#breadcrumb
+    a( href="#", title="Go to Home", class="tip-bottom")
+        i.icon-home 
+        Home
+    - if ( itemName=='' )
+        a( href="#", class="current") #{item}
+    - else
+        a( href="#") #{item}
+        a( href="#", class="current") #{itemName}

@@ -1,0 +1,49 @@
+<div class="row-fluid">
+					<div class="span12">
+						<div class="widget-box">
+							<div class="widget-title">
+								<span class="icon">
+									<i class="icon-globe"></i>
+								</span>
+								<h5>Map</h5>
+							</div>
+							<div class="widget-content">
+
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["map"]});
+      google.load('visualization', '1', {packages:['table']});
+      google.setOnLoadCallback(drawMap);
+      function drawMap() {
+        var data = google.visualization.arrayToDataTable([
+          ['Lat', 'Lon', 'Name'],
+          [55.747212, 37.622223, 'Server1'],
+          [9.449062, 38.261712, 'Server2'],
+          [-24.20689, 133.535149, 'Server3'],
+          [37.4422, -122.1731, 'Server4']
+        ]);
+
+        var map = new google.visualization.Map(document.getElementById('map_div'));
+        map.draw(data, {showTip: true});
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(data, {showRowNumber: true});
+        google.visualization.events.addListener(table, 'select', function() { map.setSelection(table.getSelection()); });
+        google.visualization.events.addListener(map, 'select', function() { table.setSelection(map.getSelection()); });
+      }
+    </script>
+  <table style="border: 0">
+  <tr valign="top">
+    <td style="border: 0">
+      <div id="map_div" style="width: 400px; height: 300px"></div> 
+    </td>
+    <td style="border: 0; width: 30px;"></td>
+    <td style="border: 0; width: 400px;">
+      <div id="table_div"></div>
+    </td>
+  </tr>
+ </table>
+							</div>
+						</div>
+					</div>
+				</div>

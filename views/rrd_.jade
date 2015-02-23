@@ -1,0 +1,184 @@
+extends layouts/extensions
+
+block content
+	include includes/header-nav
+	
+	include includes/sidebar
+	#content
+		include includes/content-header
+		.container-fluid
+			.row-fluid
+				.span12
+					.dashboard.text-center
+						.easy-pie-item
+							.easy-pie-chart(data-percent="73", data-bar-color="#333", data-track-color="#e5e5e5")
+								span 55%
+							label test
+							
+						.easy-pie-item
+							.easy-pie-chart(data-percent="10", data-bar-color="#00ff00")
+								span 55%
+							label test
+							
+						.easy-pie-item
+							.easy-pie-chart(data-percent="10", data-bar-color="#00ff00")
+								span 55%
+							label test
+						
+						.easy-pie-item
+							.easy-pie-chart(data-percent="10", data-bar-color="#00ff00")
+								span 55%
+							label test
+							
+						.easy-pie-item
+							.easy-pie-chart(data-percent="10", data-bar-color="#00ff00")
+								span 55%
+							label test
+					div(style="clear: both;")
+					
+					#items(align="center")
+
+	include includes/footer
+	script(type="text/javascript", src="/js/flot/jquery.flot.js")
+	script(type="text/javascript", src="/js/flot/jquery.flot.pie.js")
+	script(type="text/javascript", src="/js/flot/jquery.flot.navigate.js")
+	script(type="text/javascript", src="/js/flot/jquery.flot.time.js")
+	script(type="text/javascript", src="/js/easypiechart/jquery.easypiechart.js")
+	style
+		.graph {width: 600px; height: 400px;}
+		.btns button {margin-left: 3px; margin-right: 3px;}
+		.easy-pie-item {float: left; text-align: center; margin: 0 5px 0 5px;}
+			.easy-pie-item .easy-pie-chart {line-height: 110px; width: 110px; height: 110px;}
+			.easy-pie-item span {width: 110px; text-align: center; position: absolute;}
+	script
+		$('.easy-pie-chart').easyPieChart({
+			lineWidth: 20,
+			lineCap: 'square',
+			scaleLength: 0,
+			//scaleColor: '#00ff00'
+		});
+
+	script
+		var list_graphs = getListGraphs();
+		var options = {};
+		var data = [];
+		
+		var options_plot = {};
+		options_plot['lines'] = {
+			series: {
+				lines: {
+					show: true
+				},
+				shadowSize: 0
+			},
+			xaxis: {mode: "time", timeformat: "%d.%m %h:%M"},
+			zoom: {
+				interactive: true
+			},
+			pan: {
+				interactive: true
+			}
+		};
+		
+		options_plot['pie'] = {
+			series: {
+				pie: {
+					show: true,
+					label: {
+						show: false
+					}
+				},
+				shadowSize: 0
+			},
+			legend: {
+				show: true,
+				labelFormatter: function(label, series) {
+					return label + ' - ' + Math.round(series.percent) + '%';
+				}
+			}
+		};
+		
+		var btns = [
+			'<button period="day" class="btn btn-small">day</button>',
+			'<button period="week" class="btn btn-small">week</button>',
+			'<button period="month" class="btn btn-small">month</button>',
+			'<button period="year" class="btn btn-small">year</button>'
+		];
+		
+		$.each(list_graphs, function(filename, settings) {
+			data = getData(filename, settings.type, settings.labels);
+			var id = filename.replace(/\./g, '_');
+			$('#items').append('<div id="' + id + '" filename="' + filename + '"><h3>' + settings.title + '</h3><div class="btns"></div><div class="graph"></div></div>');
+			
+			switch(settings.type) {
+				case 'lines':
+					//add buttons
+					$.each(btns, function(index, btn) {
+						//binding event
+						btn = $(btn).click(function() {changeGraph(this)});
+						$('#' + id + ' .btns').append(btn);
+					});
+					
+					renderPlot('#' + id + ' .graph', [data], options_plot[settings.type]);
+				break;
+				
+				case 'pie':
+					$.plot('#' + id + ' .graph', data, options_plot[settings.type]);
+				break;
+			}
+		});
+		
+		//set default button
+		$('.btns button[period="week"]').addClass('active');
+		
+		function changeGraph(self) {
+			var period = $(self).attr('period');
+			var id = '#' + $(self).parent().parent().attr('id') + ' .graph';
+			var filename = $(self).parent().parent().attr('filename');
+			var data = getData(filename, 'lines', undefined, period);
+
+			renderPlot(id, [data], options_plot.lines);
+			
+			//set active button
+			$(self).addClass('active').siblings().removeClass('active');
+		}
+		
+		function renderPlot(id, data, options) {
+			$.plot(id, data, options);
+		}
+		
+		function getData(filename, type, labels, period) {
+			var response = '';
+			$.ajax({
+				type: "GET",
+				url: '/data/rrd/data_item',
+				data: {filename: filename, type: type, labels: labels, period: period},
+				dataType: "json",
+				async: false,
+				success: function(data) {
+					response = data.rows;
+				}
+			});	
+			return response;
+		}
+		
+		function getListGraphs() {
+			var response = '';
+			
+			$.ajax({
+				type: 'GET',
+				url: '/data/rrd/list',
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					if(data.success)
+						response = data.rows;
+				}
+			});
+			
+			return response;
+		}
+		
+		function labelFormatter(label, series) {
+			return series.percent + '';
+		}

@@ -1,0 +1,115 @@
+extends layouts/extensions
+
+block content
+	include includes/header-nav
+	
+	include includes/sidebar
+	
+	div(id="modal-dialog", style="display: none;")
+	#content
+		include includes/content-header
+		.container-fluid
+			.row-fluid
+				- if(false)
+					div.span6
+						div.widget-box
+							div.widget-title
+								h5 Access settings connect to mysql via ODBC
+							div(class="widget-content nopadding")
+								form.form-horizontal(name="save_view_form")
+										div.control-group
+											label.control-label User
+											div.controls
+												label.checkbox view_cdr
+										div.control-group
+											label.control-label(for="password") Password
+											div.controls
+												input(type="password", id="password", name="password", required)
+										div.control-group
+											label.control-label(for="network") Network
+											div.controls
+												input(type="text", id="network", value="0.0.0.0", name="network", required)
+										div.control-group
+											label.control-label(for="limit") Limit records
+											div.controls
+												input(type="text", value="0", id="limit", name="limit", required)
+										div.form-actions
+											button(type="submit", class="btn btn-primary") Save
+				div.span3
+				div.span6
+					div.widget-box
+						div.widget-title
+							h5 Export to CSV
+						div(class="widget-content nopadding")
+							form.form-horizontal(action="/data/callhistory/cdr_to_xls", name="export_xls_form")
+									div.control-group
+										label.control-label(for="date_from") Date From
+										div.controls
+											input.datepicker(type="text", id="date_from", name="date_from", data-date-format="yyyy-mm-dd")
+									div.control-group
+										label.control-label(for="date_to") Date To
+										div.controls
+											input.datepicker(type="text", id="date_to", name="date_to", data-date-format="yyyy-mm-dd")
+									div( class="alert alert-error", id="alert", style="display:none;")
+										strong
+									br
+									br
+									br
+									br
+									br
+									div.form-actions
+										<button type="submit" class="btn btn-primary" id="btn_save_csv">Save CSV</button>
+				div.span3
+	include includes/footer
+	script( src="/js/bootstrap-datepicker.js")
+	script
+		$(document).ready(function(){
+			var now = new Date();
+			var now_string = $.datepicker.formatDate("yy-mm-dd",now);
+			$('#date_from').data('date',now_string);
+			$('#date_from').val(now_string);
+			$('#date_to').data('date',now_string);
+			$('#date_to').val(now_string);
+
+			var datefrom = $('#date_from').datepicker().on('changeDate', function(ev) {
+				if (ev.date.valueOf() > dateto.date.valueOf()) {
+				var newDate = new Date(ev.date)
+				newDate.setDate(newDate.getDate() + 1);
+				dateto.setValue(newDate);
+				}
+				$('#alert').hide();
+				datefrom.hide();
+				$('#date_to')[0].focus();
+			}).data('datepicker');
+
+			var dateto = $('#date_to').datepicker().on('changeDate', function(ev) {
+				if (ev.date.valueOf() < datefrom.date.valueOf()){
+						$('#alert').show().find('strong').text('The start date can not be greater then the end date');
+						var start_date = new Date(datefrom.date);
+						dateto.setValue(start_date);
+					} else {
+						$('#alert').hide();
+					}
+				dateto.hide();
+				$('#btn_save_csv')[0].focus();
+			}).data('datepicker');
+
+			$('form[name=save_view_form]').submit(function(e){
+				e.preventDefault();
+				var params = $(this).serializeArray();
+				$('body').mask(opts);
+				$.post("/data/callhistory/save_view_setting",
+					params,
+					function(data){
+						console.log(data);
+						if ( data.success ){
+							alert('Saved successfully!');
+						}
+						else
+							alert(data.message);
+						$('body').unmask();
+					}
+				);
+				
+			});
+		});
