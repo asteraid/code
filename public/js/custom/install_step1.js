@@ -12,6 +12,16 @@ $(document).ready(function() {
     messages: {
         db_cdr: {
             notEqual: 'Input the different name (not "Database name (configuration)")'
+        },
+        password: {
+            pattern: defParams.install.password_message
+        },
+        password_new: {
+            pattern: defParams.install.password_message
+        },
+        password_new_confirm: {
+          pattern: defParams.install.password_message,
+          equalTo: '"Confirm password" not equal "New password"'
         }
     }
   });

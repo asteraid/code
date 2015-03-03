@@ -38,6 +38,10 @@ block content
                                 .controls
                                   input(type="password", name="password_new")
                               .control-group
+                                label.control-label Confirm password
+                                .controls
+                                  input(type="password", name="password_new_confirm")
+                              .control-group
                                 label.control-label Database name (configuration)
                                 .controls
                                   input(type="text", name="db_config")
@@ -58,21 +62,29 @@ block content
     link( rel="stylesheet", href="/css/jquery-ui.css")
     script( src="/js/jquery-ui.custom.js")
     script(src="/js/custom/jquery.validate.custom.js")
+    script(src="/js/jquery.validate.additional-methods.js")
     script(src="/js/custom/common.js")
+    script(src="/js/custom/default.js")
     script
       var default_values = !{JSON.stringify(default_values)};
       var rules = {
         host: {
-            required: true
+          required: true
         },
         user: {
-            required: true
+          required: true
         },
         password_new: {
-            required: true
+          required: true,
+          pattern: defParams.install.password_pattern
+        },
+        password_new_confirm: {
+          required: true,
+          pattern: defParams.install.password_pattern,
+          equalTo: 'input[name="password_new"]'
         },
         db_config: {
-            required: true,
+          required: true
         },
         db_cdr: {
             required: true,

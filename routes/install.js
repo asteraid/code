@@ -6,7 +6,6 @@ exports.step1 = function(req, res) {
     if(config.db && !config.db.database) {
       var db = require('../modules/db');
       db.checkConnect({user: config_default.db_client.user, password: config_default.db_client.password}, function(err) {
-        console.log('error checkConnect======', err);
         if (!err)
           res.render('install/step1_first_install', {title: config.application_name, sessionID: req.sessionID, default_values: config_default.db_client});
         else
