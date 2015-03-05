@@ -1,25 +1,21 @@
-// Глобальные переменные
-config          = require('./config.js');
-config_default  = require('./modules/config/config_default.js');
-
-var express = require('express')
-  , routes = require('./routes/index')
-  , dataStore = require('./routes/data')
-  , https = require('https')
-  , http = require('http')
-  , io = require('socket.io')
-  , fs = require('fs')
-  , hash = require('./hash_table')
-  , path = require('path');
+var express   = require('express');
+var routes    = require('./routes/index');
+var dataStore = require('./routes/data');
+var https     = require('https');
+var http      = require('http');
+var io        = require('socket.io');
+var fs        = require('fs');
+var hash      = require('./hash_table');
+var path      = require('path');
   
-//Глобальные переменные
-operators = new hash();
-mysql = require('mysql');
-database = function(req, res, sysuser) {
+// Глобальные переменные
+config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
+//config          = require('./config.js');
+//config_default  = require('./modules/config/config_default.js');
+operators       = new hash();
+mysql           = require('mysql');
+database        = function(req, res, sysuser) {
     this.success = false;
-
-    //var user        = sysuser ? config.db.user : req.session.dbuser;
-    //var password    = sysuser ? config.db.password: req.session.password;
     
     var user;
     var password;
@@ -33,7 +29,6 @@ database = function(req, res, sysuser) {
     }
 
     if(user !== undefined && password !== undefined) {
-        //var self = this;
         this.success = true;
         var conf = {};
         
@@ -42,16 +37,10 @@ database = function(req, res, sysuser) {
         conf.host       = config.db.host;
         conf.database   = config.db.database;
         conf.port       = config.db.port;
-
         conf.multipleStatements = true; //Multiple statement queries
-
-        //this.connect = mysql.createConnection(conf);
-
-        //console.log('connect->>>', this.connect);
+        
         if (!this.connect) {
-          //console.log('connect start create;');
           this.connect = mysql.createConnection(conf);
-          //console.log('connect created;');
         }
 
         this.connect.connect(function(err) {

@@ -9,7 +9,7 @@ config_default['db_client'] = {
     db_cdr: 'a_cdr'
 };
 config_default.webserver = {
-    port: 443,
+    port: 8443,
     ip_allowed: "['0.0.0.0']",
     logio_port: 28778,
     tty_port: 8000
@@ -20,4 +20,5 @@ config_default.exec_script_path = 'bin/';
 config_default.rrd_path = '/opt/store/sysinfo.rrd';
 config_default.multi = true;
 config_default.server_hosts_file = '/etc/ansible/hosts';
+config_default.default = true;
 module.exports = config_default;
