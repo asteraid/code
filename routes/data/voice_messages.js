@@ -120,7 +120,7 @@ exports.get_voice_file = function(req, res) {
                 'Content-Disposition': 'attachment; filename=' + [fileNameSrc, fileFormatDest].join('.')
             });
             
-            var readStream = fs.createReadStream(filePathDest);
+            var readStream = fs.createReadStream([filePathDest, fileFormatDest].join('.'));
             
             readStream.on('data', function(data) {
                 res.write(data);
@@ -128,7 +128,7 @@ exports.get_voice_file = function(req, res) {
         
             readStream.on('end', function() {
                 res.end();
-                fs.unlinkSync(filePathDest);
+                fs.unlinkSync([filePathDest, fileFormatDest].join('.'));
             });
         }
     } else res.json({success: false, message: 'Error sessions'});
