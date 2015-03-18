@@ -23,4 +23,5 @@ config.store = {};
 config.store.path = '/opt/store/';
 config.multi = true;
 config.server_hosts_file = "/etc/ansible/hosts";
+config.voice_path = "/opt/plentystars/store/";
 module.exports = config;

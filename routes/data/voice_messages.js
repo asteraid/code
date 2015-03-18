@@ -49,36 +49,74 @@ exports.get_voice_file = function(req, res) {
         
         var fs          = require('fs');
         
-        var fileNameSrc = req.param('filename');//'ps0-1404712224.7-out';
-        var fileNameDest = fileNameSrc + req.session.user;
-        
+        var fileNameSrc     = req.param('filename');//'ps0-1404712224.7-out';
+        var fileNameSrcArr  = fileNameSrc.split('.');
         var fileFormatSrc;
+        var filePathSrc;
+        
+        var length = fileNameSrcArr.length;
+        
+        switch (fileNameSrcArr[length - 1]) {
+          case 'gsm':
+          case 'wav':
+            fileFormatSrc = fileNameSrcArr[length - 1];
+            fileNameSrc   = fileNameSrcArr.splice(0, length - 1).join('.');
+            filePathSrc = config.voice_path + fileNameSrc;
+          break;
+          default:
+            filePathSrc = config.voice_path + fileNameSrc;
+            if (fs.existsSync(filePathSrc + '.gsm')) fileFormatSrc = 'gsm';
+            else if (fs.existsSync(filePathSrc + '.wav')) fileFormatSrc = 'wav';
+          break;
+        }
+        
+        var fileNameDest = fileNameSrc + req.session.user;
         var fileFormatDest = 'mp3';
         
-        var filePathSrc = config.voice_path + fileNameSrc;
+        //var filePathSrc = config.voice_path + fileNameSrc;
         var filePathDest = '/tmp/' + fileNameDest;
         
-        if (fs.existsSync(filePathSrc + '.gsm')) fileFormatSrc = 'gsm';
-        else if (fs.existsSync(filePathSrc + '.wav')) fileFormatSrc = 'wav';
+        //if (fs.existsSync(filePathSrc + '.gsm')) fileFormatSrc = 'gsm';
+        //else if (fs.existsSync(filePathSrc + '.wav')) fileFormatSrc = 'wav';
             
         filePathSrc     += '.' + fileFormatSrc;
-        filePathDest    += '.' + fileFormatDest;
+        //filePathDest    += '.' + fileFormatDest;
         
-        var cmd = ['sox -t ', fileFormatSrc, ' ', filePathSrc, ' -t ', fileFormatDest, ' ', filePathDest].join('');
+        /*var cmd = ['sox -t ', fileFormatSrc, ' ', filePathSrc, ' -t ', fileFormatDest, ' ', filePathDest].join('');
 		console.log(cmd);
 
         exec_command(cmd, function(err, out) {
             if (!err) sendFile();
             else res.end();
+        });*/
+        
+        var cmdSox  = ['sox ', filePathSrc, ' -s ', filePathDest, '.wav'].join('');
+        var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
+        console.log(cmdSox, cmdLame);
+
+        exec_command(cmdSox, function(err,out) {
+          console.log(err,out);
+          if (!err) {
+              exec_command(cmdLame, function(err,out){
+                  console.log(err,out);
+                  if (!err) sendFile();
+                  else res.end(); 
+              });
+          }
+          else {
+             res.end(); 
+          }
         });
         
+        
+        
         var sendFile = function() {
-            var stat        = fs.statSync(filePathDest);
+            var stat        = fs.statSync([filePathDest, fileFormatDest].join('.'));
             
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg', 
                 'Content-Length': stat.size,
-                'Content-Disposition': 'attachment; filename=' + [fileNameSrc, '.', fileFormatDest].join('')
+                'Content-Disposition': 'attachment; filename=' + [fileNameSrc, fileFormatDest].join('.')
             });
             
             var readStream = fs.createReadStream(filePathDest);
