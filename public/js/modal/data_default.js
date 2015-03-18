@@ -4,7 +4,7 @@ var listType = {selected: '2', data: [{id: 'peer', text: 'peer'}, {id: 'user', t
 var listQualify = {selected: 0, data: [{id: 'yes', text: 'yes'}, {id: 'no', text: 'no'}]};
 var listInsecure = {selected: '0', data: [{id: 'port', text: 'port'}, {id: 'invite', text: 'invite'}]};
 var listNat = {data: [{id: 'no', text: 'no'}, {id: 'force_rport', text: 'force_rport'}, {id: 'comedia', text: 'comedia'}]};
-var listRecord = {data: [{id: 'record_in=yes', text: 'record_in=yes'}, {id: 'record_out=yes', text: 'record_out=yes'}]};
+var listRecord = {data: [{id: 'record_in', text: 'record_in'}, {id: 'record_out', text: 'record_out'}]};
 var listDisableRule = {selected: 1, data: [{id: 'yes', text: 'yes'}, {id: 'no', text: 'no'}]};
 var listCIDPriority = {selected: 0, data: [{id: 'TRUNKCID', text: 'TRUNKCID'}, {id: 'CLID', text: 'CLID'}]};
 var listTrunkType = {selected: 0, data: [{id: 'SIP', text: 'SIP'}, {id: 'OOH323', text: 'OOH323'}]};

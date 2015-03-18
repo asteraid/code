@@ -19,7 +19,7 @@ exports.list = function(req, res) {
         var query = "SELECT SQL_CALC_FOUND_ROWS date_format(start,'%Y-%m-%d %H:%i:%s') as start,src,dst,duration,uniqueid, \
 SUBSTRING( linkedid,1,LENGTH(linkedid) - LENGTH(SUBSTRING_INDEX(linkedid,'-',-1) ) -1 ) as host,voice_message \
 FROM " + config.cdr.database + ".cdr WHERE voice_message <> '' AND disposition = 'ANSWERED' order by start desc " + limit + '; SELECT FOUND_ROWS();';
-		//console.log(query);
+		console.log(query);
         db.connect.query(query, function (err, results, fields) {
             var success = false;
             if(!err) {
