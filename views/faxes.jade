@@ -41,9 +41,9 @@ block content
     script
 
         var columns = [{"mData":"start"}, {"mData":"src"}, {"mData":"dst"},{"mData":"host"},
-                      { "mData":'voice_message',
+                      { "mData":'fax_path',
                         "mRender": function (oObj,type,row) {
-                                       var filename = row.voice_message,
+                                       var filename = row.fax_path,
                                            host = row.host,
                                            urlFile = '/data/faxes/get_fax_file?' + 'filename=' + filename;
                                        var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
