@@ -101,11 +101,17 @@ exports.get_voice_file = function(req, res) {
               exec_command(cmdLame, function(err,out){
                   console.log(err,out);
                   if (!err) sendFile();
-                  else res.end(); 
+                  else {
+                    res.writeHead(404, {"Content-Type": "text/plain"});
+                    res.write("404 Not Found\n");
+                    res.end();
+                  }
               });
           }
           else {
-             res.end(); 
+            res.writeHead(404, {"Content-Type": "text/plain"});
+            res.write("404 Not Found\n");
+            res.end(); 
           }
         });
         
