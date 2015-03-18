@@ -50,6 +50,7 @@ exports.get_voice_file = function(req, res) {
         var fs          = require('fs');
         
         var fileNameSrc     = req.param('filename');//'ps0-1404712224.7-out';
+        var clearFileName   = fileNameSrc.split('/').pop();
         var fileNameSrcArr  = fileNameSrc.split('.');
         var fileFormatSrc;
         var filePathSrc;
@@ -70,7 +71,7 @@ exports.get_voice_file = function(req, res) {
           break;
         }
         
-        var fileNameDest = fileNameSrc + req.session.user;
+        var fileNameDest = clearFileName + req.session.user;
         var fileFormatDest = 'mp3';
         
         //var filePathSrc = config.voice_path + fileNameSrc;
@@ -90,7 +91,7 @@ exports.get_voice_file = function(req, res) {
             else res.end();
         });*/
         
-        var cmdSox  = ['sox ', filePathSrc, ' -s ', filePathDest, '.wav'].join('');
+        var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
         console.log(cmdSox, cmdLame);
 
