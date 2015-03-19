@@ -48,7 +48,7 @@ exports.get_fax_file = function(req, res) {
         var fileDest  = [config.fax_path, fileSrc].join('');
 
         if (fs.existsSync(fileDest)) {
-          sendFile(fileDest);
+          sendFile();
         } else {
           res.writeHead(404, {"Content-Type": "text/plain"});
           res.write("404 Not Found\n");
@@ -57,16 +57,16 @@ exports.get_fax_file = function(req, res) {
         
         
         
-        var sendFile = function(file) {
-            var stat        = fs.statSync(file);
+        var sendFile = function() {
+            var stat        = fs.statSync(fileDest);
             
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg', 
                 'Content-Length': stat.size,
-                'Content-Disposition': 'attachment; filename=' + file.split('/').pop()
+                'Content-Disposition': 'attachment; filename=' + fileDest.split('/').pop()
             });
             
-            var readStream = fs.createReadStream(file);
+            var readStream = fs.createReadStream(fileDest);
             
             readStream.on('data', function(data) {
                 res.write(data);
