@@ -51,7 +51,7 @@ exports.get_fax_file = function(req, res) {
             var stat        = fs.statSync(file);
             
             res.writeHead(200, {
-                'Content-Type': 'audio/mpeg', 
+                'Content-Type': 'image/tiff', 
                 'Content-Length': stat.size,
                 'Content-Disposition': 'attachment; filename=' + file.split('/').pop()
             });
