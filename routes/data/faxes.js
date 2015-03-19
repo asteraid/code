@@ -63,7 +63,7 @@ exports.get_fax_file = function(req, res) {
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg', 
                 'Content-Length': stat.size,
-                'Content-Disposition': 'attachment; filename=' + file.split('/').pop();
+                'Content-Disposition': 'attachment; filename=' + file.split('/').pop()
             });
             
             var readStream = fs.createReadStream(file);
