@@ -46,27 +46,17 @@ exports.get_fax_file = function(req, res) {
         
         var fileSrc   = req.param('filename');
         var fileDest  = [config.fax_path, fileSrc].join('');
-
-        if (fs.existsSync(fileDest)) {
-          sendFile();
-        } else {
-          res.writeHead(404, {"Content-Type": "text/plain"});
-          res.write("404 Not Found\n");
-          res.end();
-        }
         
-        
-        
-        var sendFile = function() {
-            var stat        = fs.statSync(fileDest);
+        var sendFile = function(file) {
+            var stat        = fs.statSync(file);
             
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg', 
                 'Content-Length': stat.size,
-                'Content-Disposition': 'attachment; filename=' + fileDest.split('/').pop()
+                'Content-Disposition': 'attachment; filename=' + file.split('/').pop()
             });
             
-            var readStream = fs.createReadStream(fileDest);
+            var readStream = fs.createReadStream(file);
             
             readStream.on('data', function(data) {
                 res.write(data);
@@ -75,6 +65,14 @@ exports.get_fax_file = function(req, res) {
             readStream.on('end', function() {
                 res.end();
             });
+        };
+
+        if (fs.existsSync(fileDest)) {
+          sendFile(fileDest);
+        } else {
+          res.writeHead(404, {"Content-Type": "text/plain"});
+          res.write("404 Not Found\n");
+          res.end();
         }
     } else res.json({success: false, message: 'Error sessions'});
 }
