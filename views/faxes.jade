@@ -23,7 +23,7 @@ block content
                                             th Src
                                             th Dst
                                             th Host
-                                            th(width="75px") File
+                                            th(width="75px") Operations
     include includes/footer
 
     script( src="/js/jquery.uniform.js")
@@ -47,7 +47,8 @@ block content
                                            host = row.host,
                                            urlFile = '/data/faxes/get_fax_file?' + 'filename=' + filename;
                                        var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
-                                       return buttonLoad;
+                                       var buttonDelete = ['<a href="#" class="btn btn-small" onclick="deleteFile(\'' + filename + '\'); return false;" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
+                                       return [buttonLoad, buttonDelete].join(' ');
                                     }
                       }];
         var columnsDefs = [];
@@ -55,3 +56,34 @@ block content
         var currentRow;
         
         var oTable = setDataTableTest('tblCdr', '/data/faxes/list', columns, columnsDefs, undefined, undefined, true, true);
+        
+        function deleteFile(filename) {
+          var btnsDelete = [
+            {
+                text: 'Ok',
+                "class": 'btn btn-primary',
+                click: function() {
+                    $(this).dialog('close');
+                    $.ajax({
+                        type: 'GET',
+                        data: {filename: filename},
+                        url: '/data/faxes/delete',
+                        dataType: 'json',
+                        success: function(data) {
+                            if(data.success) {
+                                oTable.fnReloadAjax();
+                            }
+                        }
+                    });
+                }
+            },
+            {
+                text: 'Cancel',
+                "class": 'btn btn-primary',
+                click: function() {
+                    $(this).dialog('close');
+                }
+            }
+          ];
+          showDialog('Warning!', '<p align="center">Delete this file?</p>', 'auto', 'auto', btnsDelete);
+        };
