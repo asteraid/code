@@ -56,19 +56,22 @@ exports.delete = function(req, res) {
       'WHERE `voice_message` != "" AND `voice_message` = "', filename, '"'
     ].join('');
     
-    db.connect.query(query, function (err, results, fields) {
-      if (!err) {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          res.json({success: true, message: 'File deleted success'});
+    var db = new database(req, res);
+    if(db.connect) {
+      db.connect.query(query, function (err, results, fields) {
+        if (!err) {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({success: true, message: 'File deleted success'});
+          } else {
+            res.json({success: false, message: 'Error: file not exists'});
+          }
         } else {
-          res.json({success: false, message: 'Error: file not exists'});
+          res.json({success: false, message: err.code});
         }
-      } else {
-        res.json({success: false, message: err.code});
-	    }
-      db.destroy();
-    });
+        db.destroy();
+      });
+    } else res.json({ success: false, message: 'Error sesisons'});
   }
 }
 
