@@ -39,6 +39,37 @@ FROM " + config.cdr.database + ".cdr WHERE fax_path <> '' order by start desc " 
    }
 };
 
+exports.delete = function(req, res) {
+  if (req.session.user) {
+    var fs       = require('fs');
+    var filename = req.param('filename');
+    var filePath = [config.fax_path, filename].join('');
+    var query    = [
+      'UPDATE ',
+        config.cdr.database, '.`cdr`',
+      ' SET `fax_path` = "" ',
+      'WHERE `fax_path` != "" AND `fax_path` = "', filename, '"'
+    ].join('');
+    
+    var db = new database(req, res);
+    if(db.connect) {
+      db.connect.query(query, function (err, results, fields) {
+        if (!err) {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({success: true, message: 'File deleted success'});
+          } else {
+            res.json({success: false, message: 'Error: file not exists'});
+          }
+        } else {
+          res.json({success: false, message: err.code});
+        }
+        db.destroy();
+      });
+    } else res.json({ success: false, message: 'Error sesisons'});
+  }
+}
+
 exports.get_fax_file = function(req, res) {
     if (req.session.user) {
         
