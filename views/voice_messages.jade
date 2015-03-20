@@ -24,7 +24,7 @@ block content
                                             th Dst
                                             th(width="100px") Duration
                                             th Host
-                                            th(width="75px") Message
+                                            th(width="100px") Operations
     #player
       <audio type="audio/mp3"></audio>
     include includes/footer
@@ -61,7 +61,7 @@ block content
               
               var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
               
-              var buttonDelete = ['<a href="', '#', '" class="btn btn-small" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
+              var buttonDelete = ['<a href="', filename, '" class="btn btn-small btnDelete" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
 
               return [buttonPlay, buttonLoad, buttonDelete].join(' ');
             }
@@ -73,14 +73,46 @@ block content
         var currentRow;
         
         var oTable = setDataTableTest('tblCdr', '/data/voice_messages/list', columns, columnsDefs, undefined, undefined, true, true);
+        
+        $('.btnDelete').click(function() {
+          var url = $(this).attr('href');
+          var btnsDelete = [
+            {
+                text: 'Ok',
+                "class": 'btn btn-primary',
+                click: function() {
+                    $(this).dialog('close');
+                    $.ajax({
+                        type: 'GET',
+                        data: {filename: url},
+                        url: '/data/voice_messages/delete',
+                        dataType: 'json',
+                        success: function(data) {
+                            if(data.success) {
+                                oTable.fnReloadAjax();
+                            }
+                        }
+                    });
+                }
+            },
+            {
+                text: 'Cancel',
+                "class": 'btn btn-primary',
+                click: function() {
+                    $(this).dialog('close');
+                }
+            }
+          ];
+          showDialog('Warning!', '<p align="center">Delete this file?</p>', 'auto', 'auto', btnsDelete);
+          return false;
+        });
 
         function play_voice(host,filename){
-            var player,
-                urlFile,
-                title = filename.substring(filename.lastIndexOf('/')+1);
-            // TODO запускаем аяксом скрипт загрузки файла от него получаем им файла
+            var player;
+            var urlFile;
+            var title = filename.substring(filename.lastIndexOf('/') + 1);
+            // TODO запускаем аяксом скрипт загрузки файла от него получаем имя файла
             if (filename && host) {
-                //urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
                 urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
                 $('#player').dialog({
                     height: 100, 

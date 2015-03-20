@@ -44,12 +44,40 @@ FROM " + config.cdr.database + ".cdr WHERE voice_message <> '' AND disposition =
    }
 };
 
+exports.delete = function(req, res) {
+  if (req.session.user) {
+    var fs       = require('fs');
+    var filename = req.param('filename');
+    var filePath = [config.voice_path, filename].join('');
+    var query    = [
+      'UPDATE ',
+        config.cdr.database,
+      ' SET `voice_message` = "" ',
+      'WHERE `voice_message` != "" AND `voice_message` = "', filename, '"'
+    ].join('');
+    
+    db.connect.query(query, function (err, results, fields) {
+      if (!err) {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          res.json({success: true, message: 'File deleted success'});
+        } else {
+          res.json({success: false, message: 'Error: file not exists'});
+        }
+      } else {
+        res.json({success: false, message: err.code});
+	    }
+      db.destroy();
+    });
+  }
+}
+
 exports.get_voice_file = function(req, res) {
     if (req.session.user) {
         
         var fs          = require('fs');
         
-        var fileNameSrc     = req.param('filename');//'ps0-1404712224.7-out';
+        var fileNameSrc     = req.param('filename');
         var clearFileName   = fileNameSrc.split('/').pop();
         var fileNameSrcArr  = fileNameSrc.split('.');
         var fileFormatSrc;
@@ -71,41 +99,24 @@ exports.get_voice_file = function(req, res) {
           break;
         }
         
-        var fileNameDest = clearFileName + req.session.user;
-        var fileFormatDest = 'mp3';
-        
-        //var filePathSrc = config.voice_path + fileNameSrc;
-        var filePathDest = '/tmp/' + fileNameDest;
-        
-        //if (fs.existsSync(filePathSrc + '.gsm')) fileFormatSrc = 'gsm';
-        //else if (fs.existsSync(filePathSrc + '.wav')) fileFormatSrc = 'wav';
+        var fileNameDest    = clearFileName + req.session.user;
+        var fileFormatDest  = 'mp3';
+        var filePathDest    = '/tmp/' + fileNameDest;
             
         filePathSrc     += '.' + fileFormatSrc;
-        //filePathDest    += '.' + fileFormatDest;
-        
-        /*var cmd = ['sox -t ', fileFormatSrc, ' ', filePathSrc, ' -t ', fileFormatDest, ' ', filePathDest].join('');
-		console.log(cmd);
-
-        exec_command(cmd, function(err, out) {
-            if (!err) sendFile();
-            else res.end();
-        });*/
         
         var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
-        console.log(cmdSox, cmdLame);
 
         exec_command(cmdSox, function(err,out) {
-          console.log(err,out);
           if (!err) {
               exec_command(cmdLame, function(err,out){
-                  console.log(err,out);
-                  if (!err) sendFile();
-                  else {
-                    res.writeHead(404, {"Content-Type": "text/plain"});
-                    res.write("404 Not Found\n");
-                    res.end();
-                  }
+                if (!err) sendFile();
+                else {
+                  res.writeHead(404, {"Content-Type": "text/plain"});
+                  res.write("404 Not Found\n");
+                  res.end();
+                }
               });
           }
           else {
@@ -114,28 +125,26 @@ exports.get_voice_file = function(req, res) {
             res.end(); 
           }
         });
-        
-        
-        
+
         var sendFile = function() {
-            var stat        = fs.statSync([filePathDest, fileFormatDest].join('.'));
-            
-            res.writeHead(200, {
-                'Content-Type': 'audio/mpeg', 
-                'Content-Length': stat.size,
-                'Content-Disposition': 'attachment; filename=' + [fileNameSrc, fileFormatDest].join('.')
-            });
-            
-            var readStream = fs.createReadStream([filePathDest, fileFormatDest].join('.'));
-            
-            readStream.on('data', function(data) {
-                res.write(data);
-            });
-        
-            readStream.on('end', function() {
-                res.end();
-                fs.unlinkSync([filePathDest, fileFormatDest].join('.'));
-            });
+          var stat        = fs.statSync([filePathDest, fileFormatDest].join('.'));
+          
+          res.writeHead(200, {
+              'Content-Type': 'audio/mpeg', 
+              'Content-Length': stat.size,
+              'Content-Disposition': 'attachment; filename=' + [fileNameSrc, fileFormatDest].join('.')
+          });
+          
+          var readStream = fs.createReadStream([filePathDest, fileFormatDest].join('.'));
+          
+          readStream.on('data', function(data) {
+              res.write(data);
+          });
+      
+          readStream.on('end', function() {
+              res.end();
+              fs.unlinkSync([filePathDest, fileFormatDest].join('.'));
+          });
         }
     } else res.json({success: false, message: 'Error sessions'});
 }
