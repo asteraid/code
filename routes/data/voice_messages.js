@@ -51,7 +51,7 @@ exports.delete = function(req, res) {
     var filePath = [config.voice_path, filename].join('');
     var query    = [
       'UPDATE ',
-        config.cdr.database,
+        config.cdr.database, '.`cdr`',
       ' SET `voice_message` = "" ',
       'WHERE `voice_message` != "" AND `voice_message` = "', filename, '"'
     ].join('');
