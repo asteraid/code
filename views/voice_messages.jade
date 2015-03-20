@@ -24,7 +24,7 @@ block content
                                             th Dst
                                             th(width="100px") Duration
                                             th Host
-                                            th(width="100px") Operations
+                                            th(width="150px") Operations
     #player
       <audio type="audio/mp3"></audio>
     include includes/footer
@@ -61,7 +61,7 @@ block content
               
               var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
               
-              var buttonDelete = ['<a href="', filename, '" class="btn btn-small btnDelete" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
+              var buttonDelete = ['<a href="', filename, '" class="btn btn-small" onclick="deleteFile(filename); return false;" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
 
               return [buttonPlay, buttonLoad, buttonDelete].join(' ');
             }
@@ -74,8 +74,7 @@ block content
         
         var oTable = setDataTableTest('tblCdr', '/data/voice_messages/list', columns, columnsDefs, undefined, undefined, true, true);
         
-        $('.btnDelete').click(function() {
-          var url = $(this).attr('href');
+        function deleteFile(filename) {
           var btnsDelete = [
             {
                 text: 'Ok',
@@ -84,7 +83,7 @@ block content
                     $(this).dialog('close');
                     $.ajax({
                         type: 'GET',
-                        data: {filename: url},
+                        data: {filename: filename},
                         url: '/data/voice_messages/delete',
                         dataType: 'json',
                         success: function(data) {
@@ -104,7 +103,7 @@ block content
             }
           ];
           showDialog('Warning!', '<p align="center">Delete this file?</p>', 'auto', 'auto', btnsDelete);
-          return false;
+          //return false;
         });
 
         function play_voice(host,filename){
