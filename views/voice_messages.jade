@@ -25,8 +25,8 @@ block content
                                             th(width="100px") Duration
                                             th Host
                                             th(width="75px") Message
-    div(id='player')
-        <audio></audio>
+    #player
+      <audio type="audio/mp3"></audio>
     include includes/footer
 
     script( src="/js/jquery.uniform.js")
@@ -45,24 +45,34 @@ block content
 
     script
 
-        var columns = [{"mData":"start"}, {"mData":"src"}, {"mData":"dst"},{"mData":"duration"},{"mData":"host"},
-                      { "mData":'voice_message',
-                        "mRender": function (oObj,type,row) {
-                                       var filename = row.voice_message,
-                                           host = row.host,
-                                           urlFile = '/data/voice_messages/get_voice_file?' + 'filename=' + filename;
-                                       var buttonPlay = '<button type="button" onclick="play_voice(\''+host+'\',\''+filename+'\')" class="btn btn-small" href="#" data-toggle="tooltip" title="listen file"><i class="icon-headphones"></i></button>';
-                                       var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
-                                       return buttonPlay + ' ' + buttonLoad;
-                                    }
-                      }];
+        var columns = [
+          {"mData":"start"},
+          {"mData":"src"},
+          {"mData":"dst"},
+          {"mData":"duration"},
+          {"mData":"host"},
+          {"mData":'voice_message',
+           "mRender": function (oObj,type,row) {
+              var filename = row.voice_message;
+              var host = row.host;
+              var urlFile = '/data/voice_messages/get_voice_file?' + 'filename=' + filename;
+              
+              var buttonPlay = '<button type="button" onclick="play_voice(\''+host+'\',\''+filename+'\')" class="btn btn-small" href="#" data-toggle="tooltip" title="listen file"><i class="icon-headphones"></i></button>';
+              
+              var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
+              
+              var buttonDelete = ['<a href="', '#', '" class="btn btn-small" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
+
+              return [buttonPlay, buttonLoad, btnDelete].join(' ');
+            }
+          }
+        ];
+
         var columnsDefs = [];
 
         var currentRow;
         
         var oTable = setDataTableTest('tblCdr', '/data/voice_messages/list', columns, columnsDefs, undefined, undefined, true, true);
-        
-        //play_voice('vivaldi.mp3');
 
         function play_voice(host,filename){
             var player,
@@ -70,6 +80,7 @@ block content
                 title = filename.substring(filename.lastIndexOf('/')+1);
             // TODO запускаем аяксом скрипт загрузки файла от него получаем им файла
             if (filename && host) {
+                //urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
                 urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
                 $('#player').dialog({
                     height: 100, 
@@ -82,7 +93,7 @@ block content
                         }
                     }
                 });
-                //$('#player audio').attr('src','vivaldi.mp3');
+                
                 $('#player audio').attr('src',urlFile);
                 player = new MediaElementPlayer('#player audio');
                 player.play();

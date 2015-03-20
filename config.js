@@ -23,6 +23,6 @@ config.store = {};
 config.store.path = '/opt/store/';
 config.multi = true;
 config.server_hosts_file = "/etc/ansible/hosts";
-config.voice_path = "/opt/plentystars/store/";
+config.voice_path = "/opt/plentystars/store/monitor/";
 config.fax_path = "/opt/plentystars/store/fax/";
 module.exports = config;
