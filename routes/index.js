@@ -1,6 +1,7 @@
 //
 function checkAuth(req, moduleUrl) {
 	var user_id = req.session.user_id;
+  var userTypeId = req.session.user_type_id;
 
 	//For index page
 	if(moduleUrl === ''){
@@ -19,7 +20,7 @@ function checkAuth(req, moduleUrl) {
 		}
 		
 
-		if(user_id == 1 || moduleUrl =='index' || moduleUrl =='/' || typeof(user_modules_by_href['/' + moduleUrl]) != 'undefined'){
+		if(userTypeId == 1 || moduleUrl =='index' || moduleUrl =='/' || typeof(user_modules_by_href['/' + moduleUrl]) != 'undefined'){
 			console.log("moduleUrl ", moduleUrl, "Access Allowed")
 			return true;
 		}
