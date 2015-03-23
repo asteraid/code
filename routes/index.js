@@ -61,10 +61,10 @@ exports.ttt = function(req, res) {
     
     if (urlParts[0] === '') {
 		if(typeof(user_type_id) != 'undefined' && user_type_id == 2){
-			controller = 'supervisor';
+			controller = 'rrd';
 		}
 		else if(typeof(user_type_id) != 'undefined' && user_type_id == 3){
-			controller = 'operator';
+			controller = 'rrd';
 		}
 		else {
 			controller = 'rrd';
