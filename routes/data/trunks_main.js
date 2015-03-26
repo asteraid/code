@@ -2,7 +2,7 @@ exports.get_itemid = function (req, res) {
     var db = new database(req, res);
     if(db.connect) {
         var item_name = req.param('item_name');    
-        var query = "SELECT GROUP_CONCAT(`item_id` SEPARATOR ',') `item_id` FROM `vItemsConf` WHERE `name` = 'trunk_name' AND `value` = '" + item_name + "' AND `commented` = 1 GROUP BY `name`";
+        var query = "SELECT GROUP_CONCAT(`item_id` SEPARATOR ',') `item_id` FROM `vItemsConf`, `node` WHERE `name` = 'trunk_name' AND `value` = '" + item_name + "' AND `commented` = 1 GROUP BY `name`";
         db.connect.query(query, function(err, results, fields) {
             if(!err) {
                 if(results.length>0)
@@ -107,7 +107,7 @@ exports.load_trunk = function (req, res) {
 	if(db.connect) {
 		var id = req.param('id'),
 			action = req.param('action');
-		var query = "SELECT `name`, `expert`, `commented`, GROUP_CONCAT(`value` SEPARATOR ',') `value` FROM `vItemsConf` WHERE `item_id` = " + id + " GROUP BY `name`";
+		var query = "SELECT `name`, `expert`, `commented`, GROUP_CONCAT(`value` SEPARATOR ',') `value`, `node` FROM `vItemsConf` WHERE `item_id` = " + id + " GROUP BY `name`";
 		db.connect.query(query, function (err, results, fields) {
 			if(!err) {
 				if (results.length>0) {
