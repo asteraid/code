@@ -60,7 +60,7 @@ block content
                 success: function(data) {
                     if(data.success) {
                         var editor = ace.edit(editor_id);
-                        editor.getSession().setValue(data.content[node_name]);
+                        editor.getSession().setValue(data.content[node_name].replace(/same/g, '  same'));
                         editor.clearSelection();
                         editor.gotoLine(1);
                     }
