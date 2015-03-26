@@ -2,7 +2,6 @@ extends layouts/extensions
 
 block content
     include includes/header-nav
-
     include includes/sidebar
 
     include includes/style-switcher
@@ -44,7 +43,7 @@ block content
     script( src="js/select2.min.js")
     script( src="js/jquery.dataTables.js")
     script( src="js/custom/dataTableExt.js")
-
+    
     style
         .table-hover tbody > tr:hover > td {
             background-color: #c3c3c3;
@@ -253,3 +252,7 @@ block content
             });
 
         });
+    script(type='text/javascript', src='/js/jquery.validate.js')
+    script(type='text/javascript', src='/js/modal/common.js')
+    script(type='text/javascript', src='/js/modal/data_default.js')
+    script(type='text/javascript', src='/js/modal/ace/ace.js')
