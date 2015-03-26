@@ -112,7 +112,7 @@ exports.load_trunk = function (req, res) {
 			if(!err) {
 				if (results.length>0) {
 					var jsonObject = [];
-					results.forEach(function(item) {
+					results.forEach(function(item, index) {
 						if(!jsonObject[0]) {
 							jsonObject.push({name: 'commented', value: item.commented == 0 ? 'no' : 'yes', expert: 0});
 						}
@@ -122,7 +122,13 @@ exports.load_trunk = function (req, res) {
 						temp['value'] = item.value;
 						temp['expert'] = item.expert;
 						jsonObject.push(temp);
+            
+            if (index == 0) {
+              jsonObject.push({name: 'node', value: item.node, expert: 0});
+            }
+            
 					});
+          
 					res.json( { success: true, data: jsonObject });
 				} else res.json( {success: false, message: 'Not found trunks'});
 			} else res.json({success: false, message: err.code });
