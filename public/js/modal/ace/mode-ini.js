@@ -33,6 +33,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+/*
+ * Tokens at https://github.com/ajaxorg/ace/wiki/Creating-or-Extending-an-Edit-Mode#commonTokens
+ *
+*/
+
 define('ace/mode/ini', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/mode/text', 'ace/tokenizer', 'ace/mode/ini_highlight_rules', 'ace/mode/folding/cstyle'], function(require, exports, module) {
 
 
