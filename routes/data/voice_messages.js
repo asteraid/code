@@ -93,7 +93,7 @@ exports.get_voice_file = function(req, res) {
           file.src  = {};
             file.src.name   = fileNameArr[fileNameArr.length - 1].split('.')[0];
             file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
-            file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/');
+            file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/') + '/';
             
           file.dest = {};
             file.dest.name    = file.src.name + req.session.user;
@@ -103,27 +103,26 @@ exports.get_voice_file = function(req, res) {
         console.log('file => ', file);
         
         
-        fs.exists([file.src.path, file.src.name, file.src.name].join(''), function(exists) {
-          console.log(exists);
+        fs.exists([file.src.path, file.src.name, '.', file.src.name].join(''), function(exists) {
           if (exists) {
             sendFile(file.src.name, file.src.path, file.src.format)
           } else {
             res.writeHead(404, {"Content-Type": "text/plain"});
-            res.write("File " + file.src.name + " not found\n");
+            res.write("File " + file.src.name + "." + file.src.format + " not found\n");
             res.end();
           }
         });
         
         var sendFile = function(fileName, filePath, fileFormat) {
-          var stat        = fs.statSync([filePath, fileFormat].join('.'));
+          var stat        = fs.statSync(filePath + fileName + '.' + fileFormat);
           
           res.writeHead(200, {
-              'Content-Type': 'audio/mpeg', 
-              'Content-Length': stat.size,
-              'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
+            'Content-Type': 'audio/mpeg', 
+            'Content-Length': stat.size,
+            'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
           });
           
-          var readStream = fs.createReadStream([filePath, fileFormat].join('.'));
+          var readStream = fs.createReadStream(filePath + fileName + '.' + fileFormat);
           
           readStream.on('data', function(data) {
               res.write(data);
