@@ -86,6 +86,8 @@ exports.get_voice_file = function(req, res) {
         var fileFormatSrc;
         var filePathSrc;
         var convert         = true;
+        
+        var fileName = req.param('filename');
         var file  = {};
           file.src  = {};
             file.src.name   = fileName.split('/').pop().split('.')[0];
