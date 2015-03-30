@@ -86,6 +86,8 @@ exports.get_voice_file = function(req, res) {
         var fileFormatSrc;
         var filePathSrc;
         var convert         = true;
+        var file  = {};
+        
         
         var length = fileNameSrcArr.length;
         
@@ -118,8 +120,12 @@ exports.get_voice_file = function(req, res) {
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
 
         console.log('fileNameSrc =>', fileNameSrc);
+        console.log('filePathSrc => ', filePathSrc);
+        console.log('fileFormatSrc => ', fileFormatSrc);
+        
         console.log('filePathDest =>', filePathDest);
         console.log('fileFormatDest =>', fileFormatDest);
+        
         console.log('convert =>', convert);
         
         if (convert) {
