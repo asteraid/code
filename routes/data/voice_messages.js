@@ -87,6 +87,15 @@ exports.get_voice_file = function(req, res) {
         var filePathSrc;
         var convert         = true;
         var file  = {};
+          file.src  = {};
+            file.src.name   = fileName.split('/').pop().split('.')[0];
+            file.src.format = fileName.split('/').pop().split('.').pop();
+            
+          file.dest = {};
+            file.dest.name    = file.src.name + req.session.user;
+            file.dest.format  = 'mp3';
+            
+        console.log('file => ', file);
         
         
         var length = fileNameSrcArr.length;
