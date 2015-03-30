@@ -85,6 +85,7 @@ exports.get_voice_file = function(req, res) {
         var fileNameSrcArr  = fileNameSrc.split('.');
         var fileFormatSrc;
         var filePathSrc;
+        var convert         = true;
         
         var length = fileNameSrcArr.length;
         
@@ -94,6 +95,11 @@ exports.get_voice_file = function(req, res) {
             fileFormatSrc = fileNameSrcArr[length - 1];
             fileNameSrc   = fileNameSrcArr.splice(0, length - 1).join('.');
             filePathSrc = config.voice_path + fileNameSrc;
+          break;
+          case 'mp3':
+            filePathSrc   = config.voice_path + fileNameSrc;
+            fileFormatSrc = 'mp3';
+            convert       = false;
           break;
           default:
             filePathSrc = config.voice_path + fileNameSrc;
@@ -111,34 +117,38 @@ exports.get_voice_file = function(req, res) {
         var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
 
-        exec_command(cmdSox, function(err,out) {
-          if (!err) {
-              exec_command(cmdLame, function(err,out){
-                if (!err) sendFile();
-                else {
-                  res.writeHead(404, {"Content-Type": "text/plain"});
-                  res.write("404 Not Found\n");
-                  res.end();
-                }
-              });
-          }
-          else {
-            res.writeHead(404, {"Content-Type": "text/plain"});
-            res.write("404 Not Found\n");
-            res.end(); 
-          }
-        });
+        if (convert) {
+          exec_command(cmdSox, function(err,out) {
+            if (!err) {
+                exec_command(cmdLame, function(err,out){
+                  if (!err) sendFile(fileNameSrc, filePathDest, fileFormatDest, convert);
+                  else {
+                    res.writeHead(404, {"Content-Type": "text/plain"});
+                    res.write("404 Not Found\n");
+                    res.end();
+                  }
+                });
+            }
+            else {
+              res.writeHead(404, {"Content-Type": "text/plain"});
+              res.write("404 Not Found\n");
+              res.end(); 
+            }
+          });
+        } else {
+          sendFile(fileNameSrc, filePathSrc, fileFormatSrc, convert);
+        }
 
-        var sendFile = function() {
-          var stat        = fs.statSync([filePathDest, fileFormatDest].join('.'));
+        var sendFile = function(fileName, filePath, fileFormat, convert) {
+          var stat        = fs.statSync([filePath, fileFormat].join('.'));
           
           res.writeHead(200, {
               'Content-Type': 'audio/mpeg', 
               'Content-Length': stat.size,
-              'Content-Disposition': 'attachment; filename=' + [fileNameSrc, fileFormatDest].join('.')
+              'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
           });
           
-          var readStream = fs.createReadStream([filePathDest, fileFormatDest].join('.'));
+          var readStream = fs.createReadStream([filePath, fileFormat].join('.'));
           
           readStream.on('data', function(data) {
               res.write(data);
@@ -146,7 +156,9 @@ exports.get_voice_file = function(req, res) {
       
           readStream.on('end', function() {
               res.end();
-              fs.unlinkSync([filePathDest, fileFormatDest].join('.'));
+              
+              if (convert)
+                fs.unlinkSync([filePath, fileFormat].join('.'));
           });
         }
     } else res.json({success: false, message: 'Error sessions'});
