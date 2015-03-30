@@ -35,7 +35,7 @@ var columns = [
         //console.info(event);
         var fileName  = $(this).attr('item-filename');
         var host      = $(this).attr('item-host');
-        //deleteFile(fileName, host);
+        deleteFile(fileName, host);
         console.info(fileName, host);
         event.preventDefault();
       });
@@ -57,55 +57,55 @@ $('.btnDelete').bind('click', function(event) {
 function deleteFile(filename, host) {
   var btnsDelete = [
     {
-        text: 'Ok',
-        "class": 'btn btn-primary',
-        click: function() {
-            $(this).dialog('close');
-            $.ajax({
-                type: 'GET',
-                data: {filename: filename, host: host},
-                url: '/data/voice_messages/delete',
-                dataType: 'json',
-                success: function(data) {
-                    if(data.success) {
-                        oTable.fnReloadAjax();
-                    }
-                }
-            });
-        }
+      text: 'Ok',
+      "class": 'btn btn-primary',
+      click: function() {
+        $(this).dialog('close');
+        $.ajax({
+          type: 'GET',
+          data: {filename: filename, host: host},
+          url: '/data/voice_messages/delete',
+          dataType: 'json',
+          success: function(data) {
+              if(data.success) {
+                  oTable.fnReloadAjax();
+              }
+          }
+        });
+      }
     },
     {
-        text: 'Cancel',
-        "class": 'btn btn-primary',
-        click: function() {
-            $(this).dialog('close');
-        }
+      text: 'Cancel',
+      "class": 'btn btn-primary',
+      click: function() {
+          $(this).dialog('close');
+      }
     }
   ];
-  showDialog('Warning!', '<p align="center">Delete this file?</p>', 'auto', 'auto', btnsDelete);
+  showDialog('Warning!', '<p align="center">Delete this file?</p>', '350', 'auto', btnsDelete);
 };
 
-function play_voice(host,filename){
-    var player;
-    var urlFile;
-    var title = filename.substring(filename.lastIndexOf('/') + 1);
-    // TODO запускаем аяксом скрипт загрузки файла от него получаем имя файла
-    if (filename && host) {
-        urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
-        $('#player').dialog({
-            height: 100, 
-            width: 430,
-            resizable: false, 
-            title: title,
-            close: function(event, ui){
-                if (player){
-                    player.pause();
-                }
+function play_voice(host, filename){
+  var player;
+  var urlFile;
+  var title = filename.substring(filename.lastIndexOf('/') + 1);
+  // TODO запускаем аяксом скрипт загрузки файла от него получаем имя файла
+  if (filename && host) {
+    urlFile = '/data/voice_messages/get_voice_file?host=' + host + '&filename=' + filename;
+    $('#player').dialog({
+        height: 100, 
+        width: 430,
+        resizable: false, 
+        title: title,
+        close: function(event, ui){
+            if (player){
+                player.pause();
             }
-        });
-        
-        $('#player audio').attr('src',urlFile);
-        player = new MediaElementPlayer('#player audio');
-        player.play();
-    }
+        }
+    });
+    
+    $('#player audio').attr('src',urlFile);
+    player = new MediaElementPlayer('#player audio');
+    player.play();
+  }
 }

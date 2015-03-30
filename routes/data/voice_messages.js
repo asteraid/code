@@ -63,6 +63,7 @@ exports.delete = function(req, res) {
         if (!err) {
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
+            exec_command(['ssh', host, 'rm -f', '/var/log/asterisk/monitor/', fileName].join(' '), function(error, out) {});
             res.json({success: true, message: 'File deleted success'});
           } else {
             res.json({success: false, message: 'Error: file not exists'});
