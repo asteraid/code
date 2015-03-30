@@ -88,14 +88,17 @@ exports.get_voice_file = function(req, res) {
         var convert         = true;
         
         var fileName = req.param('filename');
+        var fileNameArr = fileName.split('/');
         var file  = {};
           file.src  = {};
-            file.src.name   = fileName.split('/').pop().split('.')[0];
-            file.src.format = fileName.split('/').pop().split('.').pop();
+            file.src.name   = fileNameArr.pop().split('.')[0];
+            file.src.format = fileNameArr.pop().split('.').pop();
+            file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/');
             
           file.dest = {};
             file.dest.name    = file.src.name + req.session.user;
             file.dest.format  = 'mp3';
+            file.dest.path    = '/tmp/' + [file.dest.name, file.dest.format].join('.');
             
         console.log('file => ', file);
         
