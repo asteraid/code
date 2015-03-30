@@ -79,20 +79,20 @@ exports.get_voice_file = function(req, res) {
     if (req.session.user) {
         
         var fs          = require('fs');
-        
+        /*
         var fileNameSrc     = req.param('filename');
         var clearFileName   = fileNameSrc.split('/').pop();
         var fileNameSrcArr  = fileNameSrc.split('.');
         var fileFormatSrc;
         var filePathSrc;
         var convert         = true;
-        
+        */
         var fileName = req.param('filename');
         var fileNameArr = fileName.split('/');
         var file  = {};
           file.src  = {};
-            file.src.name   = fileNameArr.pop().split('.')[0];
-            file.src.format = fileNameArr.pop().split('.').pop();
+            file.src.name   = fileNameArr[fileNameArr.length - 1].split('.')[0];
+            file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
             file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/');
             
           file.dest = {};
@@ -101,6 +101,43 @@ exports.get_voice_file = function(req, res) {
             file.dest.path    = '/tmp/' + [file.dest.name, file.dest.format].join('.');
             
         console.log('file => ', file);
+        
+        
+        fs.existsSync([file.src.path, file.src.name, file.src.name].join(''), function(err) {
+          if (!err) {
+            sendFile(file.src.name, file.src.path, file.src.format)
+          } else {
+            res.writeHead(404, {"Content-Type": "text/plain"});
+            res.write("404 Not Found\n");
+            res.end();
+          }
+        });
+        
+        var sendFile = function(fileName, filePath, fileFormat) {
+          var stat        = fs.statSync([filePath, fileFormat].join('.'));
+          
+          res.writeHead(200, {
+              'Content-Type': 'audio/mpeg', 
+              'Content-Length': stat.size,
+              'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
+          });
+          
+          var readStream = fs.createReadStream([filePath, fileFormat].join('.'));
+          
+          readStream.on('data', function(data) {
+              res.write(data);
+          });
+      
+          readStream.on('end', function() {
+              res.end();
+              //fs.unlinkSync([filePath, fileFormat].join('.'));
+          });
+        }
+        
+        
+        /*
+        var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
+        var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
         
         
         var length = fileNameSrcArr.length;
@@ -185,7 +222,7 @@ exports.get_voice_file = function(req, res) {
               if (convert)
                 fs.unlinkSync([filePath, fileFormat].join('.'));
           });
-        }
+        } */
     } else res.json({success: false, message: 'Error sessions'});
 }
 
