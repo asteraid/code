@@ -91,7 +91,7 @@ exports.get_voice_file = function(req, res) {
         var fileNameArr = fileName.split('/');
         var file  = {};
           file.src  = {};
-            file.src.name   = fileNameArr[fileNameArr.length - 1].split('.')[0];
+            file.src.name   = fileNameArr[fileNameArr.length - 1].split('.').slice(0, -1).join('.');
             file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
             file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/') + '/';
             
@@ -104,6 +104,8 @@ exports.get_voice_file = function(req, res) {
         
         
         fs.exists([file.src.path, file.src.name, '.', file.src.name].join(''), function(exists) {
+          console.log('exists => ', exists);,
+          console.log(file.src.name, file.src.path, file.src.format);
           if (exists) {
             sendFile(file.src.name, file.src.path, file.src.format)
           } else {
