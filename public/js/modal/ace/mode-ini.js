@@ -111,7 +111,9 @@ var IniHighlightRules = function() {
             [ { token: 'punctuation.definition.string.end.ini',
                 regex: '"',
                 next: 'pop' },
-              { defaultToken: 'string.quoted.double.ini' } ] } ] }
+              { defaultToken: 'string.quoted.double.ini' } ] },
+         { caseInsensitive: true }
+      ] }
     
     this.normalizeRules();
 };
