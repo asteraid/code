@@ -18,6 +18,13 @@ var columns = [
       var buttonDelete = ['<a href="#" class="btn btn-small btnDelete" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
 
       return [buttonPlay, buttonLoad, buttonDelete].join(' ');
+    },
+    "fnCreatedCell": function (cell) {
+      console.info(cell);
+      $('.btnDelete', cell).bind('click', function(event) {
+        console.info(event);
+        event.preventDefault();
+      });
     }
   }
 ];
