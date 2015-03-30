@@ -33,11 +33,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/*
- * Tokens at https://github.com/ajaxorg/ace/wiki/Creating-or-Extending-an-Edit-Mode#commonTokens
- *
-*/
-
 define('ace/mode/ini', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/mode/text', 'ace/tokenizer', 'ace/mode/ini_highlight_rules', 'ace/mode/folding/cstyle'], function(require, exports, module) {
 
 
@@ -83,14 +78,16 @@ var IniHighlightRules = function() {
            push_: 
             [ { token: 'comment.line.semicolon.ini', regex: '$', next: 'pop' },
               { defaultToken: 'comment.line.semicolon.ini' } ] },
+         { token: ['keyword.operator', 'punctuation.definition.entity.ini', 'keyword.operator', 'punctuation.definition.comment.ini'],
+           regex: '(^\\s*exten|^\\s*same|^\\s*include)(\\s*=\\>?)(\\s*[_*a-zA-Z0-9.]+)(\\,|\\([a-zA-Z0-9]+\\))' },
          { token: 'constant.language',
-           regex: '^\\s*\\b([a-zA-Z0-9_.-]+)\\b(\\s*)(=)' },
+           regex: '^\\s*([a-zA-Z0-9_.-]+)\\s*' },
          { token: 'constant.numeric',
            regex: '[0-9]+' },
          { token: 'variable.language'  ,
            regex: '\\$\\{[a-zA-Z0-9_]+\\}' },
-         { token: 'keyword.bold',
-           regex: /AddQueueMember|ADSIProg|AELSub|AgentLogin|AgentMonitorOutgoing|AGI|AlarmReceiver|AMD|Answer|Authenticate|BackGround|BackgroundDetect|Bridge|Busy|CallCompletionCancel|CallCompletionRequest|CELGenUserEvent|ChangeMonitor|ChanIsAvail|ChannelRedirect|ChanSpy|ClearHash|ConfBridge|Congestion|ContinueWhile|ControlPlayback|DAHDIAcceptR2Call|DAHDIBarge|DAHDIRAS|DAHDIScan|DAHDISendCallreroutingFacility|DAHDISendKeypadFacility|DateTime|DBdel|DBdeltree|DeadAGI|Dial|Dictate|Directory|DISA|DumpChan|EAGI|Echo|EndWhile|ExecIfTime|ExecIf|Exec|ExitWhile|ExtenSpy|ExternalIVR|Festival|Flash|FollowMe|ForkCDR|GetCPEID|GosubIf|Gosub|GotoIfTime|GotoIf|Goto|Hangup|HangupCauseClear|IAX2Provision|ICES|ImportVar|Incomplete|IVRDemo|JabberJoin|JabberJoin_res_jabber|JabberJoin_res_xmpp|JabberLeave|JabberLeave_res_jabber|JabberLeave_res_xmpp|JabberSend|JabberSend_res_jabber|JabberSend_res_xmpp|JabberSendGroup|JabberSendGroup_res_jabber|JabberSendGroup_res_xmpp|JabberStatus|JabberStatus_res_jabber|JabberStatus_res_xmpp|JACK|Log|MacroIf|MacroExclusive|MacroExit|Macro|MailboxExists|MeetMe|MeetMeAdmin|MeetMeChannelAdmin|MeetMeCount|MessageSend|Milliwatt|MinivmAccMess|MinivmDelete|MinivmGreet|MinivmMWI|MinivmNotify|MinivmRecord|MixMonitor|Monitor|Morsecode|MP3Player|MSet|MusicOnHold|NBScat|NoCDR|NoOp|ODBC_Commit|ODBC_Rollback|ODBCFinish|Originate|OSPAuth|OSPFinish|OSPLookup|OSPNext|Page|ParkAndAnnounce|ParkedCall|Park|PauseMonitor|PauseQueueMember|Pickup|PickupChan|Playback|PlayTones|PrivacyManager|Proceeding|Progress|Queue|QueueLog|RaiseException|Read|ReadExten|ReadFile|ReceiveFAX|Record|RemoveQueueMember|ResetCDR|RetryDial|Return|Ringing|SayAlpha|SayCountedAdj|SayCountedNoun|SayCountPL|SayDigits|SayNumber|SayPhonetic|SayUnixTime|SendDTMF|SendFAX|SendImage|SendText|SendURL|SetAMAFlags|SetCallerPres|SetMusicOnHold|Set|SIPAddHeader|SIPDtmfMode|SIPRemoveHeader|SIPSendCustomINFO|SkelGuessNumber|SLAStation|SLATrunk|SMS|SoftHangup|SpeechActivateGrammar|SpeechBackground|SpeechCreate|SpeechDeactivateGrammar|SpeechDestroy|SpeechLoadGrammar|SpeechProcessingSound|SpeechStart|SpeechUnloadGrammar|StackPop|StartMusicOnHold|StopMixMonitor|StopMonitor|StopMusicOnHold|StopPlayTones|System|TestClient|TestServer|Transfer|TryExec|TrySystem|UnpauseMonitor|UnpauseQueueMember|UserEvent|Verbose|VMAuthenticate|VMSayName|VoiceMail|VoiceMailMain|VoiceMailPlayMsg|WaitExten|WaitForNoise|WaitForRing|WaitForSilence|WaitMusicOnHold|WaitUntil|Wait|While|Zapateller/ },
+         { token: ['keyword.bold', 'punctuation.definition.entity.ini'],
+           regex: '(Zapateller|While|WaitUntil|WaitMusicOnHold|WaitForSilence|WaitForRing|WaitForNoise|WaitExten|Wait|VoiceMailPlayMsg|VoiceMailMain|VoiceMail|VMSayName|VMAuthenticate|Verbose|UserEvent|UnpauseQueueMember|UnpauseMonitor|TrySystem|TryExec|Transfer|TestServer|TestClient|System|StopPlayTones|StopMusicOnHold|StopMonitor|StopMixMonitor|StartMusicOnHold|StackPop|SpeechUnloadGrammar|SpeechStart|SpeechProcessingSound|SpeechLoadGrammar|SpeechDestroy|SpeechDeactivateGrammar|SpeechCreate|SpeechBackground|SpeechActivateGrammar|SoftHangup|SMS|SLATrunk|SLAStation|SkelGuessNumber|SIPSendCustomINFO|SIPRemoveHeader|SIPDtmfMode|SIPAddHeader|SetMusicOnHold|SetCallerPres|SetAMAFlags|Set|SendURL|SendText|SendImage|SendFAX|SendDTMF|SayUnixTime|SayPhonetic|SayNumber|SayDigits|SayCountPL|SayCountedNoun|SayCountedAdj|SayAlpha|Ringing|Return|RetryDial|ResetCDR|RemoveQueueMember|Record|ReceiveFAX|ReadFile|ReadExten|Read|RaiseException|QueueLog|Queue|Progress|Proceeding|PrivacyManager|PlayTones|Playback|PickupChan|Pickup|PauseQueueMember|PauseMonitor|ParkedCall|ParkAndAnnounce|Park|Page|OSPNext|OSPLookup|OSPFinish|OSPAuth|Originate|ODBC_Rollback|ODBCFinish|ODBC_Commit|NoOp|NoCDR|NBScat|MusicOnHold|MSet|MP3Player|Morsecode|Monitor|MixMonitor|MinivmRecord|MinivmNotify|MinivmMWI|MinivmGreet|MinivmDelete|MinivmAccMess|Milliwatt|MessageSend|MeetMeCount|MeetMeChannelAdmin|MeetMeAdmin|MeetMe|MailboxExists|MacroIf|MacroExit|MacroExclusive|Macro|Log|JACK|JabberStatus_res_xmpp|JabberStatus_res_jabber|JabberStatus|JabberSend_res_xmpp|JabberSend_res_jabber|JabberSendGroup_res_xmpp|JabberSendGroup_res_jabber|JabberSendGroup|JabberSend|JabberLeave_res_xmpp|JabberLeave_res_jabber|JabberLeave|JabberJoin_res_xmpp|JabberJoin_res_jabber|JabberJoin|IVRDemo|Incomplete|ImportVar|ICES|IAX2Provision|HangupCauseClear|Hangup|GotoIfTime|GotoIf|Goto|GosubIf|Gosub|GetCPEID|ForkCDR|FollowMe|Flash|Festival|ExternalIVR|ExtenSpy|ExitWhile|ExecIfTime|ExecIf|Exec|EndWhile|Echo|EAGI|DumpChan|DISA|Directory|Dictate|Dial|DeadAGI|DBdeltree|DBdel|DateTime|DAHDISendKeypadFacility|DAHDISendCallreroutingFacility|DAHDIScan|DAHDIRAS|DAHDIBarge|DAHDIAcceptR2Call|ControlPlayback|ContinueWhile|Congestion|ConfBridge|ClearHash|ChanSpy|ChannelRedirect|ChanIsAvail|ChangeMonitor|CELGenUserEvent|CallCompletionRequest|CallCompletionCancel|Busy|Bridge|BackgroundDetect|BackGround|Authenticate|Answer|AMD|AlarmReceiver|AGI|AgentMonitorOutgoing|AgentLogin|AELSub|ADSIProg|AddQueueMember)(\\()' },
  
          { token: 
             [ 'punctuation.definition.entity.ini',
@@ -112,8 +109,11 @@ var IniHighlightRules = function() {
                 regex: '"',
                 next: 'pop' },
               { defaultToken: 'string.quoted.double.ini' } ] },
-         { caseInsensitive: true }
-      ] }
+
+         {
+            caseInsensitive: true
+         }
+       ] }
     
     this.normalizeRules();
 };
