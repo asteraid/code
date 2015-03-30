@@ -103,14 +103,15 @@ exports.get_voice_file = function(req, res) {
         console.log('file => ', file);
         
         
-        fs.existsSync([file.src.path, file.src.name, file.src.name].join(''), function(err) {
-          if (!err) {
+        fs.exists([file.src.path, file.src.name, file.src.name].join(''), function(err) {
+          console.log(exists);
+          /*if (exists) {
             sendFile(file.src.name, file.src.path, file.src.format)
           } else {
             res.writeHead(404, {"Content-Type": "text/plain"});
             res.write("404 Not Found\n");
             res.end();
-          }
+          }*/
         });
         
         var sendFile = function(fileName, filePath, fileFormat) {
