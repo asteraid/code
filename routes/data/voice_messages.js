@@ -48,6 +48,7 @@ exports.delete = function(req, res) {
   if (req.session.user) {
     var fs       = require('fs');
     var filename = req.param('filename');
+    var host     = req.param('host');
     var filePath = [config.voice_path, filename].join('');
     var query    = [
       'UPDATE ',
