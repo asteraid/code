@@ -117,6 +117,11 @@ exports.get_voice_file = function(req, res) {
         var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
 
+        console.log('fileNameSrc =>', fileNameSrc);
+        console.log('filePathDest =>', filePathDest);
+        console.log('fileFormatDest =>', fileFormatDest);
+        console.log('convert =>', convert);
+        
         if (convert) {
           exec_command(cmdSox, function(err,out) {
             if (!err) {
