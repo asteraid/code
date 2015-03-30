@@ -104,7 +104,7 @@ exports.get_voice_file = function(req, res) {
         
         
         fs.exists([file.src.path, file.src.name, '.', file.src.name].join(''), function(exists) {
-          console.log('exists => ', exists);,
+          console.log('exists => ', exists);
           console.log(file.src.name, file.src.path, file.src.format);
           if (exists) {
             sendFile(file.src.name, file.src.path, file.src.format)
