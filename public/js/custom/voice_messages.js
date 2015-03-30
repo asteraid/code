@@ -15,14 +15,28 @@ var columns = [
       var buttonLoad = '<a href="' + urlFile + '" class="btn btn-small" href="#" data-toggle="tooltip" title="download file" ><i class="icon-download-alt"></i></a>';
       
       /*var buttonDelete = ['<a href="#" class="btn btn-small btnDelete" onclick="deleteFile(\'' + filename + '\'); return false;" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');*/
-      var buttonDelete = ['<a href="#" class="btn btn-small btnDelete" data-toggle="tooltip" title="delete file">', '<i class="icon-remove"></i>', '</a>'].join('');
+      var buttonDelete = [
+        '<a ',
+          'href="#" ',
+          'class="btn btn-small btnDelete" ',
+          'item-host="' + host + '" ',
+          'item-filename="' + filename + '" ',
+          'data-toggle="tooltip" ',
+          'title="delete file" ',
+        '>',
+          '<i class="icon-remove"></i>',
+        '</a>'].join('');
 
       return [buttonPlay, buttonLoad, buttonDelete].join(' ');
     },
     "fnCreatedCell": function (cell) {
-      console.info(cell);
+      //console.info(cell);
       $('.btnDelete', cell).bind('click', function(event) {
-        console.info(event);
+        //console.info(event);
+        var fileName  = $(this).attr('item-filename');
+        var host      = $(this).attr('item-host');
+        //deleteFile(fileName, host);
+        console.info(fileName, host);
         event.preventDefault();
       });
     }
@@ -40,7 +54,7 @@ $('.btnDelete').bind('click', function(event) {
   return false;
 });
 
-function deleteFile(filename) {
+function deleteFile(filename, host) {
   var btnsDelete = [
     {
         text: 'Ok',
@@ -49,7 +63,7 @@ function deleteFile(filename) {
             $(this).dialog('close');
             $.ajax({
                 type: 'GET',
-                data: {filename: filename},
+                data: {filename: filename, host: host},
                 url: '/data/voice_messages/delete',
                 dataType: 'json',
                 success: function(data) {
