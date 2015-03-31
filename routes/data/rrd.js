@@ -1,5 +1,5 @@
 var RRDTool		= require('node-rrdtool');
-var path      = '/home/andrew/git/ps-projects/test/rrd/hosts/';
+var path      = '/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
 var db = new database(req, res);
