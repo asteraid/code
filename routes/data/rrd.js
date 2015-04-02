@@ -2,6 +2,15 @@ var RRDTool		= require('node-rrdtool');
 var path      = '/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
+  getDashboardItems(req, res, function(error, results) {
+    if (!error)
+      res.json({success: true, rows: results});
+    else
+      res.json({success: false, message: error});
+  });
+}
+
+/*exports.list = function(req, res) {
 var db = new database(req, res);
     if(db.connect) {
         var query = "SELECT * FROM `user_settings` WHERE `module` = 'dashboard' AND `category` = 'chart'";
@@ -33,8 +42,41 @@ var db = new database(req, res);
             } else res.json({success: false, rows: [], message: err.code });
         });
    } else res.json({ success: false, rows: [], message: 'Error sessions'});
-}
+}*/
 
+var getDashboardItems = function(req, res, callback) {
+  var db = new database(req, res);
+
+  if (db.connect) {
+    var query = "SELECT * FROM `user_settings` WHERE `module` = 'dashboard' AND `category` = 'chart'";
+    db.connect.query(query, function (err, results, fields) {
+      if (!err) {
+        if (results.length > 0) {
+          var var_name	= [];
+          var var_val		= {};
+          var priority	= 0;
+
+					results.forEach(function(item) {
+						var_val		= JSON.parse(item.var_val);
+						priority	= var_val.priority;
+
+						var_val.name        = item.var_name;
+						var_name[priority]  = var_val;
+          });
+					
+					//remove null elements from var_name
+					var_name = var_name.filter(function(elem) {return elem !== null});
+					
+          callback(null, var_name);
+        } else {
+          callback('Not found items', []);
+        }
+        db.destroy();
+        
+      } else callback(err.code, []);
+    });
+   } else callback('Error session', []);
+}
 
 /*exports.get_data_interval = function(req, res) {
 	var rrd			= new RRDTool();
@@ -127,12 +169,13 @@ exports.get_data_interval = function(req, res) {
 }
 
 exports.data_item = function (req, res) {
-  var fs      = require('fs');
-  var files   = fs.readdirSync(path);
-	var rrd     = new RRDTool();
-  var params  = req.param('params');
-  
-  var result = {};
+  var fs          = require('fs');
+  var files       = fs.readdirSync(path);
+	var rrd         = new RRDTool();
+  var params      = req.param('params');
+  var paramsCalc  = {};
+  var result      = {};
+  var resultRaw   = {};
   
   /*files.forEach(function(item) {
     result[item.split('.').shift()] = {};
@@ -153,8 +196,46 @@ exports.data_item = function (req, res) {
       if (files.length > 0) {
         getRRDInfo(rrd, path + files[0], callbackFunc);
       } else {
-        var count = Object.keys(result).length;
+        //agregate and convert data
+        for (var index in result) { 
+          if (result.hasOwnProperty(index)) {
+          
+            for (var prop in result[index]) {
+              if (result[index].hasOwnProperty(prop)) {
+                
+                if (!resultRaw.hasOwnProperty(prop))
+                  resultRaw[prop] = [];
+                
+                resultRaw[prop].push(1 * result[index][prop]);
+              }
+            }
+          }
+        }
         
+        var obj = {};
+        params.forEach(function(name) {
+          switch (paramsCalc[name]) {
+            case 'SUM':
+              obj[name] = resultRaw[name].reduce(function(a, b) {return a + b;}, 0);
+            break;
+            
+            case 'AVG':
+              obj[name] = resultRaw[name].reduce(function(a, b) {return a + b;}, 0)/resultRaw[name].length;
+            break;
+            
+            case 'MAX':
+            default:
+              obj[name] = Math.max.apply(null, resultRaw[name]);
+            break;
+          }
+        });
+        
+        console.info('resultRaw=>', resultRaw, 'obj=>', obj);
+        res.json({success: true, result: obj});
+        
+        //var count = Object.keys(result).length;
+        
+        /*
         // sum every param
         var obj = {};
         for (var index in result) { 
@@ -178,13 +259,26 @@ exports.data_item = function (req, res) {
             obj[i] = obj[i]/count;
           }
         }
-        
-        res.json({success: true, result: obj});
+        */
+
+        //res.json({success: true, result: obj});
       }
 		}
   };
   
-  getRRDInfo(rrd, path + files[0], callbackFunc);
+  getDashboardItems(req, res, function(error, results) {
+    if (!error && results.length > 0) {
+      results.forEach(function(item) {
+        paramsCalc[item.name] = item.calculation;
+      });
+      
+      getRRDInfo(rrd, path + files[0], callbackFunc);
+      //res.json({success: true, rows: results});
+    } else
+      res.json({success: false, message: error});
+  });
+  
+  //getRRDInfo(rrd, path + files[0], callbackFunc);
   
   /*getRRDInfo(rrd, '/home/andrew/git/ps-projects/test/rrd/hosts/' + files[0], function(response) {
     var fileName = files.shift().split('.').slice(0, -1);

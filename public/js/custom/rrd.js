@@ -155,7 +155,7 @@ function updateChartMain(param) {
   });
   //console.info(dataResult);
   plot = $.plot(flot_id, dataResult, options);
-  dataResult = null;
+  //dataResult = null;
   
   //add options params for goHome button on FlotControl
   plot.getOptions().dxaxis = { min: plot.getAxes().xaxis.min, max: plot.getAxes().xaxis.max };
