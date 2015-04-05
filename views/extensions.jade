@@ -19,6 +19,7 @@ block content
                             table( id="tblExtensions", class="table table-bordered table-striped table-hover")
                                 thead
                                     tr
+                                        th
                                         th Extension
                                         th Name
                                         th Template
@@ -27,10 +28,10 @@ block content
                                 button(id="btnAddExtension", class="btn")
                                     i.icon-plus
                                     &nbsp;Add
-                                button(id="btnEditExtension", class="btn dependent", disabled)
+                                button(id="btnEditExtension", class="btn")
                                     i.icon-pencil
                                     &nbsp;Edit
-                                button(id="btnDeleteExtension", class="btn dependent", disabled)
+                                button(id="btnDeleteExtension", class="btn")
                                     i.icon-remove
                                     &nbsp;Delete
     style
@@ -50,89 +51,4 @@ block content
         }
         .table-hover tbody > tr.row_selected > td {background: #c3c3c3; color: #fff;}
 
-    script
-
-        var currentRow = {};
-        //var templateJSON = {};
-        var modalId = '#modalWindow';
-
-        // получение темплейтов
-        /**/
-
-        var columns = [{"mData": "ext"}, { "mData": "name"}, {"mData": "template"}, {"mData": "context"}, {"mData": "extid"}];
-        var columnsDefs = [{"bSearchable": false, "bVisible": false, "aTargets": [4]}];
-        var oTable = setDataTableTest('tblExtensions', '/data/extensions/list', columns, columnsDefs);
-
-        var btnsAddExtension = [
-            {
-                text: "Save",
-                "class": 'btn',
-                click: function() {
-                    if($('#form-main').valid()) {
-                        var self = this;
-                        $.ajax({
-                            type: 'POST',
-                            url: '/data/extensions/save_ext',
-                            data: $(self).find('form:first').serializeArray(),
-                            dataType: 'json',
-                            async: false,
-                            success: function(data) {
-                                if(data.success) {
-                                    oTable.fnReloadAjax();
-                                    $(self).dialog('close');
-                                    changeBtnApply(1);
-                                } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
-                            }
-                        });
-                    }
-                }
-            }
-        ];
-
-        $('#tblExtensions tr').live('dblclick', function() {
-            showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
-        });
-
-        $('#btnAddExtension').click(function() {
-            showDialog('Add Extension', {url:'/modal/extension/add'}, '800', 'auto', btnsAddExtension);
-        });
-
-        $('#btnEditExtension').click(function() {
-            showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
-        });
-
-        $('#btnDeleteExtension').click(function() {
-            var btnsDelete =
-                [
-                    {
-                        text: 'Ok',
-                        "class": 'btn btn-primary',
-                        click: function() {
-                            $(this).dialog('close');
-                            $.ajax({
-                                type: 'POST',
-                                data: {id: currentRow.extid, ext: currentRow.ext},
-                                url: '/data/extensions/delete_ext',
-                                dataType: 'json',
-                                success: function(data) {
-                                    if(data.success) {
-                                        oTable.fnReloadAjax();
-                                        $('#btnEditExtension, #btnOnExtension, #btnOffExtension, #btnDeleteExtension').attr('disabled', true);
-                                        changeBtnApply(1);
-                                    }
-                                    showDialog('Extension',data.message,'auto','auto');
-                                }
-                            });
-                        }
-                    },
-                    {
-                        text: 'Cancel',
-                        "class": 'btn btn-primary',
-                        click: function() {
-                            $(this).dialog('close');
-                        }
-                    }
-                ];
-
-            showDialog('Information', '<p align="center">Delete this Extension?</p>', 'auto', 'auto', btnsDelete);
-        });
+    script(src="js/custom/extensions.js")

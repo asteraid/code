@@ -16,6 +16,51 @@ exports.list = function (req, res) {
     } else res.json({ success: false, rows: [], message: 'Error sessions'});
 };
 
+exports.save_group = function(req, res) {
+  var ids       = req.param('ids') ? req.param('ids').split(',') : [];
+  var template  = req.param('template');
+  var context   = req.param('context');
+  var query = [];
+  
+  if (ids.length > 0) {
+    query.push('START TRANSACTION;');
+    
+    ids.forEach(function(id) {  
+      query.push([
+        [
+          'UPDATE',
+            '`config`',
+          'SET',
+            '`var_val`', '=', ['"', context, '"'].join(''),
+          'WHERE',
+            '`item_id`', '=', id,
+            'AND',
+            '`var_name`', '=', '"context"'
+        ].join(' '),
+        ';',
+        ['DELETE FROM `config_relations` WHERE `item_id` = ', id].join(''),
+        ';',
+        ['INSERT INTO `config_relations` (`item_id`, `parent_id`) VALUES ', '(', id, ',', template, ')'].join(''),
+        ';'
+      ].join(''));
+    });
+    
+    query.push('COMMIT;');
+    console.log(query);
+    var db = new database(req, res);
+    if (db.connect) {
+      db.connect.query(query.join(''), function (error, results) {
+        if (!error) {
+          res.json({success: true});
+          db.destroy();
+        } else
+          res.json({success: false, message: error.code});
+      });
+    } else
+      res.json({success: false, message: 'Error session'});
+  } else res.json({success: false, message: 'Data error'});
+}
+
 exports.save_ext = function (req, res) {
     var db = new database(req, res);
     if(db.connect) {
@@ -138,28 +183,50 @@ exports.load_ext = function (req, res) {
     } else res.json({ success: false, message: 'Error sesisons'});
 };
 
-exports.delete_ext = function (req, res) {
-    var db = new database(req, res);
-    if(db.connect) {
-        var id = req.param('id'),
-            ext = req.param('ext')
+exports.delete = function (req, res) {
+  var db = new database(req, res);
+  if (db.connect) {
+    var ids  = req.param('id') || [];
+    //var ext = req.param('ext');
+    
+    var query = [];
+    
+    if (ids.length > 0) {
+      query.push('START TRANSACTION;');
 
-       // delete_ext
-        var query = "call delete_item('"+id+"', @result);";
-        db.connect.query(query, function (err, results, fields) {
-            if(!err) {
-                db.connect.query("SELECT @result", function(err, results, fields) {
-                    var result = results[0]['@result'];
-                    if(result) {
-                        res.json( {success: true,  results: result , message: "Internal Number "+ext+" deleted success!" });
-                        db.destroy();
-                    } else {
-                        res.json( {success: false,  results: result, message: "Internal Number not deleted!" });  
-                        db.destroy();
-                    }
-                });
-            } else res.json({success: false, message: err.code });
-        });            
-        // end delete_ext
-    } else res.json({ success: false, message: 'Error sesisons'});
+      ids.forEach(function(id) {
+        query.push('CALL delete_item(' + id + ', @result);');
+      });
+    
+      query.push('COMMIT;');
+      
+      db.connect.query(query.join(''), function(err, results) {
+        if (!err)
+          res.json({success: true, message: "Deleted success!"});
+        else
+          res.json({success: false, message: err.code});
+        db.destroy();
+      }); 
+    } else res.json({success: false, message: 'Data error'});
+    
+    
+
+     // delete_ext
+    /*var query = "call delete_item('"+id+"', @result);";
+    db.connect.query(query, function (err, results, fields) {
+      if (!err) {
+        db.connect.query("SELECT @result", function(err, results, fields) {
+            var result = results[0]['@result'];
+            if(result) {
+                res.json( {success: true,  results: result , message: "Internal Number "+ext+" deleted success!" });
+                db.destroy();
+            } else {
+                res.json( {success: false,  results: result, message: "Internal Number not deleted!" });  
+                db.destroy();
+            }
+        });
+      } else res.json({success: false, message: err.code });
+    });*/
+    // end delete_ext
+  } else res.json({success: false, message: 'Error sessions'});
 };

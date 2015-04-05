@@ -121,7 +121,7 @@ function updateChartMain(param) {
   var chartInfo	= getChartInfo(param);
   var data		= getDataInterval(param);
   //console.info(chartInfo);
-  if (plot) plot.destroy();
+  if (plot) {plot.destroy(); plot = null;}
   $(flot_id).attr('param-name', param);
   
   var dataResult = [];
