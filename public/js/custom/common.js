@@ -111,8 +111,9 @@ function setDataTableTest(idTable, sAjaxSource, aoColumns, aoColumnDefs, type, a
             ],
             "iDisplayLength" : 25,
             "fnInfoCallback": function(oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+              sPre = [iStart, '-', iEnd, 'of', iTotal, '(filtered). '].join(' ');
               if (oTable && oTable.find('input[type="checkbox"]').length > 0) {
-                sPre = 'Selected ' + oTable.getCheckedItems().length + ' | ' +  sPre;
+                sPre += oTable.getCheckedItems().length + ' selected';
               }
               
               return sPre;

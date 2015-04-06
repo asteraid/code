@@ -45,7 +45,8 @@ oTable.getCheckedItems = function(property) {
 
 oTable.updateInfo = function() {
   var selector = '.dataTables_info';
-  $(selector).html('Selected ' + this.getCheckedItems().length + ' | ' + $(selector).html().split('|').pop());
+  //$(selector).html('Selected ' + this.getCheckedItems().length + ' | ' + $(selector).html().split('|').pop());
+  $(selector).html($(selector).html().split('.').slice(0, 1) + '. ' + this.getCheckedItems().length + ' selected');
 }
 
 oTable.getTextInfo = function(property) {
