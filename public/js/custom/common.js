@@ -110,19 +110,33 @@ function setDataTableTest(idTable, sAjaxSource, aoColumns, aoColumnDefs, type, a
                 [25, 50, 'All']
             ],
             "iDisplayLength" : 25,
+            "fnInfoCallback": function(oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+              if (oTable && oTable.find('input[type="checkbox"]').length > 0) {
+                sPre = 'Selected ' + oTable.getCheckedItems().length + ' | ' +  sPre;
+              }
+              
+              return sPre;
+            },
             "fnRowCallback": function(nRow, aData, iDisplayIndex) {
-                $(nRow).click(function(){
-                        $(nRow).siblings('tr').removeClass('row_selected');
-                        $(nRow).addClass('row_selected');
+              $(nRow).click(function(){
+                $(nRow).siblings('tr').removeClass('row_selected');
+                $(nRow).addClass('row_selected');
 
-                        if(!aData.readonly)
-                            setButtonsState($(nRow).parent().parent().attr('id'));
-                        else
-                            setButtonsState($(nRow).parent().parent().attr('id'), 1);
+                if(!aData.readonly)
+                    setButtonsState($(nRow).parent().parent().attr('id'));
+                else
+                    setButtonsState($(nRow).parent().parent().attr('id'), 1);
 
-                        currentRow = aData;
-                });
-                //console.info(aData);
+                currentRow = aData;
+              });
+
+              $(nRow).find('input[type="checkbox"]').bind('change', function(event) {
+                aData.checked = $(this).is(':checked');
+                oTable.updateInfo();
+                //console.info(oTable.getCheckedItems());
+                //$('.dataTables_info').html(oTable.getCheckedItems().length + '|' + $('.dataTables_info').html().split('|').pop());
+                //$('.dataTables_info').html() + oTable.getCheckedItems()
+              });
             },
             "fnServerData": function (sSource, aoData, fnCallback) {
 	            aoData.push({"name": "type", "value": type});

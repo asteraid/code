@@ -22,46 +22,66 @@ var columns = [
 var columnsDefs = [];//[{"bSearchable": false, "bVisible": false, "aTargets": [5]}];
 var oTable = setDataTableTest('tblExtensions', '/data/extensions/list', columns, columnsDefs);
 
-oTable.isCheckedItems = function() {
-  return $(this).find('tbody input:checked').length > 0 ? true : false;
-}
-
 oTable.isSelectedRow = function() {
   return $(this).find('.row_selected').length > 0 ? true : false;
 }
 
-oTable.getCheckedItemsData = function(property) {
-  var result    = [];
-  var dt        = this;
-  var htmlItems = $(dt).find('tbody input:checked').closest('tr');
-  
-  $.each(htmlItems, function(index, el) {
-    var position = dt.fnGetPosition(el);
-    if (property)
-      result.push(dt.fnGetData(position)[property]);
-    else
-      result.push(dt.fnGetData(position));
+oTable.getCheckedItems = function(property) {
+  var dt      = this;
+  var ids     = dt.fnSettings().aiDisplay;
+  var result  = [];
+
+  ids.forEach(function(id) {
+    var data = dt.fnGetData(id);
+    if (data.checked)
+      if (property)
+        result.push(data[property]);
+      else
+        result.push(data);
   });
-  
+
   return result;
 }
 
+oTable.updateInfo = function() {
+  var selector = '.dataTables_info';
+  $(selector).html('Selected ' + this.getCheckedItems().length + ' | ' + $(selector).html().split('|').pop());
+}
+
+oTable.getTextInfo = function(property) {
+  var checkedItems = this.getCheckedItems(property);
+  var result = '';
+  var info = {};
+    info.total = checkedItems.length;
+    info.items = checkedItems.slice(0, 10);
+
+  if (info.total > 10)
+    result += info.items.slice(0, 10).join(', ') + ' ... (' + info.total + ' extensions)';
+  else
+    result += info.items.slice(0, 10).join(', ');
+    
+  return result;
+    
+}
+
 oTable.find('#selectAll').bind('click', function(event) {
-  var checked = false;
-  if ($(this).is(':checked'))
-    checked = true;
-  
+  var checked = $(this).is(':checked');
+
   var allRowsId = oTable.fnSettings().aiDisplayMaster;
   setChecked(allRowsId, false);
   
   var visibleRowsId = oTable.fnSettings().aiDisplay;
   setChecked(visibleRowsId, checked);
   
+  oTable.updateInfo();
+  
   function setChecked(data, checked) {
     $.each(data, function(index, id) {
       var row = oTable.fnGetNodes(id);
-      //oTable.fnGetData(id).checked = checked;
-      $(row).find('input').attr('checked', checked);
+      oTable.fnGetData(id).checked = checked;
+      $(row).find('input')
+        .attr('checked', checked)
+        .trigger('change');
     });
   }
 });
@@ -92,7 +112,7 @@ filterInput.unbind('keyup search input').bind('keyup search input', function (ev
   if (nWords.length > 0)
     nRegex = '(?=^((?!(' + nWords.join('|') + ')).)*$)';
 
-  console.info(pRegex+nRegex);
+  //console.info(pRegex+nRegex);
   oTable.fnFilter(pRegex+nRegex, null, true, false, true, true);
 });
 
@@ -158,7 +178,7 @@ $('#btnAddExtension').click(function() {
 });
 
 $('#btnEditExtension').click(function() {
-  if (oTable.isCheckedItems())
+  if (oTable.getCheckedItems().length > 1)
     showDialog('Group Edit Extensions', {url:'/modal/extension/edit_group'}, '800', 'auto', btnsAddGroupExtension);
   else
     if (oTable.isSelectedRow())
@@ -173,8 +193,8 @@ $('#btnDeleteExtension').click(function() {
       click: function() {
         $(this).dialog('close');
         var id = [];
-        if (oTable.isCheckedItems())
-          id = oTable.getCheckedItemsData('extid');
+        if (oTable.getCheckedItems().length > 0)
+          id = oTable.getCheckedItems('extid');
         else
           id = [currentRow.extid];
           
@@ -203,8 +223,8 @@ $('#btnDeleteExtension').click(function() {
     }
   ];
 
-    if (oTable.isCheckedItems())
-      showDialog('Warning!', '<p align="center">Delete extensions: ' + oTable.getCheckedItemsData('extension').join(', ') + '?</p>', 'auto', 'auto', btnsDelete);
+    if (oTable.getCheckedItems().length > 0)
+      showDialog('Warning!', '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>', 'auto', 'auto', btnsDelete);
     else
       if (oTable.isSelectedRow())
         showDialog('Warning', '<p align="center">Delete this Extension?</p>', 'auto', 'auto', btnsDelete);
