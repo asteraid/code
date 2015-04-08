@@ -191,6 +191,7 @@ exports.data_item = function (req, res) {
       result[fileName] = {};
 			params.forEach(function(item) {
 				result[fileName][item] = response[item].last_ds;
+        console.log('response => ', response[item]);
 			});
       
       if (files.length > 0) {
