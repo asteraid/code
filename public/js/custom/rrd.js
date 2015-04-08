@@ -28,14 +28,14 @@ var options = {
             fill: true,
             lineWidth: 2,
             steps: false
-            },
+            }/*,
           points: {
             show:true,
             radius: 4,
             symbol: "circle",
             fill: true,
             borderColor: "#fff"
-          }
+          }*/
         },
         xaxis: {mode: "time", timeformat: "%d.%m %h:%M"},
         yaxis: {min: 0},
