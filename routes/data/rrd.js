@@ -191,7 +191,7 @@ exports.data_item = function (req, res) {
       result[fileName] = {};
 			params.forEach(function(item) {
 				result[fileName][item] = response[item].last_ds;
-        console.log('response => ', response[item]);
+        //console.log('response => ', response[item]);
 			});
       
       if (files.length > 0) {
@@ -213,20 +213,31 @@ exports.data_item = function (req, res) {
           }
         }
         
+        function NaNtoZero(a) {
+          if (a instanceof Array)
+            a.forEach(function(item, index) {
+              a[index] = isNaN(item) ? 0 : item;
+            });
+          else
+            a = isNaN(a) ? 0 : a;
+
+          return a;
+        }
+        
         var obj = {};
         params.forEach(function(name) {
           switch (paramsCalc[name]) {
             case 'SUM':
-              obj[name] = resultRaw[name].reduce(function(a, b) {return a + b;}, 0);
+              obj[name] = resultRaw[name].reduce(function(a, b) {return NaNtoZero(a) + NaNtoZero(b);}, 0);
             break;
             
             case 'AVG':
-              obj[name] = resultRaw[name].reduce(function(a, b) {return a + b;}, 0)/resultRaw[name].length;
+              obj[name] = resultRaw[name].reduce(function(a, b) {return NaNtoZero(a) + NaNtoZero(b);}, 0)/resultRaw[name].length;
             break;
             
             case 'MAX':
             default:
-              obj[name] = Math.max.apply(null, resultRaw[name]);
+              obj[name] = Math.max.apply(null, NaNtoZero(resultRaw[name]));
             break;
           }
         });
