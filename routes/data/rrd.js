@@ -113,7 +113,7 @@ exports.get_data_interval = function(req, res) {
   var files   = fs.readdirSync(path);
   var result  = {};
   var time    = {};
-    time.start = '-1440min';
+    time.start = '-30min';
     time.end   = '-1min';
     time.step  = '60';
   
