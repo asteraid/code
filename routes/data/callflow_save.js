@@ -311,3 +311,56 @@ exports.insert_config_relation = function(req, res){
    }
 }
 
+exports.upload_file = function(req, res) {
+  var fs          = require('fs');
+  var file        = req.files && req.files.file ? req.files.file : undefined;
+  var name        = req.param('file_name') || '';
+  var description = req.param('file_description') || '';
+  var path        = config.soundpath + '/';
+  var ext         = '.wav';
+
+  if (file && file.name != '') {
+
+    if (name == '')
+      name = file.name.split('.').slice(0, -1).join('.');
+      
+    if (fs.existsSync(path + name + ext))
+      name += (new Date).getTime();
+      
+    if (description == '')
+      description = name;
+  
+    if (file.mime == 'audio/wav') {
+      fs.readFile(file.path, function(err, data) {
+      
+        if (!err) {
+          fs.writeFile(path + name + ext, data, function(err) {
+          
+            if (!err) {
+              var db = new database(req, res);
+              if (db.connect) {
+                var query = [
+                  'INSERT INTO `config_items`',
+                  '(`type`, `name`, `comment`)',
+                  'VALUES',
+                  '(', ['"sound",', '"', name, '",', '"', description, '"'].join(''), ')'
+                ].join(' ');
+                db.connect.query(query, function(err) {
+                  if (!err)
+                    res.json({success: true});
+                  else
+                    res.json({success: false, message: err.code});
+                  
+                  db.destroy();
+                });
+              } else res.json({success: false, message: 'Session error'});
+            } else res.json({success: false, message: 'Write file error'});
+            
+          });
+        } else res.json({success: false, message: 'Error read file'});
+        
+      });
+        
+    } else res.json({success: false, message: 'Wrong file type ' + file.mime});
+  } else res.json({success: false, message: 'File not exists'});
+}

@@ -96,7 +96,9 @@ function CallflowBlock(conf){
                     if (json.structure[i].field_type === 'list') {
                         (function(fieldId, fieldValue, default_value) {
                             var value = fieldValue ? [fieldValue] : [default_value];
-                            $.getJSON('/data/callflow_modules/get_list_view?view_name='+json.structure[i].list_data_view, function(result){
+                            var urlList = '/data/callflow_modules/get_list_view?view_name='+json.structure[i].list_data_view;
+                            $.getJSON(urlList, function(result){
+                             $('#field_' + fieldId).attr('url-list', urlList);
                              $('#field_' + fieldId).select2({multiple: false, data: result.data, width: 'element'});
                              $('#field_' + fieldId).select2('val', value);
                             });
@@ -104,11 +106,42 @@ function CallflowBlock(conf){
                     } else if (json.structure[i].field_type === 'multilist') {
                         (function(fieldId, fieldValue, default_value) {
                             var value = fieldValue ? fieldValue.split('|') : default_value.split('|');
-                            $.getJSON('/data/callflow_modules/get_list_view?view_name='+json.structure[i].list_data_view, function(result){
+                            var urlList = '/data/callflow_modules/get_list_view?view_name='+json.structure[i].list_data_view;
+                            $.getJSON(urlList, function(result){
+                             $('#field_' + fieldId).attr('url-list', urlList);
                              $('#field_' + fieldId).select2({multiple: true, separator: '|', data: result.data, width: 'element' });
                              $('#field_' + fieldId).select2('val', value);
                             });
                         })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);
+                    } else if (json.structure[i].field_type === 'upload_file') {
+                      $('input[type="file"]').bootstrapFileInput();
+                      $('.btn-upload').bind('click', function(event) {
+                        var self = this;
+                        event.preventDefault();
+                        $.ajax({
+                          type: 'POST',
+                          url: '/data/callflow_save/upload_file',
+                          async: false,
+                          data: new FormData($(this).closest('form')[0]),
+                          processData: false,
+                          contentType: false,
+                          dataType: 'json',
+                          success: function(data) {
+                            if (data.success) {
+                              var prevField = $('.btn-upload').closest('.control-group').prev().find('input[type="hidden"]');
+                              if (prevField.length > 0) {
+                                prevField.select2('destroy');
+                                var urlList = prevField.attr('url-list');
+                                $.getJSON(urlList, function(result) {
+                                 prevField.select2({multiple: false, data: result.data, width: 'element'});
+                                 prevField.select2('val', [result.data[result.data.length - 1].id]);
+                                });
+                              }
+                            } else alert(data.message);
+                          }
+                        });
+
+                      });
                     }
                 }
                     // Form Validation
@@ -156,16 +189,35 @@ function CallflowBlock(conf){
         html = ' <div class="control-group"> ' +
                 '<label class="control-label" for="field_' + structure.id + '">' + structure.field_name + '</label>' +
                     '<div class="controls">';
-        if ( structure.field_type !== 'textarea' ) {
-            html += '<input type="' + (structure.field_type === 'string' ? 'text' : 'hidden' ) +
-                        '" name="field_' + structure.id + '" id="field_' + structure.id + '" ' +
-                        (structure.required ==  1 ? 'required':'') +
-                        ' value="' + value  + '" />';
+                    
+        if (structure.field_type === 'upload_file') {
+          html += [
+            '<div style="padding: 3px 0;">',
+              '<input name="file" id="field_', structure.id, '" type="file" title="Browse .wav file" class="btn btn-small" />',
+            '</div>',
+            '<div style="padding: 3px 0;">',
+              '<input type="text" name="file_name" placeholder="Name" />',
+            '</div>',
+            '<div style="padding: 3px 0;">',
+              '<input type="text" name="file_description" placeholder="Description" />',
+            '</div>',
+            '<div style="padding: 3px 0;">',
+              '<button class="btn btn-primary btn-upload"><i class="icon-upload icon-white"></i> Upload</button>',
+            '</div>'
+          ].join('');
         } else {
-            html += '<textarea ' +
-                    ' name="field_' + structure.id + '" id="field_' + structure.id + '" ' +
-                        (structure.required ==  1 ? 'required':'') +
-                        '>' + value  + '</textarea>';
+
+          if ( structure.field_type !== 'textarea' ) {
+              html += '<input type="' + (structure.field_type === 'string' ? 'text' : 'hidden' ) +
+                          '" name="field_' + structure.id + '" id="field_' + structure.id + '" ' +
+                          (structure.required ==  1 ? 'required':'') +
+                          ' value="' + value  + '" />';
+          } else {
+              html += '<textarea ' +
+                      ' name="field_' + structure.id + '" id="field_' + structure.id + '" ' +
+                          (structure.required ==  1 ? 'required':'') +
+                          '>' + value  + '</textarea>';
+          }
         }
         if (structure.help_block) {
             html += '<span class="help-block">' + structure.help_block + '</span>';
