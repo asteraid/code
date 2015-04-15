@@ -113,9 +113,46 @@ function CallflowBlock(conf){
                              $('#field_' + fieldId).select2('val', value);
                             });
                         })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);
-                    } else if (json.structure[i].field_type === 'upload_file') {
+                    } else if (json.structure[i].field_type === 'select_sound') {
+                      //apply select2 to input field
+                      (function(fieldId, fieldValue, default_value) {
+                        var value   = fieldValue ? [fieldValue] : [default_value];
+                        var urlList = '/data/callflow_modules/get_list_view?view_name=' + json.structure[i].list_data_view;
+                        $.getJSON(urlList, function(result) {
+                          var field = '#field_' + fieldId;
+                          $(field).attr('url-list', urlList);
+                          $(field).select2({multiple: false, data: result.data, width: 'element'});
+                          $(field).select2('val', value);
+                        });
+                      })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);
+                      //
+                      
+                      //bind event on button + and -
+                      $('#btn-show-block-upload-file').bind('click', function(event) {
+                        event.preventDefault();
+                        $('[id^="block-"]').hide();
+                        $('#block-upload-file').show();
+                      });
+                      
+                      $('#btn-show-block-delete-file').bind('click', function(event) {
+                        event.preventDefault();
+                        $('[id^="block-"]').hide();
+                        $('#block-delete-file').show();
+                      });
+                      //
+                      
+                      //bind event on button Yes and No
+                      $('#btn-confirm-delete-file-yes').bind('click', function(event) {
+                        event.preventDefault();
+                      });
+                      $('#btn-confirm-delete-file-no').bind('click', function(event) {
+                        event.preventDefault();
+                      });
+                      //
+                      
                       $('input[type="file"]').bootstrapFileInput();
-                      $('.btn-upload').bind('click', function(event) {
+                      
+                      $('#btn-upload').bind('click', function(event) {
                         var self = this;
                         event.preventDefault();
                         $.ajax({
@@ -128,14 +165,15 @@ function CallflowBlock(conf){
                           dataType: 'json',
                           success: function(data) {
                             if (data.success) {
-                              var prevField = $('.btn-upload').closest('.control-group').prev().find('input[type="hidden"]');
-                              if (prevField.length > 0) {
-                                prevField.select2('destroy');
-                                var urlList = prevField.attr('url-list');
+                              var field = $(self).closest('.control-group').find('input[type="hidden"]');
+                              if (field.length > 0) {
+                                field.select2('destroy');
+                                var urlList = field.attr('url-list');
                                 $.getJSON(urlList, function(result) {
-                                 prevField.select2({multiple: false, data: result.data, width: 'element'});
-                                 prevField.select2('val', [result.data[result.data.length - 1].id]);
+                                 field.select2({multiple: false, data: result.data, width: 'element'});
+                                 field.select2('val', [result.data[result.data.length - 1].id]);
                                 });
+                                $('#block-upload-file').hide();
                               }
                             } else alert(data.message);
                           }
@@ -190,19 +228,29 @@ function CallflowBlock(conf){
                 '<label class="control-label" for="field_' + structure.id + '">' + structure.field_name + '</label>' +
                     '<div class="controls">';
                     
-        if (structure.field_type === 'upload_file') {
+        if (structure.field_type === 'select_sound') {
           html += [
-            '<div style="padding: 3px 0;">',
-              '<input name="file" id="field_', structure.id, '" type="file" title="Browse .wav file" class="btn btn-small" />',
+            '<input type="hidden" name="field_', structure.id, '" id="field_', structure.id, '" /> ',
+            '<button class="btn btn-small" title="Upload file" id="btn-show-block-upload-file"><i class="icon-plus"></i></button> ',
+            '<button class="btn btn-small" title="Delete file" id="btn-show-block-delete-file"><i class="icon-minus"></i></button>',
+            '<div id="block-upload-file" style="display: none;">',
+              '<div style="padding: 3px 0;">',
+                '<input name="file" type="file" title="Browse .wav file" class="btn btn-small" />',
+              '</div>',
+              '<div style="padding: 3px 0;">',
+                '<input type="text" name="file_name" placeholder="Name" />',
+              '</div>',
+              '<div style="padding: 3px 0;">',
+                '<input type="text" name="file_description" placeholder="Description" />',
+              '</div>',
+              '<div style="padding: 3px 0;">',
+                '<button class="btn btn-primary" id="btn-upload"><i class="icon-upload icon-white"></i> Upload</button>',
+              '</div>',
             '</div>',
-            '<div style="padding: 3px 0;">',
-              '<input type="text" name="file_name" placeholder="Name" />',
-            '</div>',
-            '<div style="padding: 3px 0;">',
-              '<input type="text" name="file_description" placeholder="Description" />',
-            '</div>',
-            '<div style="padding: 3px 0;">',
-              '<button class="btn btn-primary btn-upload"><i class="icon-upload icon-white"></i> Upload</button>',
+            '<div id="block-delete-file" style="display: none; text-align: center;">',
+              '<h5>Are you sure you want to delete this file?</h5>',
+              '<button class="btn btn-small" id="btn-confirm-delete-file-yes">Yes</button> ',
+              '<button class="btn btn-small" id="btn-confirm-delete-file-no">No</button>',
             '</div>'
           ].join('');
         } else {
