@@ -364,3 +364,7 @@ exports.upload_file = function(req, res) {
     } else res.json({success: false, message: 'Wrong file type ' + file.mime});
   } else res.json({success: false, message: 'File not exists'});
 }
+
+exports.delete_file = function(req, res) {
+  res.json({success: true});
+}

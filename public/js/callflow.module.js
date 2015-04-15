@@ -127,6 +127,10 @@ function CallflowBlock(conf){
                       })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);
                       //
                       
+                      function getField(obj) {
+                        return $(obj).closest('.control-group').find('input[type="hidden"]');
+                      }
+                      
                       //bind event on button + and -
                       $('#btn-show-block-upload-file').bind('click', function(event) {
                         event.preventDefault();
@@ -136,25 +140,57 @@ function CallflowBlock(conf){
                       
                       $('#btn-show-block-delete-file').bind('click', function(event) {
                         event.preventDefault();
-                        $('[id^="block-"]').hide();
-                        $('#block-delete-file').show();
+                        var field = getField(this);
+                        
+                        if (field.val() != 'Callout') {
+                          $('[id^="block-"]').hide();
+                          $('#block-delete-file').show();
+                        }
                       });
                       //
                       
                       //bind event on button Yes and No
                       $('#btn-confirm-delete-file-yes').bind('click', function(event) {
                         event.preventDefault();
+                        var self  = this;
+                        var field = getField(this);
+                        
+                        $.ajax({
+                          type: 'POST',
+                          url: '/data/callflow_save/delete_file',
+                          async: false,
+                          data: {id: 'id_file'},
+                          dataType: 'json',
+                          success: function(data) {
+                            if (data.success) {
+                              if (field.length > 0) {
+                                field.select2('destroy');
+                                var urlList = field.attr('url-list');
+                                $.getJSON(urlList, function(result) {
+                                 field.select2({multiple: false, data: result.data, width: 'element'});
+                                 field.select2('val', [result.data[0].id]);
+                                });
+                                $('#block-delete-file').hide();
+                              }
+                            } else alert(data.message);
+                          }
+                        });
                       });
+                      
                       $('#btn-confirm-delete-file-no').bind('click', function(event) {
                         event.preventDefault();
+                        console.info(this);
+                        $('#block-delete-file').hide();
                       });
                       //
                       
                       $('input[type="file"]').bootstrapFileInput();
                       
                       $('#btn-upload').bind('click', function(event) {
-                        var self = this;
                         event.preventDefault();
+                        var self = this;
+                        var field = getField(this);
+                        
                         $.ajax({
                           type: 'POST',
                           url: '/data/callflow_save/upload_file',
@@ -165,7 +201,6 @@ function CallflowBlock(conf){
                           dataType: 'json',
                           success: function(data) {
                             if (data.success) {
-                              var field = $(self).closest('.control-group').find('input[type="hidden"]');
                               if (field.length > 0) {
                                 field.select2('destroy');
                                 var urlList = field.attr('url-list');
