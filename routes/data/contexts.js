@@ -267,3 +267,25 @@ exports.delete = function(req, res) {
 		});
 	}
 };
+
+exports.getWhereIncluded = function(req, res) {
+  var db = new database(req, res);
+	if (db.connect) {
+		var id = req.param('id');
+
+		var query = 'SELECT DISTINCT `ci`.`name` FROM `config_items` `ci` JOIN `config_relations` `cr` ON (`ci`.`id` = `cr`.`parent_id` AND `cr`.`item_id` = ' + id + ')';
+
+	  db.connect.query(query, function (err, results, fields) {
+      if (!err) {
+        var contexts = [];
+        if (results.length > 0) {
+          results.forEach(function(item) {
+            contexts.push(item.name);
+          });
+        }
+        res.json({success: true, contexts: contexts.join(', ')});
+        db.destroy();
+			} else res.json({success: false, message: err.code});
+		});
+	}
+}
