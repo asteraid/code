@@ -112,10 +112,15 @@ function CallflowBlock(conf){
 
                              // convert value to data for select2
                              var valueC = [];
+                             
                              $.each(value, function(index, item) {
                               var current = result.data.filter(function(el) {if (el.id == item) return el;});
                               
-                              valueC.push(current.length > 0 ? current.shift() : {id: item, text: item});
+                              if (current.length > 0)
+                                valueC.push(current.shift());
+                              else
+                                if (item.trim() != "")
+                                  valueC.push({id: item, text: item});
                              });
                              //
                              

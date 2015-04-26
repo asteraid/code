@@ -54,6 +54,9 @@ function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
         ];
     }
     
+    if (height == 'auto')
+      height = $(window).height() - 50;
+    
     objModal.dialog({
         title: title,
         modal: true,
