@@ -52,7 +52,7 @@ block content
         });
         function loadConfig(editor_id, config_name, node_name) {
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: '/data/editor/get_config',
                 data: {config_name: config_name},
                 dataType: 'json',
@@ -74,7 +74,7 @@ block content
             var JavaScriptMode = require("ace/mode/ini").Mode;
     
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: '/data/editor/get_config',
                 data: {config_name: tab_name},
                 dataType: 'json',
@@ -180,7 +180,7 @@ block content
                                 }
 
                                 $.ajax({
-                                    type: 'GET',
+                                    type: 'POST',
                                     url: '/data/editor/save_config',
                                     data: {
                                         config_content: prep_data2db(current_config_name, current_editor, current_node_name),
@@ -240,7 +240,7 @@ block content
             if(position == 'start') $('#content').mask(opts);
 
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: '/data/editor/get_config',
                 data: {config_name: config},
                 dataType: 'json',

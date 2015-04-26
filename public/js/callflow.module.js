@@ -107,10 +107,35 @@ function CallflowBlock(conf){
                         (function(fieldId, fieldValue, default_value) {
                             var value = fieldValue ? fieldValue.split('|') : default_value.split('|');
                             var urlList = '/data/callflow_modules/get_list_view?view_name='+json.structure[i].list_data_view;
-                            $.getJSON(urlList, function(result){
+                            
+                            $.getJSON(urlList, function(result) {
+
+                             // convert value to data for select2
+                             var valueC = [];
+                             $.each(value, function(index, item) {
+                              var current = result.data.filter(function(el) {if (el.id == item) return el;});
+                              
+                              valueC.push(current.length > 0 ? current.shift() : {id: item, text: item});
+                             });
+                             //
+                             
                              $('#field_' + fieldId).attr('url-list', urlList);
-                             $('#field_' + fieldId).select2({multiple: true, separator: '|', data: result.data, width: 'element' });
-                             $('#field_' + fieldId).select2('val', value);
+                             $('#field_' + fieldId).select2({
+                                multiple: true,
+                                separator: '|',
+                                data: result.data,
+                                width: 'element',
+                                createSearchChoice:function(term, data) {
+                                  if ($(data).filter(function() {
+                                   return this.text.localeCompare(term) === 0;
+                                  }).length === 0) {
+                                   return {id:term, text:term};
+                                  }
+                                }
+                             });
+
+                             //$('#field_' + fieldId).select2('val', value);
+                             $('#field_' + fieldId).select2('data', valueC);
                             });
                         })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);
                     } else if (json.structure[i].field_type === 'select_sound') {
@@ -121,7 +146,12 @@ function CallflowBlock(conf){
                         $.getJSON(urlList, function(result) {
                           var field = '#field_' + fieldId;
                           $(field).attr('url-list', urlList);
-                          $(field).select2({multiple: false, data: result.data, width: 'element'});
+                          //$(field).select2({multiple: false, data: result.data, width: 'element'});
+                          $(field).select2({
+                            multiple: false,
+                            data: result.data,
+                            width: 'element'
+                          });
                           $(field).select2('val', value);
                         });
                       })(json.structure[i].id, json.structure[i].value, json.structure[i].default_value);

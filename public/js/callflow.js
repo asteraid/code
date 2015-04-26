@@ -235,7 +235,7 @@ function callFlowChart(){
                                      data.rows[i].text = data.rows[i].name + ' #' + data.rows[i].id;
                                      list_item.push(data.rows[i]);
 				 }
-				 if ( list_item.length > 0 ){
+				 if ( list_item.length > 0){
 				    var form = '<form id="items_form">';
 				    form += '<div class="form-horizontal">';
 				    form += ' <div class="control-group"> \
