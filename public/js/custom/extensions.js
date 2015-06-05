@@ -118,7 +118,7 @@ filterInput.unbind('keyup search input').bind('keyup search input', function (ev
 });
 
 
-var btnsAddExtension = [
+/*var btnsAddExtension = [
     {
         text: "Save",
         "class": 'btn',
@@ -139,6 +139,93 @@ var btnsAddExtension = [
                         } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                     }
                 });
+            }
+        }
+    }
+];*/
+var btnsAddExtension = [
+    {
+        text: "Save",
+        "class": 'btn',
+        click: function() {
+            var self  = this;
+            var valid = true;
+            var idModal = '#modal-dialog';
+            
+            $(idModal).find('form').each(function() {
+              if (!$(this).valid())
+                valid = false;
+            });
+            
+            if (valid) {
+              var steps = [];
+              
+              $(idModal).find('form').each(function(index) {
+                var form = {
+                  action  : $(this).attr('action'),
+                  method  : $(this).attr('method'),
+                  data    : $(this).serializeArray()
+                };
+                
+                var current = {};
+                
+                if (index == 0) {
+                  current = saveForm(form);
+                  steps.push({status: current.status, id: current.id});
+
+                  if (!current.status) {
+                    showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                    return ;
+                  }
+                  
+                  //$(this).find('input[name="action"]').val('edit');
+                  //$(this).find('input[name="id_ext"]').val(current.id);
+                  
+                } else if (index > 0) {
+                  if (steps[steps.length - 1].status == true) {
+                    current = saveForm(form, [{name: "item_id", value: steps[0].id}]);
+                    steps.push({status: current.status, id: current.id});
+                    
+                    if (!current.status) {
+                      showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                      return ;
+                    }
+                  }
+                }
+              });
+              
+              if (steps[steps.length - 1].status == true) {
+                oTable.fnReloadAjax();
+                $(self).dialog('close');
+                changeBtnApply(1);
+              } else {
+                console.info(steps);
+              }
+            }
+            
+            function saveForm(form, addParams) {
+              var result = {status: false, id: 0, message: ''};
+              
+              if (addParams && addParams.length > 0) {
+                addParams.forEach(function(item) {
+                  form.data.push(item);
+                });
+              }
+              
+              $.ajax({
+                type      : form.method,
+                url       : form.action,
+                data      : form.data,
+                dataType  : 'json',
+                async     : false,
+                success: function(data) {
+                  result.status   = data.success;
+                  result.id       = data.id;
+                  result.message  = data.message;
+                }
+              });
+              
+              return result;
             }
         }
     }
@@ -171,7 +258,7 @@ var btnsAddGroupExtension = [
 ];
 
 $('#tblExtensions tbody tr').live('dblclick', function() {
-    showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
+    showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
 });
 
 $('#btnAddExtension').click(function() {
@@ -183,7 +270,8 @@ $('#btnEditExtension').click(function() {
     showDialog('Group Edit Extensions', {url:'/modal/extension/edit_group'}, '800', 'auto', btnsAddGroupExtension);
   else
     if (oTable.isSelectedRow())
-      showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
+      //showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
+      showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
 });
 
 $('#btnDeleteExtension').click(function() {

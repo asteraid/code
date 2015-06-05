@@ -50,9 +50,9 @@ var query = function(req, sql) {
   connection.query(sql, params, function(err, rows, fields) {
     callback(err, rows || [], fields || []);
     
-    console.log("Error:", err);1
-    console.log("Running query:", sql, params);
-    console.log("err, rows, fields:", err, rows, fields);
+    //console.log("Error:", err);
+    //console.log("Running query:", sql, params);
+    //console.log("err, rows, fields:", err, rows, fields);
   });
 
   connection.end();

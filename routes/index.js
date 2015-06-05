@@ -99,16 +99,75 @@ exports.ttt = function(req, res) {
           res.send(404);
           return;
         }
-
-        res.render(pathView,
-          {
-            title:      config.application_name,
-            itemId:     itemId,
-            itemName:   'gogo',
-            req_params: req.query,
-            multi:      config.multi
+        
+        var tabs = {};
+        tabs.root = [baseDir, '/views/', controller, '/', urlParts[1], '/tabs/'].join('');
+        // if exist directory tabs
+        if (fs.existsSync(tabs.root)) {
+          tabs.nav      = [tabs.root, 'nav/'].join('');
+          tabs.content  = [tabs.root, 'content/'].join('');
+          
+          /*var renderHtml = function(path) {
+            var jade      = require('jade');
+            var result = '';
+            
+            if (fs.existsSync(path)) {
+              var list = fs.readdirSync(path);
+              if (list)
+                list.forEach(function(item) {
+                  var template  = fs.readFileSync([path, item].join(''), 'utf8');
+                  template = jade.compile(template);
+                  result += template();
+                });
+            }
+            
+            return result;
+          }*/
+          
+          var partial = require('../modules/render_partial');
+          
+          var renderHtml = function(path, params) {
+            var result = '';
+            
+            console.info(path, params);
+            
+            if (fs.existsSync(path)) {
+              var list = fs.readdirSync(path);
+              if (list)
+                list.forEach(function(item) {
+                  result += partial.render([path, item].join(''), params);
+                });
+            }
+            
+            return result;
           }
-        );
+          
+          //console.log(renderHtml(tabs.nav));
+          
+          
+          res.render(pathView,
+            {
+              title:      config.application_name,
+              itemId:     itemId,
+              html:       {
+                nav: renderHtml(tabs.nav),
+                content: renderHtml(tabs.content, {req_params: req.query})
+              },
+              itemName:   '',
+              req_params: req.query,
+              multi:      config.multi
+            }
+          );
+        } else
+          res.render(pathView,
+            {
+              title:      config.application_name,
+              itemId:     itemId,
+              itemName:   '',
+              req_params: req.query,
+              multi:      config.multi
+            }
+          );
     // data store
     } else if (controller === 'data') {
         var dataStore = [];

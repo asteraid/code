@@ -169,6 +169,28 @@ function getTemplatesList() {
     return list;
 }
 
+function fillFormModule(url, id) {
+  $.ajax({
+    type: 'POST',
+    data: {id: id},
+    url: url,
+    dataType: 'json',
+    async: false,
+    success: function(data) {
+      if (data.success)
+        $.each(data.data, function(index, el) {
+          var form_element = '[name="module[' + el.module_name + '][' + el.name + ']"';
+          if($(form_element).length) {
+            if($(form_element).hasClass('input-select2'))
+              $(form_element).select2('val', el.value);
+            else
+              $(form_element).val(el.value);
+          }
+        });
+    }
+  });
+}
+
 function fillFormSimple(url, id) {
     $.ajax({
         type: 'POST',
