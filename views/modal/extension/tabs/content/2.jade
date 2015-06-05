@@ -35,13 +35,12 @@ script(type='text/javascript')
   currentValidate.rules["module[provisioning][mac_address]"] = {
     required: true,
     regexp: /^([0-9A-F]{2}[:]){5}([0-9A-F]{2})$/,
-    remote: '/data/auth/list',
     maxlength: 50
   };
 
   currentValidate.messages["module[provisioning][mac_address]"] = {
     required: "Please enter mac address",
-    regexp: 'MAC-address',
+    regexp: 'MAC-address XX:XX:XX:XX:XX:XX',
     maxlength: regexpMessage.max_character
   };
   
