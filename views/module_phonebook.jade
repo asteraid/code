@@ -1,0 +1,54 @@
+extends layouts/extensions
+
+block content
+    include includes/header-nav
+    
+    include includes/sidebar
+    #content
+        include includes/content-header
+        .container-fluid
+            .row-fluid
+                .span12
+                    .widget-box
+                        .widget-title
+                            h5 Phone book
+                        .widget-content.nopadding
+                            form.form-horizontal(name="module_phonebook", method="post", action="/data/module_phonebook/save")
+                                input(type="hidden", name="id")
+                                .control-group
+                                    label.control-label URL
+                                    .controls
+                                      label
+                                        input(type="text", name="url", placeholder="http/ftp url for download csv-file", value="")
+                                        button#csv-download.btn.btn-small
+                                          i.icon-download-alt
+                                          | Download
+                                      label
+                                        input(type="checkbox", name="header") 
+                                        | Use header from csv-file
+                                .control-group
+                                    label.control-label Theme
+                                    .controls
+                                      label
+                                        select(name="theme")
+                                          option Light
+                                          option Dark
+                                #module-phonebook-csv-values
+                                .control-group
+                                    label.control-label Update every
+                                    .controls
+                                      label
+                                        input(type="text", name="update") 
+                                        |   minutes
+                                //-.control-group
+                                    label.control-label Logo
+                                    .controls
+                                      label
+                                        input(type="file", name="logo")
+                                -//
+                                .form-actions
+                                    button.btn.btn-primary(type="submit") Save
+    include includes/footer
+    script(src="/js/jquery.validate.js")
+    script(src="/js/custom/m_phonebook/common.js")
+    script(src="/js/custom/m_phonebook/edit.js")
