@@ -11,7 +11,7 @@ var path      = require('path');
 // Глобальные переменные
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
 //config          = require('./config.js');
-//config_default  = require('./modules/config/config_default.js');
+config_default  = require('./modules/config/config_default.js');
 operators       = new hash();
 mysql           = require('mysql');
 database        = function(req, res, sysuser) {
