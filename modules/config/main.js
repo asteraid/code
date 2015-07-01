@@ -19,12 +19,12 @@ function initParams(conf) {
         webserver_logio_port:   conf.webserver_logio_port || config_default.webserver.logio_port,
         webserver_tty_port:     conf.webserver_tty_port || config_default.webserver.tty_port,
 
-        phone_release_time:     conf.phone_release_time || config_default.phone_release_time,
+        /*phone_release_time:     conf.phone_release_time || config_default.phone_release_time,
         soundpath:              conf.soundpath || config_default.soundpath,
         exec_script_path:       conf.exec_script_path || config_default.exec_script_path,
         rrd_path:               conf.rrd_path || config_default.rrd_path,
         multi:                  conf.multi || config_default.multi,
-        server_hosts_file:      conf.server_hosts_file || config_default.server_hosts_file
+        server_hosts_file:      conf.server_hosts_file || config_default.server_hosts_file*/
     };
 }
 

@@ -10,6 +10,13 @@ var path      = require('path');
   
 // Глобальные переменные
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
+
+if (fs.existsSync('./config.user.js'))
+  require('./config.user.js');
+
+if (fs.existsSync('./config.user.js'))
+  require('./config.dev.js');
+
 //config          = require('./config.js');
 config_default  = require('./modules/config/config_default.js');
 operators       = new hash();
