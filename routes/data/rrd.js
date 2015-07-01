@@ -1,5 +1,5 @@
 var RRDTool		= require('node-rrdtool');
-var path      = '/opt/plentystars/store/rrd/';
+var path      = config.rrd_path;//'/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
   getDashboardItems(req, res, function(error, results) {
@@ -106,18 +106,34 @@ var getDashboardItems = function(req, res, callback) {
 	}
 }*/
 
+exports.test = function(req, res) {
+  var fs = require('fs');
+  fs.readdir(path, function(error, files) {
+    console.log(error, files);
+  });
+  res.json({success: true});
+}
+
 exports.get_data_interval = function(req, res) {
   var fs      = require('fs');
 	var rrd			= new RRDTool();
 	var param		= req.param('param');
-  var files   = fs.readdirSync(path);
+  var files;
   var result  = {};
   var time    = {};
     time.start = '-30min';
     time.end   = '-1min';
     time.step  = '60';
-  
-  var callbackFunc = function(response) {
+    
+  fs.readdir(path, function(error, items) {
+    if (error) res.json({success: false, message: error.message});
+    else {
+      files = items;
+      getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
+    }
+  });
+
+  var onGetRRDFetch = function(response) {
     var fileName = files.shift().split('.').slice(0, -1);
 
     if (param && response !== undefined) {
@@ -134,57 +150,42 @@ exports.get_data_interval = function(req, res) {
       });
       
       if (files.length > 0) {
-        getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, callbackFunc);
+        getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
       } else {
         res.json({success: true, result: result});
       }
 		}
-  };
-  
-  getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, callbackFunc);
-	
-  /*
-	if (param) {
-		getRRDFetch(rrd, config.rrd_path, '-1440min', '-1min', '60', function(response) {
-			var result = {};
-			result[param] = [];
-			
-			if (response !== undefined) {
-				var paramIndex = response.headers.indexOf(param);
-			
-				response.data.forEach(function(item) {
-					if (isNaN(item[paramIndex]))
-						item[paramIndex] = 0;
-						
-					result[param].push([item[0]*1000, item[paramIndex]]);
-				});
-			}
-				
-			res.json({success: true, result: result});
-		});
-	} else {
-		res.json({success: false});
-	}
-  */
+  }
 }
 
 exports.data_item = function (req, res) {
   var fs          = require('fs');
-  var files       = fs.readdirSync(path);
+  var files;
 	var rrd         = new RRDTool();
   var params      = req.param('params');
   var paramsCalc  = {};
   var result      = {};
   var resultRaw   = {};
   
-  /*files.forEach(function(item) {
-    result[item.split('.').shift()] = {};
-  });*/
+  fs.readdir(path, function(error, items) {
+    if (error) res.json({success: false, message: error.message});
+    else {
+      files = items;
+      
+      getDashboardItems(req, res, function(error, results) {
+        if (!error && results.length > 0) {
+          results.forEach(function(item) {
+            paramsCalc[item.name] = item.calculation;
+          });
+          
+          getRRDInfo(rrd, path + files[0], onGetRRDInfo);
+        } else
+          res.json({success: false, message: error});
+      });
+    }
+  });
   
-  //console.log(result);
-  //res.json({success: false});
-  
-  var callbackFunc = function(response) {
+  var onGetRRDInfo = function(response) {
     var fileName = files.shift().split('.').slice(0, -1);
 
     if (params && response) {
@@ -195,7 +196,7 @@ exports.data_item = function (req, res) {
 			});
       
       if (files.length > 0) {
-        getRRDInfo(rrd, path + files[0], callbackFunc);
+        getRRDInfo(rrd, path + files[0], onGetRRDInfo);
       } else {
         //agregate and convert data
         for (var index in result) { 
@@ -244,96 +245,10 @@ exports.data_item = function (req, res) {
         
         console.info('resultRaw=>', resultRaw, 'obj=>', obj);
         res.json({success: true, result: obj});
-        
-        //var count = Object.keys(result).length;
-        
-        /*
-        // sum every param
-        var obj = {};
-        for (var index in result) { 
-          if (result.hasOwnProperty(index)) {
-            var attr = result[index];
-            
-            for (var prop in result[index]) {
-              if (result[index].hasOwnProperty(prop)) {
-                if (obj.hasOwnProperty(prop))
-                  obj[prop] = 0;
-
-                obj[prop] += 1 * result[index][prop];
-              }
-            }
-          }
-        }
-        
-        //average value
-        for (var i in obj) {
-          if (obj.hasOwnProperty(i)) {
-            obj[i] = obj[i]/count;
-          }
-        }
-        */
-
-        //res.json({success: true, result: obj});
       }
 		}
-  };
-  
-  getDashboardItems(req, res, function(error, results) {
-    if (!error && results.length > 0) {
-      results.forEach(function(item) {
-        paramsCalc[item.name] = item.calculation;
-      });
-      
-      getRRDInfo(rrd, path + files[0], callbackFunc);
-      //res.json({success: true, rows: results});
-    } else
-      res.json({success: false, message: error});
-  });
-  
-  //getRRDInfo(rrd, path + files[0], callbackFunc);
-  
-  /*getRRDInfo(rrd, '/home/andrew/git/ps-projects/test/rrd/hosts/' + files[0], function(response) {
-    var fileName = files.shift().split('.').slice(0, -1);
-    
-    if (params && response) {
-      result[fileName] = {};
-			params.forEach(function(item) {
-				result[fileName][item] = response[item].last_ds;
-			});
-      
-      if (files.length > 0) {}
-		}*/ //else {
-      //res.json({success: true, result: result});
-    //}
-    
-    //console.log(result);
-    
-    //res.json({success: false});
-		/*if (params && response) {
-			params.forEach(function(item) {
-				result[item] = response[item].last_ds;
-			});
-		} else {
-      res.json({success: true, result: result});
-    }
-		res.json({success: true, result: result});*/
-  //});
-  
-  
-  /*
-	var type		= req.param('type');
-	var params		= req.param('params');
-	
-	getRRDInfo(rrd, config.rrd_path, function(response) {
-		var result = {};
-		if (params && response)
-			params.forEach(function(item) {
-				result[item] = response[item].last_ds;
-			});
-		
-		res.json({success: true, result: result});
-	});*/
-};
+  }
+}
 
 function getRRDInfo(rrdtool, file, callback) {
 	rrdtool.info(file, function(error, response) {
