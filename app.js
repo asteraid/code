@@ -20,13 +20,17 @@ var scheduler = require('./modules/scheduler');
       });
     }
   });
-  
-  /*scheduler.createJob({module: "ppp", schedule: "* *", execute: "console.log('good'); callback(null, 12344444)", enable: 1}, function(error, results) {
-  });*/
 
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
+
+if (fs.existsSync('./config.user.js'))
+  require('./config.user.js');
+
+if (fs.existsSync('./config.dev.js'))
+  require('./config.dev.js');
+
 //config          = require('./config.js');
-//config_default  = require('./modules/config/config_default.js');
+config_default  = require('./modules/config/config_default.js');
 operators       = new hash();
 mysql           = require('mysql');
 database        = function(req, res, sysuser) {
