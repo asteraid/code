@@ -1,23 +1,34 @@
 var config    = require('../config.js');
 var mysql     = require('mysql');
 
-var getConfig = function(req) {
+var getConfig = function(req, sys) {
   var conf = {};
-
-  if (req.session) {
-    if (req.session.dbuser && req.session.password)
-      conf = {
-        host:               config.db.host,
-        database:           config.db.database,
-        port:               config.db.port,
-        user:               req.session.dbuser || '',
-        password:           req.session.password || '',
-        dateStrings:        'DATETIME',
-        multipleStatements: true,
-        connectionLimit:    5
-      };
+  if (!sys) {
+    if (req.session) {
+      if (req.session.dbuser && req.session.password)
+        conf = {
+          host:               config.db.host,
+          database:           config.db.database,
+          port:               config.db.port,
+          user:               req.session.dbuser || '',
+          password:           req.session.password || '',
+          dateStrings:        'DATETIME',
+          multipleStatements: true,
+          connectionLimit:    5
+        };
+    } else
+      conf = req;      
   } else
-    conf = req;
+    conf = {
+      host:               config.db.host,
+      database:           config.db.database,
+      port:               config.db.port,
+      user:               config.db.user,
+      password:           config.db.password,
+      dateStrings:        'DATETIME',
+      multipleStatements: true,
+      connectionLimit:    5
+    };
     
   return conf;
 }
@@ -58,5 +69,6 @@ var query = function(req, sql) {
   connection.end();
 };
 
-module.exports.query = query;
+module.exports.query        = query;
 module.exports.checkConnect = checkConnect;
+module.exports.getConfig    = getConfig;

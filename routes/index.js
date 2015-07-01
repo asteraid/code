@@ -46,8 +46,8 @@ exports.ttt = function(req, res) {
     var noAuth      = ['auth', 'install'];
     var ids         = [];
     var item        = '';
-	var moduleUrl	= urlParts[0];
-	var user_type_id = req.session.user_type_id;
+    var moduleUrl	= urlParts[0];
+    var user_type_id = req.session.user_type_id;
   
     var transPath = require('../modules/trans_path');
     /*var multiRes = {};

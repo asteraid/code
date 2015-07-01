@@ -7,8 +7,23 @@ var io        = require('socket.io');
 var fs        = require('fs');
 var hash      = require('./hash_table');
 var path      = require('path');
+var db        = require('./modules/db');
+var scheduler = require('./modules/scheduler');
   
 // Глобальные переменные
+  global.cManager = scheduler.init(); //cron manager init or return object cron manager
+
+  scheduler.getJobsList(function(error, results) {
+    if (!error && results.length > 0) {
+      results.forEach(function(job) {
+        scheduler.addJob(job);
+      });
+    }
+  });
+  
+  /*scheduler.createJob({module: "ppp", schedule: "* *", execute: "console.log('good'); callback(null, 12344444)", enable: 1}, function(error, results) {
+  });*/
+
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
 //config          = require('./config.js');
 //config_default  = require('./modules/config/config_default.js');
