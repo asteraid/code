@@ -257,13 +257,13 @@ exports.get_contacts = function(req, res) {
     'ON',
       '(`mpv`.`column_id` = `mpc`.`id`)',
     'WHERE',
-      '`mpc`.`item_id` = ?'
+      '`mpc`.`item_id` = ?', 'AND', '`mpc`.`show` = 1'
   ].join(' ');
 
   db.query(db.getConfig(null, true), query, [params.id], function(error, results) {
     if (!error) {
+      var data = [];
       if (results.length > 0) {
-        var data = [];
         results.forEach(function(item) {
           if (!data[item.row])
             data[item.row] = [];
