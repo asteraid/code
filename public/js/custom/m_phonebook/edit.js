@@ -61,6 +61,8 @@ $('#csv-download').on('click', function(event) {
       if (data.success) {
         $inputId.val(data.id);
         getPreview(data.id);
+      } else {
+        showDialog('Information', data.error.message, '300', 'auto');
       }
     }
   });
@@ -142,8 +144,11 @@ $('form[name="module_phonebook"]').validate({
       dataType: 'json',
       async: false,
       success: function(data) {
-        if (data.success)
+        if (data.success) {
           getPreview($inputId.val());
+          showDialog('Information', data.message, '300', 'auto');
+        } else
+          showDialog('Information', data.error.message, '300', 'auto');
       }
     });
     

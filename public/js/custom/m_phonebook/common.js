@@ -8,11 +8,11 @@ function getCurrentItem() {
     async: false,
     success: function(data) {
       if (data.success)
-        if (data.results.length > 0)
+        if (data.results && data.results.length > 0)
           data.results.forEach(function(item) {
             result.id = item.item_id;
             result[item.name] = item.value;
-          });        
+          });
     }
   });
   
