@@ -14,7 +14,7 @@ config = fs.existsSync('./config.js') ? require('./config.js') : require('./modu
 if (fs.existsSync('./config.user.js'))
   require('./config.user.js');
 
-if (fs.existsSync('./config.user.js'))
+if (fs.existsSync('./config.dev.js'))
   require('./config.dev.js');
 
 //config          = require('./config.js');
