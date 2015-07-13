@@ -166,49 +166,89 @@ exports.get_config = function(req, res) {
 }
 
 exports.save_config = function(req, res) {
-	var config_name     = req.param('config_name');
-  var config_content  = req.param('config_content');
-  var deleted         = req.param('deleted');
-  var node            = req.param('node') || 'ALL';
-	
-    var db = new database(req, res);
-    if(db.connect) {
-        var query = [
-          'CALL insert_config(',
-            [
-              mysql.escape(config_content),
-              ['\'', config_name.replace('-custom', ''), '\''].join(''),
-              ['\'', node, '\''].join(''),
-              '@result'
-            ].join(','),
-          ')'
-        ].join('');
-        /*"call insert_config("+ mysql.escape(config_content) +", '" + config_name.replace('-custom', '') + "', @result)";*/
-        console.log(query);
-		db.connect.query(query, function (err, results) {
-			if(!err) { 
-                db.connect.query("SELECT @result", function (err, results, fields) {
-                    var result = results[0]['@result'];
-                    if(result) {
-                        res.json({success: true,  results: result , message: "Config saved"});
-                    } else {
-                        res.json({success: true,  results: result, message: "Config not saved"});
-                    }
+  var db = require('../../modules/db');
 
-                    if(deleted && deleted != 0) {delete_contexts();}
+  var mysql = require('mysql');
+  var param = {
+    data    : req.param('data'),
+    deleted : req.param('deleted')
+  };
+  
+  var isSuccess = (param.data && param.data.name && param.data.node && param.data.rows && param.data.rows.length > 0);
+  
+  if (isSuccess) {
+    
+    function NextRow() {
+      var i               = 0;
+      var lastCatMetric   = 0;
+      var lastVarMertic   = 0;
+      var lastCategory;
+      var data            = param.data.rows;
 
-                    db.destroy();
-                });				
-			} else {res.json({success: false, message: err.code });}
-		});
+      return function() {
+        var item = data && data[i] ? data[i] : null;
+        
+        if (!item) return ;
+        
+        if (item.category !== lastCategory) {
+          lastCatMetric++;
+          lastVarMetric = 0;
+          lastCategory  = item.category;
+        }
+
+        item.cat_metric  = lastCatMetric;
+        item.var_metric  = lastVarMetric++;
+        
+        var values = [
+          param.data.name, 0, 0,
+          item.category,
+          item.var_name,
+          item.var_val,
+          item.cat_metric,
+          item.var_metric,
+          param.data.node
+        ];
+        
+        item.sql = mysql.format('(?, ?, ?, ?, ?, ?, ?, ?, ?)', values);
+        
+        i++;
+        
+        return item;
+      }
     }
+    
+    var Row     = NextRow();
+    var query  = [];
+    var row;
+    
+    while (row = Row()) {
+      query.push(row.sql);
+    }
+    
+    var values = [query.join(','), param.data.name.replace('-custom', ''), param.data.node];
+    query = mysql.format('CALL insert_config (?, ?, ?, @result)', values);
+
+    db.query(req, query, function(error, results) {
+      if (error)
+        res.json({success: false, message: err.code});
+      else {
+        if (results[0][0]['result'] === 1) {
+          if (param.deleted && param.deleted != 0) {delete_contexts();}
+          res.json({success: true, message: "Config saved"});
+        } else
+          res.json({success: true, message: "Config not saved"});
+      }
+    });
+
+  } else
+    res.json({success: false, message: "Required parameters are empty"});
 	
-    function delete_contexts() {
-		var query = "call editor_context_delete(?, @result)";
-		db.connect.query(query, deleted, function(err, results, fields){
-			if(err) { 
-				return;
-			}
-		});
-    }
+  function delete_contexts() {
+    var query = "call editor_context_delete(?, @result)";
+    db.query(req, query, param.deleted, function(error, results){
+      if (error) { 
+        return;
+      }
+    });
+  }
 }
