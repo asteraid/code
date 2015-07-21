@@ -104,7 +104,7 @@ function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
 		});
 	}
   
-  if (typeof buttons === undefined) {
+  if (typeof buttons == 'undefined') {
     buttons = [
       {
         text    : 'OK',

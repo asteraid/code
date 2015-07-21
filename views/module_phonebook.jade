@@ -25,8 +25,14 @@ block content
                                           i.icon-download-alt
                                           | Download
                                       label
-                                        input(type="checkbox", name="header") 
+                                        input(type="checkbox", name="header", checked="checked") 
                                         | Use header from csv-file
+                                .control-group
+                                    label.control-label Update every
+                                    .controls
+                                      label
+                                        input(type="text", name="update", value="1", style="border: none;") 
+                                        |   minutes
                                 .control-group
                                     label.control-label Theme
                                     .controls
@@ -35,12 +41,6 @@ block content
                                           option Light
                                           option Dark
                                 #module-phonebook-csv-values
-                                .control-group
-                                    label.control-label Update every
-                                    .controls
-                                      label
-                                        input(type="text", name="update", value="1") 
-                                        |   minutes
                                 //-.control-group
                                     label.control-label Logo
                                     .controls

@@ -11,10 +11,6 @@ table.items     = '`m_phonebook_items`';
 table.values    = '`m_phonebook_values`';
 table.settings  = '`modules_values`';
 
-exports.test_rr = function(req, res) {
-  res.json({success: '!!!'});
-}
-
 exports.task_function = function(req, res) {
   var request = require('request');
   var token   = 'token';
@@ -88,59 +84,6 @@ exports.autoupdate_phonebook = function(req, res) {
   }
 }
 
-/*exports.test_d = function(req, res) {
-  var path      = require("path");
-  var appDir    = path.dirname(require.main.filename);
-  var module    = require(appDir + "/routes/data/module_phonebook");
-  var db        = require(appDir + "/modules/db");
-  var settings  = {};
-
-  module._current_item(function(error, results) {
-    if (error) callback(error);
-    else {
-      //if (results.length  0) {
-      if (results.length > 0) {
-        settings.item_id = results[0].item_id;
-        
-        results.forEach(function(item) {
-          settings[item.name] = item.value;
-        });
-
-        module._download(settings.url, function(error, result) {
-          if (error) callback(error);
-          else {
-            settings.new_id = result.id;
-            var query = [];
-            
-            db.query(db.getConfig(null, true), module._getSqlInsertColumns({current_id: settings.item_id, new_id: settings.new_id}), onInsertColumns);
-            
-            function onInsertColumns(error, results) {
-              if (error) callback(error);
-              else
-                module._getSqlInsertValues({id: settings.new_id, header: settings.header}, onInsertValues);
-            }
-            
-            function onInsertValues(error, sql) {
-              if (error) callback(error);
-              else {
-                query.push('START TRANSACTION');
-                query.push(sql);
-                query.push(module._getSqlUpdateSettings({new_id: settings.new_id, current_id: settings.item_id}));
-                query.push('COMMIT');
-                db.query(db.getConfig(null, true), query.join(';'), function(error, result) {
-                  if (error) res.json({error: error, result: result, query: query.join(';')});//callback(error);
-                  else
-                    res.json({success: true, result: result});
-                });
-              }
-            }
-            
-          }
-        });
-      } else callback({code: "Current item empty"});
-    }
-  });
-}*/
 
 /*
   params: {current_id: <int>, new_id: <int>}
@@ -447,19 +390,33 @@ var _download = function(url, callback) {
 
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; //disable check expaired certificates
 
-  request(url, function (error, response, body) {
+  request({url: url, encoding: null}, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      var md5Hash = crypto.createHash('md5').update(body).digest('hex');
+      var iconv   = require('iconv-lite');
+      var chardet = require('chardet');
       
-      query = 'SELECT * FROM ' + table.items + ' WHERE `hash` = ? LIMIT 1';
+      var encoding  = {from: chardet.detect(body), to: 'utf8'};
+      var md5Hash   = crypto.createHash('md5').update(body).digest('hex');
+      
+      body  = iconv.fromEncoding(body, encoding.from);
+      body  = body.toString();
+
+      query = [
+        'SELECT * FROM',
+          table.items + ' `ti`',
+        'JOIN', table.columns + ' `tc`',
+        'ON (ti.id = tc.item_id)',
+        'WHERE `hash` = ?',
+        'LIMIT 1'
+      ].join(' ');
+
       db.query(db.getConfig(null, true), query, [md5Hash], onCheckHash);
       
       function onCheckHash(error, results) {
         if (!error) {
-          //if (results.length > 0) {
           if (results.length == 0) {
-            query = 'INSERT INTO ' + table.items + ' (`hash`, `created`) VALUES (?, ?)';
-            var values = [md5Hash, new Date().getTime() / 1000];
+            query       = 'INSERT INTO ' + table.items + ' (`hash`, `created`) VALUES (?, ?)';
+            var values  = [md5Hash, new Date().getTime() / 1000];
             
             db.query(db.getConfig(null, true), query, values, function(error, results) {
               if (!error) {
@@ -496,16 +453,68 @@ exports.preview = function(req, res) {
 
   if (params.id && params.id > 0) {
     parse(params, function(error, result) {
-      if (!error) {
-        res.json(result);
+      //console.log('TEST ::::', error, result);
+      if (error) {
+        res.json({success: false, error: {message: error.message}});
       } else
-        res.json({success: false, error: error});
+        res.json(result);
     });
   } else
     res.json({success: false});
 }
 
 var parse = function(params, callback) {
+  var parser = require('babyparse');
+  
+  var header  = [];
+  var columns = 0;
+  var rows    = [];
+  var errors  = [];
+  
+  params.filename = params.id + '.csv';
+  params.header   = params.header ? 1 : 0;
+  
+  var file    = fs.readFileSync('temp/' + params.filename);
+  var parsed  = parser.parse(file.toString(), {preview: params.preview ? 10 : 0});
+  
+  if (parsed.data && parsed.data.length) {
+    parsed.data.forEach(function(row, i) {
+      if (params.header > 0 && row.length > 0 && header.length === 0) {
+        header = row;
+        columns = row.length;
+      } else {
+        if (columns === 0)
+          columns = row.length;
+
+        if (row.length == columns)
+          rows.push(row);
+        else
+          errors.push({message: 'Number of columns is not the same, error in line ' + (i + 1)});
+      }
+    });
+  } else {
+    callback({message: "Data is empty"});
+    return ;
+  }
+  
+  var query = 'SELECT * FROM ' + table.columns + ' WHERE `item_id` = ?';
+      
+  db.query(db.getConfig(null, true), query, [params.id], function(error, results) {
+    if (!error) {
+      callback(null, {
+        success : true,
+        header  : header,
+        rows    : rows,
+        columns : results,
+        errors  : errors
+      });
+    } else {
+      callback(error);
+    }
+  });
+}
+
+/*var parse = function(params, callback) {
   var csv     = require('csv');
   var parser  = csv.parse({skip_empty_lines: false});
 
@@ -518,9 +527,9 @@ var parse = function(params, callback) {
   params.header   = params.header ? 1 : 0
 
   parser.on('data', function(data) {
-    /*if (this.count > 2) {
-      return ;
-    }*/
+    //if (this.count > 2) {
+      //return ;
+    //}
     
     if (params.header > 0 && data.length > 0 && header.length === 0) {
       header = data;
@@ -534,9 +543,15 @@ var parse = function(params, callback) {
       else
         errors.push({message: 'Number of columns is not the same, error in line ' + this.count});
     }
+    
+    //console.log(errors);
+    console.log('data ===>>>', data);
   });
   
-  parser.on('error', function(error) {});
+  parser.on('error', function(error) {
+    console.log('ERROR => ', error);
+    errors.push({message: error.message});
+  });
   
   parser.on('finish', function() {
     var query = 'SELECT * FROM ' + table.columns + ' WHERE `item_id` = ?';
@@ -551,8 +566,10 @@ var parse = function(params, callback) {
           errors  : errors
         });
 
-      } else
+      } else {
+        console.info('error in parser => ', error);
         callback(error);
+      }
     });
   });
   
@@ -561,4 +578,4 @@ var parse = function(params, callback) {
     streamOptions = {start: 0, end: 2000};
 
   fs.createReadStream('temp/' + params.filename, streamOptions).pipe(parser);
-}
+}*/

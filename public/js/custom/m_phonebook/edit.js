@@ -130,6 +130,8 @@ function getPreview(id) {
           .html(html)
           .find('tbody').append(result.join(''))
           .find('input[type="checkbox"]').uniform();
+      } else {
+        showDialog('Information', data.error.message, '300', 'auto');
       }
     }
   });
