@@ -61,7 +61,64 @@ exports.save_group = function(req, res) {
   } else res.json({success: false, message: 'Data error'});
 }
 
-exports.save_ext = function (req, res) {
+exports.save_ext = function(req, res) {
+  var db = require('../../modules/db');
+  
+  var query   = '';
+  var params  = {};
+  params.ext          = req.param('ext');
+  params.ext_name     = req.param('ext_name');
+  params.secret       = req.param('secret');
+  params.ext_template = req.param('ext_template');
+  params.context      = req.param('context');
+  params.id_ext       = req.param('id_ext') || 0;
+            
+  if (params.id_ext == 0) {
+    var query = "SELECT `ext` FROM `vExtensions` WHERE `ext` = '" + params.ext + "'";
+    
+    db.query(req, query, function(error, results) {
+      if (!error) {
+        if (results.length == 0) {
+          saveItem(function(error, object) {
+            res.json(object);
+          });
+        } res.json({success: false, message: "Number " + params.ext + " already exists!" });
+      } else res.json({success: false, message: error.code });
+    });
+  } else {
+    saveItem(function(error, object) {
+      res.json(object);
+    });
+  }
+
+  function saveItem(callback) {
+    db.query(req, getSqlCreate() + ' SELECT @result, @id_item;', function(error, results) {
+      if (!error) {
+        var out = results[1][0];
+        if (out['@result']) {
+          callback(null, {success: true, id: out['@id_item'] , message: "Internal Number " + params.ext + " saved success!"});
+        } else
+          callback(1, {success: false, message: "Internal Number isn't saved"})
+      } else callback(2, {success: false, message: error.code});
+    });
+  }
+  
+  function getSqlCreate() {
+    return sql = new getSQL({
+        id        : params.id_ext,
+        parent_id : params.ext_template,
+        itemtype  : "ext",
+        filename  : "sip.conf",
+        name      : params.ext,
+        comment   : params.ext_name,
+        params    : "secret;callerid;context",
+        values    : params.secret + ';' + params.ext_name + ' <' + params.ext + '>' + ';' + params.context,
+        out_2     : '@id_item'
+    }).save_item();
+  }
+  
+}
+/*exports.save_ext = function (req, res) {
     var db = new database(req, res);
     if(db.connect) {
         var ext = req.param('ext'),
@@ -75,7 +132,7 @@ exports.save_ext = function (req, res) {
         if(id_ext === undefined)
             id_ext = 0;
    
-        if(action == 'create') {
+        if (id_ext == 0) {
             // проверяем есть ли такой номер у клиента
             var query = "select ext from vExtensions where ext = '"+ext+"'";
             db.connect.query(query,function(err, results, fields) {
@@ -90,17 +147,21 @@ exports.save_ext = function (req, res) {
                             name: ext,
                             comment: ext_name,
                             params: "secret;callerid;context",
-                            values: secret + ';' + ext_name + ' <' + ext + '>' + ';' + context
+                            values: secret + ';' + ext_name + ' <' + ext + '>' + ';' + context,
+                            out_2: '@id_item'
                         });
 
                         var query = sql.save_item();
                         console.log(query);
                         db.connect.query(query, function(err, results, fields) {
-                            if(!err) {
-                                db.connect.query("SELECT @result", function(err, results, fields) {
+                          //console.log('results1=>', results);
+                            if (!err) {
+                                db.connect.query("SELECT @result, @id_item", function(err, results, fields) {
                                     var result = results[0]['@result'];
+                                    var itemId = results[0]['@id_item'];
+                                    //console.info('resuts2=>', results);
                                     if(result) {
-                                        res.json({success: true,  results: result , message: "Internal Number "+ext+" saved success!"});
+                                        res.json({success: true, id: itemId , message: "Internal Number "+ext+" saved success!"});
                                         db.destroy();
                                     } else {
                                         res.json( {success: false,  results: result, message: "Internal Number isn't saved" });
@@ -148,7 +209,7 @@ exports.save_ext = function (req, res) {
              // end save_ext
         }
     } else res.json({ success: false, message: 'Error sessions'});
-};
+};*/
 
 exports.load_ext = function (req, res) {
     var db = new database(req, res);

@@ -8,7 +8,7 @@ if($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
 }
 
 //modal window
-function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
+function showDialog_old(title, body, width, height, buttons, beforeOpen, onClose) {
 	
     var objModal = $('#modal-dialog');
 
@@ -64,6 +64,68 @@ function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
     });
     
 }
+
+//modal window ver 2
+function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
+  var idDialog  = 'modal-dialog';
+  var objModal  = $('#' + idDialog);
+  
+  if (objModal.length == 0) {
+    $('body').append('<div id="' + idDialog + '"></div>');
+    objModal = $('#' + idDialog);
+  }
+
+  if(typeof body == 'object')
+    $.ajax({
+      type: 'GET',
+      url: body.url,
+      dataType: 'html',
+      async: false,
+      success: function(data) {
+          body = data;
+      }
+    });
+    
+  objModal.html(body);
+    
+  objModal.off('dialogopen'); 
+  if (typeof beforeOpen == 'function') {
+    objModal.on('dialogopen', beforeOpen);
+  }
+	
+	if(typeof onClose == 'function') {
+    objModal.on('dialogclose', onClose);
+	} else {
+    objModal.off('dialogclose');
+    objModal.on('dialogclose', function(event, ui) {
+      $(this)
+        .dialog('destroy')
+        .remove();
+		});
+	}
+  
+  if (typeof buttons == 'undefined') {
+    buttons = [
+      {
+        text    : 'OK',
+        "class" : 'btn btn-primary',
+        click   : function() {
+          $(this).dialog('close');
+        }
+      }
+    ];
+  }
+    
+  objModal.dialog({
+    title: title,
+    modal: true,
+    width: width,
+    height: height,
+    buttons: buttons,
+    maxHeight: $(window).height() - 50
+  });
+}
+
 //устанавливает состояние кнопок
 function setButtonsState(idTable, onlyDelete) {
     if(onlyDelete === undefined) {

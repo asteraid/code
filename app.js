@@ -7,8 +7,20 @@ var io        = require('socket.io');
 var fs        = require('fs');
 var hash      = require('./hash_table');
 var path      = require('path');
+var db        = require('./modules/db');
+var scheduler = require('./modules/scheduler');
   
 // Глобальные переменные
+  global.cManager = scheduler.init(); //cron manager init or return object cron manager
+
+  scheduler.getJobsList(function(error, results) {
+    if (!error && results.length > 0) {
+      results.forEach(function(job) {
+        scheduler.addJob(job);
+      });
+    }
+  });
+
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
 
 if (fs.existsSync('./config.user.js'))

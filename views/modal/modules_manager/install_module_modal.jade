@@ -1,34 +1,13 @@
-div.widget-box(style='min-width: 200px; margin-bottom: 0; margin-top: 0;')
-	form#form-main.form-horizontal(action="", method="post", enctype="multipart/form-data")
+.widget-box(style='min-width: 200px; margin-bottom: 0; margin-top: 0;')
+  form#form-main.form-horizontal(action="", method="post", enctype="multipart/form-data")
+    .control-group
+      label.control-label Select Module Package
+      .controls
+        input(type="file", name="module_package")
+        input(type="submit", name="submit", value="Install", style="display:none;")
 
-		div.control-group
-			label.control-label Select Module Package
-			div.controls
-				input(type="file", name="module_package")
-				input(type="submit", name="submit", value="Install", style="display:none;")
-
-script(type="text/javascript", src="/js/jquery.validate.js")
 script(type="text/javascript", src="/js/modal/common.js")
 script(type="text/javascript")
-	$('input[type=checkbox], input[type=radio], input[type=file]').uniform();
-	$( '#form-main' )
-		.submit( function( e ) {
-			$.ajax( {
-				url: '/data/modules_manager/install_module',
-				type: 'POST',
-				data: new FormData( this ),
-				processData: false,
-				contentType: false,
-				success: function(data) {
-					if(data.success) {
-						oTable.fnReloadAjax();
-						$('#btnInstallModule, #btnDeleteModule').attr('disabled', false);
-			
-					}
-					showDialog('Module', data.message, 'auto', 'auto');
-				}
-			} );
-			e.preventDefault();
-		});
+  $('input[type=checkbox], input[type=radio], input[type=file]').uniform();
 
-	
+  
