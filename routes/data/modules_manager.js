@@ -58,6 +58,18 @@ exports.get_modules_list = function(req, res){
     ].join(';');
   }
   
+  if (m === 'module_provisioning') {
+    paths = [
+      '/views/modal/extension/tabs/content/2.jade',
+      '/views/modal/extension/tabs/nav/2.jade',
+      '/routes/data/module_provisioning.js'
+    ];
+    
+    query = [
+      'SELECT * FROM modules LIMIT 1'
+    ].join(';');
+  }
+  
   console.log(paths, query);
   
   if (paths.length && query.length) {
