@@ -1,120 +1,154 @@
-var fs = require('fs'),
-	unzip = require('unzip'),
-	path = require('path'),
-	rmdir = require('rimraf');
+var fs    = require('fs');
+var unzip = require('unzip');
+var path  = require('path');
+var rmdir = require('rimraf');
+var db    = require('../../modules/db');
 	
 var baseDir = path.dirname(require.main.filename);//Full path to app directory
 
 exports.get_modules_list = function(req, res){
-	var db = new database(req, res);
-    if(db.connect) {
-		var query = "SELECT * FROM modules ORDER BY name";
-		db.connect.query(query, function (err, results, fields) {
-			if(!err) {
-				if(results.length) {
-					res.json( {success: true,  rows: results});
-					db.destroy();
-				} else {
-					res.json( {success: false,  message: "The are no modules installed!" });  
-					db.destroy();
-				}
-			}
-			else {
-				res.json({success: false, message: err.code });
-				db.destroy();
-			}
-		});
-	}
-	else 
-		res.json({ success: false, message: 'Error sesisons'});
+  var query = "SELECT * FROM modules ORDER BY name";
+
+  db.query(req, query, function(error, results) {
+    if (error) {
+      res.json({success: false, message: err.code });
+      return;
+    }
+    
+    if (results.length)
+      res.json({success: true, rows: results});
+    else
+      res.json({success: false, message: "The are no modules installed!"});
+  });
 };
 
-exports.install_module = function(req, res){
+/*exports.remove_module = function(req, res) {
+  var paths   = [];
+  var query   = [];
+  var m       = req.param('module');
+  
+  if (m === 'module_phonebook') {
+    paths = [
+      '/views/module_phonebook.jade',
+      '/views/module_phonebook_list.jade',
+      '/views/m_phonebook/',
+      '/views/layouts/m_phonebook.jade',
+      '/routes/data/module_phonebook.js',
+      '/public/js/custom/m_phonebook/'
+    ];
+    
+    query = [
+      'DROP TABLE IF EXISTS m_phonebook_columns',
+      'DROP TABLE IF EXISTS m_phonebook_items',
+      'DROP TABLE IF EXISTS m_phonebook_values',
+      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE href = "/module_phonebook"'
+    ].join(';');
+  }
+  
+  if (m === 'module_conference') {
+    paths = [
+      '/views/conference.jade',
+      '/views/layouts/conference.jade',
+      '/views/modal/conference/',
+      '/routes/data/conference.js'
+    ];
+    
+    query = [
+      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE href = "/conference"'
+    ].join(';');
+  }
+  
+  console.log(paths, query);
+  
+  if (paths.length && query.length) {
+    paths.forEach(function(path) {
+      rmdir(baseDir + path, function(error) {
+        if (error)
+          console.log("Error while removing directory: " + baseDir + path);
+        else
+          console.log("Remove complete: " + baseDir + path);
+      });
+    });
+    
+    db.query(db.getConfig(null, true), query, function(error, results) {
+      if (error)
+        console.log(error);
+      else
+        console.log('Data from database remove completed');
+    });
+  } else {console.log('Not deleted');}
+  
+  res.json({message: "See console node.js )"});
 
-	var moduleFile = req.files.module_package.path;
+}*/
 
-	var extractPath = baseDir + '/tmp' ;
-	console.log(extractPath);
-	
-	var package_file_name = req.files.module_package.name;
-	console.log("package_file_name", package_file_name);
-
-	var extracted_directory = package_file_name.substr(0, package_file_name.lastIndexOf('.'));
-	console.log("extracted_directory", extracted_directory);
+exports.install_module = function(req, res) {
+	var moduleFile          = req.files.module_package.path;
+	var extractPath         = baseDir + '/tmp';
+	var packageFileName     = req.files.module_package.name;
+	var extractedDirectory  = packageFileName.substr(0, packageFileName.lastIndexOf('.'));
+  var extractedPath       = '';
+//  var tmpDirecroty = '/tmp';
 
 	//Extract module archive
 	fs.createReadStream(moduleFile)
-		.pipe(unzip.Extract({path: extractPath})
-		.on('close', function(){
-				
-				var extractedPath = baseDir + '/tmp/' + extracted_directory
-				//read package info file
-				fs.readFile(extractedPath + "/module_info.json", 'utf8', function (err, data) {
-					console.log(extractedPath);
-					if (err) {
-						res.json({success: false, message: "Can not read module information file!"})
-					}
-					 
-					var package_info = JSON.parse(data);
-					console.log(package_info);
-					
-					//Extract module files
-					var module_files_archive = extractedPath + '/module_files.zip';
-					fs.createReadStream(module_files_archive)
-						.pipe(unzip.Extract({path: baseDir})
-							.on('close', function(){
-								
-								//read SQL file
-								fs.readFile(extractedPath + "/install.sql", 'utf8', function (err, query) {
-									if (err) {
-										res.json({success: false, message: "Can not read module SQL file!"})
-									}
-									
-									console.log(query);
-									var db = new database(req, res);
-									if(db.connect) {
-										db.connect.query(query, function (err, results, fields) {
-											if(!err) {
-												res.json({success: true, message: "Module successfuly installed!"});
-												db.destroy();
-											}
-											else {
-												res.json({success: false, message: err.code });
-												db.destroy();
-											}
-										});
-									}
-									else{
-										res.json({ success: false, message: 'Error sesisons'});
-										
-									}
-								});
-                
-                //Clear tmp folder
-								/*fs.exists(extractedPath, function(exists){
-									if(exists){
-										rmdir(extractedPath, function(error){
-											if(error){
-												console.log("Error while removing directory: " + extractedPath);
-											}
-										});
-									}
-								});*/
-							})
-						);
-			 
-				});
-			})
-		);
-	//fs.readFile(req.files.module_package.path, function (err, data) {
-	 //
-	  //console.log(data);
-//
-	//});
+    .pipe(unzip.Extract({path: extractPath}).on('close', OnCloseExtractModule));
+    
+  function OnCloseExtractModule() {
+    //extractedPath = baseDir + '/tmp/' + extractedDirectory + '/' + extractedDirectory;
+    extractedPath = baseDir + '/tmp/' + extractedDirectory;
+    //read package info file
+    fs.readFile(extractedPath + '/module_info.json', 'utf8', function(error, data) {
+      if (error) {
+        res.json({success: false, message: "Can not read module information file!"});
+        return ;
+      }
+      //var packageInfo = JSON.parse(data);
 
+      //Extract module files
+      var moduleFilesArchive = extractedPath + '/module_files.zip';
+      
+      fs.createReadStream(moduleFilesArchive)
+        .pipe(unzip.Extract({path: baseDir}).on('close', OnCloseExtractModuleFiles));
+    });
+  }
+  
+  function OnCloseExtractModuleFiles() {
+    //read SQL file
+    fs.readFile(extractedPath + '/install.sql', 'utf8', function(error, query) {
+      if (error) {
+        res.json({success: false, message: "Can not read module SQL file!"});
+        return ;
+      }
+      
+      db.query(req, query, function(error, results) {
+        if (error) {
+          res.json({success: false, message: error.code });
+          return ;
+        }
+        
+        //Clear tmp folder
+        fs.exists(extractedPath, function(exists) {
+          if (exists) {
+            rmdir(extractedPath, function(error){
+              if (error)
+                console.log("Error while removing directory: " + extractedPath);
+            });
+          }
+        });
+        
+        res.json({success: true, message: "Module successfuly installed!"});
+      });
+    });
+  }
 }
 
-exports.uninstall_module = function(req, res){
+exports.uninstall_module = function(req, res) {
+  //TODO: completing...
+  res.json({success: true, message: "Module successfuly uninstalled."});
+}
+
+/*exports.uninstall_module = function(req, res){
 	var db = new database(req, res);
 	
     if(db.connect) {
@@ -225,4 +259,4 @@ exports.uninstall_module = function(req, res){
 	else {
 		res.json({ success: false, message: 'Error sesisons'});
 	}
-}
+}*/
