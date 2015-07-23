@@ -1,4 +1,4 @@
-var RRDTool		= require('node-rrdtool');
+var RRDTool		= require('node-rrdtool-custom');
 var path      = config.rrd_path;//'/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
