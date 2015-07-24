@@ -11,7 +11,7 @@ exports.get_modules_list = function(req, res){
 
   db.query(req, query, function(error, results) {
     if (error) {
-      res.json({success: false, message: err.code });
+      res.json({success: false, message: error.code });
       return;
     }
     

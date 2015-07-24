@@ -22,7 +22,6 @@
     "rimraf": "2.2.8",
     "session-mongoose": "0.2.0",
     "socket.io": "0.9.16",
-    "tty.js": "0.2.13",
     "unzip": "0.1.11"
   },
   "devDependencies": {},
