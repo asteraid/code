@@ -226,10 +226,11 @@ function getCmdImport(target_db, full_path, db_params) {
 }
 
 function execAsteriskStart(callback) {
-    var exec    = require('child_process').exec, child;
+    /*var exec    = require('child_process').exec, child;
     var cmd     = 'service asterisk start';
 
     child = exec(cmd, function(err, stdout, stderr) {
         callback(stderr);
-    });
+    });*/
+    callback(null);
 }

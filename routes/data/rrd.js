@@ -191,7 +191,7 @@ exports.data_item = function (req, res) {
     if (params && response) {
       result[fileName] = {};
 			params.forEach(function(item) {
-				result[fileName][item] = response[item].last_ds;
+				result[fileName][item] = response[item] ? response[item].last_ds : 0;
         //console.log('response => ', response[item]);
 			});
       
