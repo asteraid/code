@@ -66,7 +66,9 @@ exports.get_modules_list = function(req, res){
     ];
     
     query = [
-      'SELECT * FROM modules LIMIT 1'
+      'DROP TABLE IF EXISTS `m_provisioning_files`',
+      'DROP TABLE IF EXISTS `m_provisioning_models`',
+      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE m.name = "Provisioning"'
     ].join(';');
   }
   
