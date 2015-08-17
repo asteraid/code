@@ -93,6 +93,17 @@ exports.index = function(req, res) {
 
     }
 
+    var apiController = require(path.join(baseDir + '/routes/api/' + controller));
+    if (action === 'index'){
+        apiController[action](req, res);
+        return;
+    }
+
+    if (!token){
+        res.send(403);
+        return;
+    }
+
     db.connect();
     db.query(sQuery, function(err, results, fields) {
         if (!err) {
@@ -103,18 +114,6 @@ exports.index = function(req, res) {
                     return;
                 } else {
                     db.destroy();
-
-                    var apiController = require(path.join(baseDir + '/routes/api/' + controller));
-                    if (action === 'index'){
-                        apiController[action](req, res);
-                        return;
-                    }
-
-                    if (!token){
-                        res.send(403);
-                        return;
-                    }
-
                     if (!req.session.user || !req.session.token === token){
                         doAuthentification(req, res, function(result) {
                             if(result.success)
