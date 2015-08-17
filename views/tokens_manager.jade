@@ -1,0 +1,131 @@
+extends layouts/manage_users
+
+block content
+
+    include includes/header-nav
+    include includes/sidebar
+    include includes/style-switcher
+
+    #modal-dialog(style='display: none;')
+
+    #content
+
+        include includes/content-header
+
+        .container-fluid
+            .row-fluid
+                .span12
+                    .widget-box
+                        .widget-title
+                        .widget-content.nopadding
+                            table#tblTokens.table.table-bordered.table-striped.table-hover
+                                thead
+                                    tr
+                                        th ID
+                                        th User
+                                        th Token
+                                        th Expiration
+                                        th Active
+                            .buttons_operation(style="margin: 5px; margin-top: -35px;", align="center")
+                                button#btnAddToken.btn
+                                    i.icon-plus
+                                    &nbsp;Add
+                                button#btnEditToken.btn.dependent
+                                    i.icon-pencil
+                                    &nbsp;Edit
+                                button#btnDeleteToken.btn.dependent
+                                    i.icon-remove
+                                    &nbsp;Delete
+
+    include includes/footer
+
+    script( src="js/select2.min.js")
+    script( src="js/jquery.dataTables.js")
+    script( src="js/custom/dataTableExt.js")
+
+    style
+        .table-hover tbody > tr:hover > td {background-color: #c3c3c3; color: #fff;}
+        .table-hover tbody > tr.row_selected > td {background: #c3c3c3; color: #fff;}
+
+    script.
+
+        var currentRow = {},
+            columns = [{"mData": "id"}, { "mData": "user"}, {"mData": "token"}, {"mData": "end_date"}, {"mData": "vActive"}],
+            columnsDefs = [{"bSearchable": false, "bVisible": false, "aTargets": [0]}],
+            oTable = setDataTableTest('tblTokens', '/data/tokens_manager/listAllTokens', columns, columnsDefs);
+
+        var btnsAddEditToken = [
+            {
+                text: "Save",
+                "class": 'btn',
+                click: function () {
+                    if ($('#form-main').valid()) {
+                        var self = this,
+                                formData = $(self).find('form:first').serializeArray();
+                        $.ajax({
+                            type: 'POST',
+                            url: '/data/tokens_manager/saveToken',
+                            data: formData,
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                if (data.success) {
+                                    oTable.fnReloadAjax();
+                                    $(self).dialog('close');
+                                }
+                                else
+                                    showDialog('Information', '<p align="center">' + data.message + '</p>', 'auto', 'auto');
+                            }
+                        });
+                    }
+                }
+            },
+            {
+                text: 'Cancel',
+                "class": 'btn',
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ];
+        $('#tblTokens tr').live('dblclick', function () {
+            showDialog('Edit status', {url: '/modal/tokens_manager/token?id=' + currentRow.id}, '800', 'auto', btnsAddEditToken);
+        });
+        $('#btnAddToken').click(function () {
+            showDialog('Add status', {url: '/modal/tokens_manager/token?id=0'}, '800', 'auto', btnsAddEditToken);
+        });
+        $('#btnEditToken').click(function () {
+            showDialog('Edit status', {url: '/modal/tokens_manager/token?id=' + currentRow.id}, '800', 'auto', btnsAddEditToken);
+        });
+        $('#btnDeleteToken').click(function () {
+            var btnsDelete =
+                    [
+                        {
+                            text: 'Ok',
+                            "class": 'btn btn-primary',
+                            click: function () {
+                                $(this).dialog('close');
+                                $.ajax({
+                                    type: 'POST',
+                                    data: {id: currentRow.id},
+                                    url: '/data/tokens_manager/deleteToken',
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        if (data.success) {
+                                            oTable.fnReloadAjax();
+                                        }
+                                        showDialog('Information', data.message, 'auto', 'auto');
+                                    }
+                                });
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            "class": 'btn btn-primary',
+                            click: function () {
+                                $(this).dialog('close');
+                            }
+                        }
+                    ];
+            showDialog('Information', '<p align="center">Delete this token?</p>', 'auto', 'auto', btnsDelete);
+        });
