@@ -81,29 +81,60 @@ exports.index = function(req, res) {
         urlParts    = req.path.split('/').slice(1),
         controller  = (urlParts.length > 2) ? urlParts[1] : 'index',
         action      = (urlParts.length > 3) ? urlParts[2] : 'index',
-        token       = req.param('token');
+        token       = req.param('token'),
+        db          = mysql.createConnection(config.db),
+        sQuery      = 'SELECT IF(begin_date > NOW(), 1, IF((end_date + INTERVAL 1 DAY) < NOW() , 2, IF(active = 0, 3, 0))) AS tokenErrCode, IF(begin_date > NOW(), "Token not active yet", IF((end_date + INTERVAL 1 DAY) < NOW() , "Token expired", IF(active = 0, "Token not active", "Ok"))) AS tokenErrText FROM user_tokens WHERE token = "' + token + '"';
 
     fs.existsSync = fs.existsSync || path.existsSync;
-    if(!fs.existsSync(path.join(baseDir + '/routes/api/' + controller + '.js'))) {
+    if (!fs.existsSync(path.join(baseDir + '/routes/api/' + controller + '.js'))){
 
         res.send(404);
         return;
 
     }
-    if (!token){
-        res.send(403);
-        return;
-    }
 
-    var apiController = require(path.join(baseDir + '/routes/api/' + controller));
-    if (!req.session.user || !req.session.token === token){
-        doAuthentification(req, res, function(result) {
-            if(result.success)
-                apiController[action](req, res);
-            else
-                res.json(result);
-        });
-    } else {
-        apiController[action](req, res);
-    }
+    db.connect();
+    db.query(sQuery, function(err, results, fields) {
+        if (!err) {
+            if (results.length){
+                if(!results[0].tokenErrCode == 0){
+                    db.destroy();
+                    res.json({succes: false, message: results[0].tokenErrText});
+                    return;
+                } else {
+                    db.destroy();
+
+                    var apiController = require(path.join(baseDir + '/routes/api/' + controller));
+                    if (action === 'index'){
+                        apiController[action](req, res);
+                        return;
+                    }
+
+                    if (!token){
+                        res.send(403);
+                        return;
+                    }
+
+                    if (!req.session.user || !req.session.token === token){
+                        doAuthentification(req, res, function(result) {
+                            if(result.success)
+                                apiController[action](req, res);
+                            else
+                                res.json(result);
+                        });
+                    } else {
+                        apiController[action](req, res);
+                    }
+                }
+            } else {
+                db.destroy();
+                res.json({succes: false, message:'Token not registered'});
+                return;
+            }
+        } else {
+            db.destroy();
+            res.json({succes: false, message: err});
+            return;
+        };
+    });
 };
