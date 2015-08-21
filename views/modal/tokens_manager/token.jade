@@ -106,19 +106,20 @@ block content
                 }).select2('data', json.data[json.selected]);
         };
 
-        function getRandomCode(length) {
-            length = length || 16;
-            var charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-                    retVal = "";
-            for (var i = 0, n = charset.length; i < length; ++i)
-                retVal += charset.charAt(Math.floor(Math.random() * n));
-            return retVal;
+        function getRandomCode() {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random()*16)%16 | 0;
+                d = Math.floor(d/16);
+                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+            return uuid;
         };
 
         $(document).ready(function() {
 
             $('a#btnGenerateToken').click(function () {
-                $('input#token').val(getRandomCode(32));
+                $('input#token').val(getRandomCode());
             });
 
             $('input#begin_date').datepicker();
