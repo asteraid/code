@@ -106,20 +106,25 @@ block content
                 }).select2('data', json.data[json.selected]);
         };
 
-        function getRandomCode() {
-            var d = new Date().getTime();
-            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random()*16)%16 | 0;
-                d = Math.floor(d/16);
-                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        function getUUID() {
+            var dDate = new Date().getTime();
+
+            var sUUID = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(sReplace) {
+
+                dDate = Math.floor(dDate / 16);
+                var iRandom = (dDate + Math.random() * 16) % 16 | 0;
+
+                return (sReplace == 'x' ? iRandom : (iRandom&0x3|0x8)).toString(16);
+
             });
-            return uuid;
+
+            return sUUID;
         };
 
         $(document).ready(function() {
 
             $('a#btnGenerateToken').click(function () {
-                $('input#token').val(getRandomCode());
+                $('input#token').val(getUUID());
             });
 
             $('input#begin_date').datepicker();
