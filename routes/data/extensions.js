@@ -82,7 +82,7 @@ exports.save_ext = function(req, res) {
           saveItem(function(error, object) {
             res.json(object);
           });
-        } res.json({success: false, message: "Number " + params.ext + " already exists!" });
+        } else res.json({success: false, message: "Number " + params.ext + " already exists!" });
       } else res.json({success: false, message: error.code });
     });
   } else {

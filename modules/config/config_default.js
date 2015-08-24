@@ -10,9 +10,7 @@ config_default['db_client'] = {
 };
 config_default.webserver = {
     port: 443,
-    ip_allowed: "['0.0.0.0']",
-    logio_port: 28778,
-    tty_port: 8000
+    ip_allowed: "['0.0.0.0']"
 };
 
 module.exports = config_default;

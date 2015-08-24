@@ -13,6 +13,4 @@ config.cdr.version = '1.0.0';
 config.webserver = {};
 config.webserver.port = 443;
 config.webserver.ip_allowed = ['0.0.0.0'];
-config.webserver.logio_port = 28778;
-config.webserver.tty_port = 8000;
 module.exports = config;

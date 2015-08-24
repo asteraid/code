@@ -1,0 +1,4 @@
+applicationName=Plentystars222
+serverHostsFile=/etc/ansible/hosts
+db_test=12345
+webserver_port=8443

@@ -4,9 +4,9 @@
  */
 exports.apply_config = function (req, res) {
     var exec = require('child_process').exec, child;
-    //child = exec('cd ' + config.exec_script_path  + ' && ' + './apply.sh',function(error,stdout,stderr){
-    //child = exec('./' + config.exec_script_path + 'apply.sh', function(error,stdout,stderr){
-    child = exec(config.exec_script_path + 'apply.sh', function(error,stdout,stderr){
+    //child = exec('cd ' + config.execScriptDir  + ' && ' + './apply.sh',function(error,stdout,stderr){
+    //child = exec('./' + config.execScriptDir + 'apply.sh', function(error,stdout,stderr){
+    child = exec(config.execScriptDir + 'apply.sh', function(error,stdout,stderr){
         if (!error) res.json({ success: true, message: stdout});
         else res.json({ success: false, message: stderr});
     });

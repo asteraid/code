@@ -3,7 +3,7 @@
 */
 
 var manager   = require('cron-job-manager');
-var config    = require('../config.js');
+//var config    = require('../config.js');
 var db        = require('./db');
 
 var sConfig = db.getConfig(null, true);

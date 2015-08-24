@@ -1,5 +1,5 @@
 var RRDTool		= require('node-rrdtool-custom');
-var path      = config.rrd_path;//'/opt/plentystars/store/rrd/';
+var path      = config.rrdDir;//'/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
   getDashboardItems(req, res, function(error, results) {
@@ -83,7 +83,7 @@ var getDashboardItems = function(req, res, callback) {
 	var param		= req.param('param');
 	
 	if (param) {
-		getRRDFetch(rrd, config.rrd_path, '-1440min', '-1min', '60', function(response) {
+		getRRDFetch(rrd, config.rrdDir, '-1440min', '-1min', '60', function(response) {
 			var result = {};
 			result[param] = [];
 			//console.log(response);

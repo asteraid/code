@@ -1,3 +1,6 @@
+var converter = require('./modules/config/converter');
+global.config = converter.mergeJSConfigs();
+
 var express   = require('express');
 var routes    = require('./routes/index');
 var dataStore = require('./routes/data');
@@ -21,6 +24,9 @@ var scheduler = require('./modules/scheduler');
     }
   });
 
+console.log(config);
+
+/*
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
 
 if (fs.existsSync('./config.user.js'))
@@ -28,6 +34,7 @@ if (fs.existsSync('./config.user.js'))
 
 if (fs.existsSync('./config.dev.js'))
   require('./config.dev.js');
+*/
 
 //config          = require('./config.js');
 config_default  = require('./modules/config/config_default.js');
@@ -151,164 +158,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-/*function restrict(req, res, next) {
-  if ( req.session.user ) {
-    next();
-  } else {
-    res.redirect('/auth');
-  }
-}*/
-
-//app.all('/auth', );
-//app.all('*', restrict);
 app.all('*', routes.ttt);
-
-/*
-app.get('/',restrict, routes.index);
-app.get('/templates',restrict, routes.index);
-app.get('/extensions',restrict, routes.index);
-app.get(/^\/callflows/, restrict, routes.index);
-app.get('/callflows_list',restrict, routes.index);
-app.get('/servers',restrict, routes.index);
-app.get('/trunks',restrict, routes.index);
-app.get('/rules',restrict, routes.index);
-app.get(/^\/contexts/, restrict, routes.index);
-app.get(/^\/modal/, restrict, routes.index);
-app.get('/items',restrict, routes.index);
-app.get('/logs',restrict, routes.index);
-app.get('/password',restrict, routes.index);
-
-app.post('/data/items/getparents', dataStore.items.getparents);
-
-app.get('/callhistory',restrict, routes.index);
-app.get('/editor',restrict, routes.index);
-app.get('/editor/list_configs',restrict, routes.editor.list_configs);
-app.get('/editor/get_config',restrict, routes.editor.get_config);
-app.get('/editor/save_config',restrict, routes.editor.save_config);
-app.get('/editor/get_context_id', restrict, routes.editor.get_context_id);
-app.get('/ring_groups',restrict, routes.index);
-app.get('/time_conditions',restrict, routes.index);
-app.get('/queues',restrict, routes.index);
-app.get('/sounds',restrict, routes.index);
-app.get('/conferences',restrict, routes.index);
-app.get('/network',restrict, routes.index);
-app.get('/storage',restrict, routes.index);
-app.get('/lifeboat',restrict, routes.index);
-app.get('/reboot',restrict, routes.index);
-app.get('/shutdown',restrict, routes.index);
-
-app.get('/auth', routes.auth.auth);
-app.get('/import', routes.auth.import);
-app.get('/data/installer', dataStore.installer.create);
-app.post('/data/installer', dataStore.installer.create);
-
-app.post('/sendsms', routes.auth.sendsms);
-app.post('/registration', routes.auth.registration);
-app.post('/login',routes.route.login);
-app.get('/set_sid', routes.route.set_sid);
-app.get('/sip_reload', routes.route.sip_reload);
-app.get('/module_reload', routes.route.module_reload);
-app.get('/logout', routes.route.logout);
-app.get('/incPhones', routes.route.incPhones);
-
-app.get('/data/extensions/list', dataStore.extensions.list);
-app.get('/data/rrd/list', dataStore.rrd.list);
-app.get('/data/rrd/data_item', dataStore.rrd.data_item);
-
-app.get('/data/rules/list', dataStore.rules.list);
-app.get('/data/rules/dialingRules', dataStore.rules.dialingRules);
-app.get('/data/rules/numberRules', dataStore.rules.numberRules);
-
-app.get('/data/contexts/list', dataStore.contexts.list);
-
-app.get('/data/callflow/get_callflow', dataStore.callflow_load.get_callflow);
-app.get('/data/callflow/get_callflow_structure', dataStore.callflow_load.get_callflow_structure);
-app.get('/data/callflow/list', dataStore.callflows.list);
-
-app.get('/data/callflow/get_module_class', dataStore.callflow_modules.get_module_class);
-app.get('/data/callflow/get_list_view', dataStore.callflow_modules.get_list_view);
-
-app.get('/data/ringgroup/get_ringgroup', dataStore.ringgroup.get_ringgroup);
-
-app.get('/data/callflow/get_sounddir', dataStore.callflows.get_sounddir);
-app.get('/data/callflow/get_soundfile', dataStore.callflows.get_soundfile);
-
-app.post('/data/callflow/rename', dataStore.callflows.rename);
-app.post('/data/callflow/save_callflow', dataStore.callflow_save.save);
-app.post('/data/callflow/delete_callflow', dataStore.callflows.delete_callflow);
-app.post('/data/callflow/new_callflow', dataStore.callflows.new_callflow);
-app.post('/data/callflow/insert_callflow', dataStore.callflow_save.insert_callflow);
-app.post('/data/callflow/insert_config_relation', dataStore.callflow_save.insert_config_relation);
-
-app.get('/data/ringgroup/get_ringgroup', dataStore.ringgroup.get_ringgroup);
-
-app.get('/data/callflow/get_sounddir', dataStore.callflows.get_sounddir);
-app.get('/data/callflow/get_soundfile', dataStore.callflows.get_soundfile);
-
-app.get('/export_xls', dataStore.export_xls.cdr_to_xls);
-
-app.post('/data/trunks/save-trunk', dataStore.trunks.save_trunk);
-app.post('/data/trunks/delete_trunk', dataStore.trunks.delete_trunk);
-app.post('/data/trunks/load_trunk', dataStore.trunks.load_trunk);
-app.post('/data/trunks/get_itemid', dataStore.trunks.get_itemid);
-
-app.post('/data/extensions/save-ext', dataStore.extensions.save_ext);
-app.post('/data/extensions/load_ext', dataStore.extensions.load_ext);
-app.post('/data/extensions/delete_ext', dataStore.extensions.delete_ext);
-app.post('/data/extensions/on_off_ext', dataStore.extensions.on_off_ext);
-
-app.post('/data/contexts/save_context', dataStore.contexts.save_context);
-app.post('/data/contexts/load_context', dataStore.contexts.load_context);
-app.post('/data/contexts/include', dataStore.contexts.include);
-app.post('/data/contexts/delete_included', dataStore.contexts.delete_included);
-app.post('/data/contexts/delete', dataStore.contexts.delete);
-app.post('/data/contexts/get_path', dataStore.contexts.get_path);
-app.post('/data/contexts/order_update', dataStore.contexts.order_update);
-
-app.post('/data/callflow/rename', dataStore.callflows.rename);
-app.post('/data/callflow/save_callflow', dataStore.callflow_save.save);
-app.post('/data/callflow/delete_callflow', dataStore.callflows.delete_callflow);
-app.post('/data/callflow/new_callflow', dataStore.callflows.new_callflow);
-app.post('/data/callflow/insert_callflow', dataStore.callflow_save.insert_callflow);
-app.post('/data/callflow/insert_config_relation', dataStore.callflow_save.insert_config_relation);
-app.post('/data/ringgroup/save_ringgroup', dataStore.ringgroup.save_ringgroup);
-app.post('/data/ringgroup/del_ringgroup', dataStore.ringgroup.del_ringgroup);
-
-app.get('/data/items/list', dataStore.items.list);
-app.get('/data/items/list_category_config', dataStore.items.list_category_config);
-
-app.post('/data/rules/save', dataStore.rules.save);
-app.post('/data/rules/load', dataStore.rules.load);
-app.post('/data/rules/delete', dataStore.rules.delete);
-app.post('/data/rules/is_included', dataStore.rules.is_included);
-
-app.get('/data/templates/list', dataStore.templates.list);
-app.post('/data/templates/load', dataStore.templates.load);
-app.post('/data/templates/save', dataStore.templates.save);
-app.post('/data/templates/delete', dataStore.templates.delete);
-
-app.post('/exec/apply_config', routes.exec.apply_config);
-
-app.post('/exec/save_server_comment', routes.exec.save_server_comment);
-app.post('/exec/accept_server', routes.exec.accept_server);
-app.post('/exec/delete_server', routes.exec.delete_server);
-app.post('/exec/reject_server', routes.exec.reject_server);
-app.post('/exec/restart_asterisk', routes.exec.restart_asterisk);
-app.post('/exec/restart_server', routes.exec.restart_server);
-
-app.post('/upload/sound', routes.upload.sound);
-
-app.post('/save_view_setting', routes.route.save_view_setting);
-
-app.post('/data/password/check_password', dataStore.password.check_password);
-app.post('/data/password/save_password', dataStore.password.save_password);
-
-*/
-
-// for debug
-/*app.get('/sessions', function (req, res) {
-    res.json(sessionsStore);
-});*/
 
 var serverssl = https.createServer(opts,app).listen(app.get('portssl'), function(){
 	console.log("Express server listening on port " + app.get('portssl'));
