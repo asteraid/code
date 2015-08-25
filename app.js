@@ -24,7 +24,7 @@ var scheduler = require('./modules/scheduler');
     }
   });
 
-console.log(config);
+//console.log(config);
 
 /*
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');

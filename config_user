@@ -1,4 +1,12 @@
-applicationName=Plentystars222
-serverHostsFile=/etc/ansible/hosts
-db_test=12345
+db_user=root
+db_password=root
+db_host=localhost
+db_database=ab_conf
+db_port=3306
+db_version=0.2.01234
+cdr_database=a_cdr
+cdr_version=1.0.0
+webserver_port=443
+webserver_ipAllowed=0.0.0.0
 webserver_port=8443
+webserver_tttDir=12344

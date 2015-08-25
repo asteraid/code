@@ -50,13 +50,49 @@ var getJSConfig = function(params) {
 
 function mergeJSConfigs() {
   var merge       = require('merge');
-  var configsList = ['config', 'config_user', 'config_dev'];
+  var path        = require('path');
+  var fs          = require('fs');
+  var mkdirp      = require('mkdirp');
+  
+  var configsList = ['config', 'config_user', 'config_dev', 'config.d/'];
   var result      = {};
 
   configsList.forEach(function(item) {
-    if (fs.existsSync('./' + item))
-      result = merge.recursive(result, getJSConfig({config: item}));
+    // is directory
+    if (/\/$/.test(item)) {
+      var configFiles = fs.readdirSync(path.join(appDir, item));
+      
+      if (configFiles.length) {
+        configFiles.sort();
+        configFiles.forEach(function(file) {
+          result = merge.recursive(result, getJSConfig({config: path.join(item, file)}));  
+        });
+      }
+    } else {
+      if (fs.existsSync('./' + item))
+        result = merge.recursive(result, getJSConfig({config: item}));
+    }
   });
+  
+  // replace by absolute paths
+  if (result.storeDir) {
+
+    Object.keys(result).forEach(function(key) {
+      if (key.indexOf('Dir') > -1 && key.indexOf('storeDir') === -1) {
+        if (!/^\//.test(result[key]))
+          result[key] = path.join(result.storeDir, result[key], '/');
+          
+        if (!fs.existsSync(result[key]))
+          try {
+            mkdirp.sync(result[key]);
+          } catch (e) {
+            console.log(e);
+          }
+      }
+    });
+
+  } 
+  //console.log(result);
   
   return result;
 }
