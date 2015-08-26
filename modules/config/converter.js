@@ -60,13 +60,17 @@ function mergeJSConfigs() {
   configsList.forEach(function(item) {
     // is directory
     if (/\/$/.test(item)) {
-      var configFiles = fs.readdirSync(path.join(appDir, item));
+      var pathConfigs = path.join(appDir, item);
       
-      if (configFiles.length) {
-        configFiles.sort();
-        configFiles.forEach(function(file) {
-          result = merge.recursive(result, getJSConfig({config: path.join(item, file)}));  
-        });
+      if (fs.existsSync(pathConfigs)) {
+        var configFiles = fs.readdirSync(pathConfigs);
+      
+        if (configFiles.length) {
+          configFiles.sort();
+          configFiles.forEach(function(file) {
+            result = merge.recursive(result, getJSConfig({config: path.join(item, file)}));  
+          });
+        }
       }
     } else {
       if (fs.existsSync('./' + item))
