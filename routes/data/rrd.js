@@ -175,16 +175,19 @@ exports.data_item = function (req, res) {
     else {
       files = items;
       
-      getDashboardItems(req, res, function(error, results) {
-        if (!error && results.length > 0) {
-          results.forEach(function(item) {
-            paramsCalc[item.name] = item.calculation;
-          });
-          
-          getRRDInfo(rrd, path + files[0], onGetRRDInfo);
-        } else
-          res.json({success: false, message: error});
-      });
+      if (files.length > 0)
+        getDashboardItems(req, res, function(error, results) {
+          if (!error && results.length > 0) {
+            results.forEach(function(item) {
+              paramsCalc[item.name] = item.calculation;
+            });
+            
+            getRRDInfo(rrd, path + files[0], onGetRRDInfo);
+          } else
+            res.json({success: false, message: error});
+        });
+      else 
+        res.json({success: false, message: "Files not found"});
     }
   });
   
