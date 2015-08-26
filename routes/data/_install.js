@@ -1,3 +1,171 @@
+var db  = require('../../modules/db');
+var Q   = require('q');
+
+exports.test_config = function(req, res) {
+  var converter = require('../../modules/config/converter');
+
+  res.json({config: converter.getConfig()});
+}
+
+exports.test = function(req, res) {
+  var deferred  = Q.defer();
+  //var dbs = {conf: '', cdr: ''};var db_config       = req.param('db_config');var db_cdr     =req.param('db_cdr');
+  
+  var dbs = {conf: 'a_conf_28', cdr: 'a_cdr_28'};
+  
+  var db_params = {};
+  db_params.host      = 'localhost';
+  db_params.user      = 'root';
+  db_params.password  = 'root';
+  db_params.multipleStatements = true;
+  
+  function CheckDbCreate(callback) {
+    var query = 'SHOW DATABASES';
+    
+    db.query(db_params, query, function(error, results) {
+      if (error) deferred.reject(error);
+      else {
+        var match = checkDbSame(results, ['123', '123']);
+        if (match.length && !overwrite) {
+          error = {fatal: true, match: true, code: '', message: 'Already exists databases: <strong>' + match.join(', ') + '</strong>. Overwrite them?'};
+          deferred.reject(error);
+        } else
+          deferred.resolve(true);
+      }
+    });
+    
+    return deferred.promise;
+  }
+  
+  /*
+    params: {db_name: '', filename: ''}
+  */
+  function CreateDb(params) {
+    if (params.db_name && params.filename) {
+      var query = [
+        'DROP DATABASE IF EXISTS `' + params.db_name + '`;',
+        'CREATE DATABASE `' + params.db_name + '`;'
+      ].join(' ');
+      
+      db.query(db_params, query, function(error, results) {
+        if (error)
+          deferred.reject(error);
+        else {
+          var exec = require('child_process').exec;
+          var child;
+
+          //file or path
+          if (params.filename.indexOf('/') > -1)
+              full_path = params.filename;
+          else {
+              var path = require('path');
+              full_path = path.dirname(require.main.filename) + '/dump/' + params.filename;
+          }
+          
+          cmd   = getCmdImport(params.db_name, full_path, db_params);
+          child = exec(cmd, function(error, stdout, stderror) {
+            if (stderror)
+              deferred.reject(stderror);
+            else
+              deferred.resolve(true);
+          });
+        }
+      });
+    }
+    
+    return deferred.promise;
+  }
+  
+  /*
+    params: {user: '', password: ''}
+  */
+  function ChangeDbPassword(params) {
+    var query = 'UPDATE `mysql`.`user` SET `password` = PASSWORD("' + params.password + '") WHERE User="' + params.user + '"; FLUSH PRIVILEGES;';
+    db.query(db_params, query, function(error, results) {
+      if (error)
+        deferred.reject(error);
+      else
+        deferred.resolve(true);
+    });
+    
+    return deferred.promise;
+  }
+  
+  /*
+    params: {password: ''}
+  */
+  function UpdateConfigEtc(params) {
+    var fs          = require('fs')
+    var configFile  = '/etc/odbc.ini';
+    var encoding    = 'utf8';
+
+    fs.readFile(configFile, encoding, function (error, data) {
+      if (error)
+        deferred.reject(error);
+      else {
+        var data = data.replace(/PASSWORD.*\n/g, 'PASSWORD    = ' + params.password + '\n');
+        
+        fs.writeFile(configFile, data, encoding, function (error) {
+          if (error)
+            deferred.reject(error);
+          else
+            deferred.resolve(true);
+            
+        });
+      }
+    });
+    
+    return deferred.promise;
+  }
+  
+  function StartAsterisk() {
+    var deferred  = Q.defer();
+    var spawn     = require('child_process').spawn;
+    var proc      = spawn('service asterisk start');
+
+    proc.on('error', function(error) {
+      deferred.reject(error);
+    });
+    
+    proc.on("exit", function(code) {
+      if (code !== 0) {
+        deferred.reject(code);
+      } else {
+        deferred.resolve();
+      }
+    });
+    
+    return deferred.promise;
+  }
+  
+  Q.fcall(CheckDbCreate)
+    .then(CreateDb({db_name: dbs.conf, filename: 'conf.sql'}))
+    .then(CreateDb({db_name: dbs.cdr, filename: 'a_cdr.sql'}))
+    .then(ChangeDbPassword({user: db_params.user, password: db_params.password}))
+    .then(UpdateConfigEtc({password: "12345"}))
+    .then(function() {
+      var config_params = {};
+      config_params.db_host           = db_params.host;
+      config_params.db_user           = db_params.user;
+      config_params.db_password       = '';//req.param('password_new') || req.param('password');
+      config_params.db_name_config    = dbs.conf;
+      config_params.db_name_cdr       = dbs.cdr;
+      
+      GenerateConfig(config_params);
+    })
+    .then(StartAsterisk)
+    .then(function(a, b) {
+      res.json({success: true});
+    })
+  .catch(function (error) {
+    if (error)
+      res.json({error: error.message});
+    // Handle any error from all above steps 
+  })
+  .done();
+  
+}
+
 exports.create = function (req, res) {
     //--- common functions
     
@@ -71,18 +239,91 @@ exports.create = function (req, res) {
 
     if(step && config.db && !config.db.databse) {
         switch(step) {
-            case '1':
-                var db_config       = req.param('db_config'),
-                    db_cdr          = req.param('db_cdr'),
-                    cmd             = '',
-                    query           = '';
+          case '1':
+            var db_config       = req.param('db_config');
+            var db_cdr          = req.param('db_cdr');
+            var cmd             = '';
+            var query           = '';
 
-                db_params.host      = req.param('host');
-                db_params.user      = req.param('user');
-                db_params.password  = req.param('password');
-                db_params.multipleStatements = true;
+            db_params.host      = req.param('host');
+            db_params.user      = req.param('user');
+            db_params.password  = req.param('password');
+            db_params.multipleStatements = true;
+            
+            var connection = mysql.createConnection(db_params);
+            
+            StartCreate(function(error, results) {
+              if (error)
+                console.log(error);
+              else
+                console.log(error, results);
+            });
+            
+            function StartCreate(callback) {
+              checkDbCreate(OnCheckDbCreate);
+            }
+            
+            function OnCheckDbCreate(error, callback) {
+              if (error)
+                callback(error);
+              else {
+                createDb(db_config, 'conf.sql', OnCreateDbConf);
+              }
+            }
+            
+            function OnCreateDbConf(error, callback) {
+              if (error)
+                callback(error);
+              else {
+                createDb(db_cdr, 'a_cdr.sql', OnCreateDbCdr);
+              }
+            }
+            
+            function OnCreateDbCdr(error, callback) {
+              if (error)
+                callback(error);
+              else {
+                var config_params = {};
+                config_params.db_host           = db_params.host;
+                config_params.db_user           = db_params.user;
+                config_params.db_password       = req.param('password_new') || req.param('password');
+                config_params.db_name_config    = db_config;
+                config_params.db_name_cdr       = db_cdr;
+
+                changeDbPassword(config_params.db_user, config_params.db_password, OnChangeDbPassword);
+              }
+            }
+            
+            function OnChangeDbPassword(error, callback) {
+              if (error)
+                callback(error);
+              else {              
+                updateConfigEtc(config_params.db_password, OnUpdateConfigEtc);
+              }
+            }
+            
+            function OnUpdateConfigEtc(error, callback) {
+              if (error)
+                callback(error);
+              else {                  
+                if (generateConfig(config_params)) {
+                  execAsteriskStart(function(error) {
+                    /*if (!err)
+                        res.json({success: true});
+                    else
+                        res.json({success: false, message: 'Error asterisk start'});*/
+                    if (error)
+                      callback(error);
+                    else
+                      callback(null);
+                  });
+                } else
+                  callback(123);
+                    //res.json({success: false, message: 'Error generate config'});
+              }
+            }
                 
-                var connection = mysql.createConnection(db_params);
+                /*var connection = mysql.createConnection(db_params);
 
                 checkDbCreate(function(err) {
                     if(!err) {
@@ -129,7 +370,7 @@ exports.create = function (req, res) {
                         if (err.match) res.json(err);
                         else res.json({success: false, message: err.message});
                     }
-                });
+                });*/
                 
             break;
             
@@ -211,25 +452,23 @@ function checkDbSame(data, compare) {
 /*function generateConfig(params) {
     var mod_config = require('../../modules/config/main.js');
 
-    if(mod_config.generate(params)) {
+    if (mod_config.generate(params)) {
         //reload config.js
         delete require.cache[require.resolve('../../config.js')];
         config = require('../../config.js');
         return true;
     } else return false;
 }*/
+function GenerateConfig(params) {
+    var mod_config = require('../../modules/config/main.js');
 
-function generateConfig(params) {
-  var moduleConfig  = require('../../modules/config/main');
-  var converter     = require('../../modules/config/converter');
-  
-  if(moduleConfig.generate(params)) {
-    //reload config.js
-    //delete require.cache[require.resolve('../../config.js')];
-    //config = require('../../config.js');
-    global.config = converter.mergeJSConfigs();
-    return true;
-  } else return false;
+    if (mod_config.generate(params)) {
+        //reload config.js
+        delete require.cache[require.resolve('../../config.js')];
+        config = require('../../config.js');
+        return true;
+    } else
+      throw new Error('Error during generate config file');
 }
 
 function getCmdImport(target_db, full_path, db_params) {
@@ -238,12 +477,12 @@ function getCmdImport(target_db, full_path, db_params) {
     return cmd;
 }
 
-function execAsteriskStart(callback) {
+//function execAsteriskStart(callback) {
     /*var exec    = require('child_process').exec, child;
     var cmd     = 'service asterisk start';
 
     child = exec(cmd, function(err, stdout, stderr) {
         callback(stderr);
     });*/
-    callback(null);
-}
+    //callback(null);
+//}

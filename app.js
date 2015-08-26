@@ -3,7 +3,7 @@ global.config = converter.mergeJSConfigs();
 
 var express   = require('express');
 var routes    = require('./routes/index');
-var dataStore = require('./routes/data');
+//var dataStore = require('./routes/data');
 var https     = require('https');
 var http      = require('http');
 var io        = require('socket.io');
@@ -12,7 +12,7 @@ var hash      = require('./hash_table');
 var path      = require('path');
 var db        = require('./modules/db');
 var scheduler = require('./modules/scheduler');
-  
+
 // Глобальные переменные
   global.cManager = scheduler.init(); //cron manager init or return object cron manager
 
@@ -23,8 +23,6 @@ var scheduler = require('./modules/scheduler');
       });
     }
   });
-
-//console.log(config);
 
 /*
 config = fs.existsSync('./config.js') ? require('./config.js') : require('./modules/config/config_default.js');
@@ -37,7 +35,7 @@ if (fs.existsSync('./config.dev.js'))
 */
 
 //config          = require('./config.js');
-config_default  = require('./modules/config/config_default.js');
+//config_default  = require('./modules/config/config_default.js');
 operators       = new hash();
 mysql           = require('mysql');
 database        = function(req, res, sysuser) {
