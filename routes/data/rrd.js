@@ -129,7 +129,10 @@ exports.get_data_interval = function(req, res) {
     if (error) res.json({success: false, message: error.message});
     else {
       files = items;
-      getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
+      if (files.length > 0)
+        getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
+      else
+        res.json({success: false, message: "Files not found"});
     }
   });
 
