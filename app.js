@@ -396,4 +396,6 @@ io.sockets.on('connection', function (socket) {
 			console.log(operators.get_hash());
 	  });
 });
+
+exports.io = io;
 // -- socket.io
