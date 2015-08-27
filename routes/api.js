@@ -79,11 +79,14 @@ exports.index = function(req, res) {
         path        = require('path'),
         baseDir     = path.dirname(require.main.filename),
         urlParts    = req.path.split('/').slice(2),
-        controller  = (urlParts.length > 1) ? urlParts[0] : 'index',
-        action      = (urlParts.length > 2) ? urlParts[1] : 'index',
+        controller  = (urlParts.length > 0) ? urlParts[0] : 'index',
+        action      = (urlParts.length > 1) ? urlParts[1] : 'index',
         token       = req.param('token'),
         db          = mysql.createConnection(config.db),
         sQuery      = 'SELECT IF(begin_date > NOW(), 1, IF((end_date + INTERVAL 1 DAY) < NOW() , 2, IF(active = 0, 3, 0))) AS tokenErrCode, IF(begin_date > NOW(), "Token not active yet", IF((end_date + INTERVAL 1 DAY) < NOW() , "Token expired", IF(active = 0, "Token not active", "Ok"))) AS tokenErrText FROM user_tokens WHERE token = "' + token + '"';
+
+    if (action == '')
+        action = 'index';
 
     fs.existsSync = fs.existsSync || path.existsSync;
     if (!fs.existsSync(path.join(baseDir + '/routes/api/' + controller + '.js'))){
