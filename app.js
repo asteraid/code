@@ -13,6 +13,8 @@ var path      = require('path');
 var db        = require('./modules/db');
 var scheduler = require('./modules/scheduler');
 
+var api = require('./routes/api');
+
 // Глобальные переменные
   global.cManager = scheduler.init(); //cron manager init or return object cron manager
 
@@ -156,6 +158,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+app.all('/api*', api.index);
 app.all('*', routes.ttt);
 
 var serverssl = https.createServer(opts,app).listen(app.get('portssl'), function(){
@@ -239,4 +242,6 @@ io.sockets.on('connection', function (socket) {
 			console.log(operators.get_hash());
 	  });
 });
+
+exports.io = io;
 // -- socket.io
