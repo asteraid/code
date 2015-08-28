@@ -208,7 +208,7 @@ function checkDbSame(data, compare) {
     return match;
 }
 
-function generateConfig(params) {
+/*function generateConfig(params) {
     var mod_config = require('../../modules/config/main.js');
 
     if(mod_config.generate(params)) {
@@ -217,6 +217,19 @@ function generateConfig(params) {
         config = require('../../config.js');
         return true;
     } else return false;
+}*/
+
+function generateConfig(params) {
+  var moduleConfig  = require('../../modules/config/main');
+  var converter     = require('../../modules/config/converter');
+  
+  if(moduleConfig.generate(params)) {
+    //reload config.js
+    //delete require.cache[require.resolve('../../config.js')];
+    //config = require('../../config.js');
+    global.config = converter.mergeJSConfigs();
+    return true;
+  } else return false;
 }
 
 function getCmdImport(target_db, full_path, db_params) {

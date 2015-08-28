@@ -279,7 +279,6 @@ exports.ttt = function(req, res) {
                             , sessionID: req.sessionID
                             , style_css: style_css
                             , statusBtnApply: req.cookies.statusBtnApply
-                            , tty_port: config.webserver.tty_port
                         });
                         
                         db.destroy();
@@ -410,7 +409,6 @@ exports.index = function(req, res, next){
 								, sessionID: req.sessionID
 								, style_css: style_css
 								, statusBtnApply: req.cookies.statusBtnApply
-                                , tty_port: config.webserver.tty_port
 							});
 					}
 					db.connect.destroy();

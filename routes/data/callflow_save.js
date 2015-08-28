@@ -316,7 +316,7 @@ exports.upload_file = function(req, res) {
   var file        = req.files && req.files.file ? req.files.file : undefined;
   var name        = req.param('file_name') || '';
   var description = req.param('file_description') || '';
-  var path        = config.soundpath + '/';
+  var path        = config.soundDir + '/';
   var ext         = '.wav';
 
   if (file && file.name != '') {

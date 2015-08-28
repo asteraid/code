@@ -43,7 +43,7 @@ exports.delete = function(req, res) {
   if (req.session.user) {
     var fs       = require('fs');
     var filename = req.param('filename');
-    var filePath = [config.fax_path, filename].join('');
+    var filePath = [config.faxDir, filename].join('');
     var query    = [
       'UPDATE ',
         config.cdr.database, '.`cdr`',
@@ -76,7 +76,7 @@ exports.get_fax_file = function(req, res) {
         var fs        = require('fs');
         
         var fileSrc   = req.param('filename');
-        var fileDest  = [config.fax_path, fileSrc].join('');
+        var fileDest  = [config.faxDir, fileSrc].join('');
         
         var sendFile = function(file) {
             var stat        = fs.statSync(file);

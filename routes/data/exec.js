@@ -10,7 +10,7 @@ exports.get_serverList = function(req, res){
   var fs        = require('fs');
   var req_type  = req.param('type');
   
-  fs.readFile(config.server_hosts_file,'utf-8',function(err,data){
+  fs.readFile(config.serverHostsFile, 'utf-8', function(err,data) {
     if (!err) {
       var regexp  = /\[asterisk\]([.\s\S]*?)\[/im;
       var match   = regexp.exec(data);
@@ -36,7 +36,7 @@ exports.get_serverList = function(req, res){
         }
 
         if ( req_type !== 'short'){
-          child = exec(config.exec_script_path+"ansible-get-properties",function(error,stdout,stderr) {
+          child = exec(config.execScriptDir+"ansible-get-properties",function(error,stdout,stderr) {
             if ( !error || regexp.test(stderr) ) {  // Failed попадает в stderr
               var out         = stdout.split('\n')
               var regexp_serv = /^\[(.*)\]$/i;

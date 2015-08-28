@@ -4,3 +4,5 @@
 /node_modules/*
 /dump/*
 /.idea/*
+/config_dev
+/config.user.js

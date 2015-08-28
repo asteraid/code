@@ -36,15 +36,17 @@ script(type='text/javascript')
     $('#generatePassword').click(function() {
         $('input[name="secret"]').val(getRandomPassword());
     });
+    currentValidate[0] = {rules: {}, messages: {}};
   
-    currentValidate.rules.ext = {
+    currentValidate[0].rules.ext = {
       required: true,
       regexp: regexpPattern.name_object,
       maxlength: 50
     };
-    currentValidate.rules.ext_template = {required: true};
+    
+    currentValidate[0].rules.ext_template = {required: true};
 
-    currentValidate.messages.ext = {
+    currentValidate[0].messages.ext = {
       required: "Please enter internal number",
       regexp: regexpMessage.name_object,
       maxlength: regexpMessage.max_character

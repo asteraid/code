@@ -1,7 +1,7 @@
 extends ../layout
 block content
   script(type='text/javascript')
-    var currentValidate = {rules: {}, messages: {}};
+    var currentValidate = [];//{rules: {}, messages: {}};
 
   .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
     .widget-title
@@ -12,11 +12,32 @@ block content
       
   script(type='text/javascript')
     $(document).ready(function() {
-      $('[id^="tab"] form').each(function() {
+      /*$('[id^="tab"] form').each(function() {
+        
+        var moduleFieldsForm = $(this).find('[name^="module"]');
+        var isEmpty = true;
+
+        if (moduleFieldsForm) {
+          $.each(moduleFieldsForm, function(index, field) {
+            if ($(field).attr('name').indexOf('item_id') == -1)
+              if ($(field).val() > 0 || $(field).val() != '')
+                isEmpty = false;
+          });
+        }
+        
+        console.log(isEmpty);
+        
+        
+        
         $(this).validate({
+          submitHandler: function(form) {
+            //$(form).ajaxSubmit();
+            console.log(form);
+            return false;
+          },
           ignore: [],
           rules: currentValidate.rules,
           messages: currentValidate.messages
         });
-      });
+      });*/
     });

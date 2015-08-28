@@ -49,7 +49,7 @@ exports.delete = function(req, res) {
     var fs       = require('fs');
     var filename = req.param('filename');
     var host     = req.param('host');
-    var filePath = [config.voice_path, filename].join('');
+    var filePath = [config.voiceDir, filename].join('');
     var query    = [
       'UPDATE ',
         config.cdr.database, '.`cdr`',
@@ -95,7 +95,7 @@ exports.get_voice_file = function(req, res) {
           file.src  = {};
             file.src.name   = fileNameArr[fileNameArr.length - 1].split('.').slice(0, -1).join('.');
             file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
-            file.src.path   = config.voice_path + fileNameArr.slice(0, -1).join('/') + '/';
+            file.src.path   = config.voiceDir + fileNameArr.slice(0, -1).join('/') + '/';
             
           file.dest = {};
             file.dest.name    = file.src.name + req.session.user;
@@ -152,15 +152,15 @@ exports.get_voice_file = function(req, res) {
           case 'wav':
             fileFormatSrc = fileNameSrcArr[length - 1];
             fileNameSrc   = fileNameSrcArr.splice(0, length - 1).join('.');
-            filePathSrc = config.voice_path + fileNameSrc;
+            filePathSrc = config.voiceDir + fileNameSrc;
           break;
           case 'mp3':
-            filePathSrc   = config.voice_path + fileNameSrc;
+            filePathSrc   = config.voiceDir + fileNameSrc;
             fileFormatSrc = 'mp3';
             convert       = false;
           break;
           default:
-            filePathSrc = config.voice_path + fileNameSrc;
+            filePathSrc = config.voiceDir + fileNameSrc;
             if (fs.existsSync(filePathSrc + '.gsm')) fileFormatSrc = 'gsm';
             else if (fs.existsSync(filePathSrc + '.wav')) fileFormatSrc = 'wav';
           break;

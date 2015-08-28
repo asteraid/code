@@ -1,0 +1,5 @@
+db_user=root
+db_password=
+db_host=localhost
+db_database=a_conf
+cdr_database=a_cdr

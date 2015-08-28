@@ -66,12 +66,13 @@ function showDialog_old(title, body, width, height, buttons, beforeOpen, onClose
 }
 
 //modal window ver 2
-function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
+function showDialog(title, body, width, height, buttons, beforeOpen, onClose, additional) {
+  
   var idDialog  = 'modal-dialog';
   var objModal  = $('#' + idDialog);
   
   if (objModal.length == 0) {
-    $('body').append('<div id="' + idDialog + '"></div>');
+    $('body').append('<div id="' + idDialog + '" item-id=""></div>');
     objModal = $('#' + idDialog);
   }
 
@@ -123,6 +124,98 @@ function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
     height: height,
     buttons: buttons,
     maxHeight: $(window).height() - 50
+  });
+}
+
+//modal window ver 3
+/*
+  params: {
+    title:      <string>,
+    body:       <string>|<object>,
+    width:      <int>,
+    height:     <int>,
+    buttons:    <array>,
+    beforeOpen: <function>,
+    onClose:    <function>,
+    additional: <bool>
+  }
+*/
+function modal(params) {
+
+  var idDialog            = 'modal-dialog';
+  var idDialogAdditional  = 'modal-dialog-additional'
+  
+  if (params.additional) {
+    var numAdditionalModal  = 0;
+    var additionalItems     = $('[id*="' + idDialogAdditional + '"]');
+
+    if (additionalItems.length) {
+      additionalItems = additionalItems.map(function() {
+        if (this.id)
+          return this.id.split('-').pop();
+      });
+      
+      numAdditionalModal  = Math.max.apply(Math, additionalItems) + 1;
+    }
+    
+    idDialog = idDialogAdditional + '-' + numAdditionalModal;
+  }
+
+  var objModal  = $('#' + idDialog);
+  
+  if (objModal.length == 0) {
+    $('body').append('<div id="' + idDialog + '" item-id=""></div>');
+    objModal = $('#' + idDialog);
+  }
+
+  if (typeof params.body == 'object')
+    $.ajax({
+      type: 'GET',
+      url: params.body.url,
+      dataType: 'html',
+      async: false,
+      success: function(data) {
+          params.body = data;
+      }
+    });
+    
+  objModal.html(params.body);
+    
+  objModal.off('dialogopen'); 
+  if (typeof params.beforeOpen == 'function') {
+    objModal.on('dialogopen', params.beforeOpen);
+  }
+	
+	if (typeof params.onClose == 'function') {
+    objModal.on('dialogclose', params.onClose);
+	} else {
+    objModal.off('dialogclose');
+    objModal.on('dialogclose', function(event, ui) {
+      $(this)
+        .dialog('destroy')
+        .remove();
+		});
+	}
+  
+  if (typeof params.buttons == 'undefined') {
+    buttons = [
+      {
+        text    : 'OK',
+        "class" : 'btn btn-primary',
+        click   : function() {
+          $(this).dialog('close');
+        }
+      }
+    ];
+  }
+    
+  objModal.dialog({
+    title:      params.title,
+    modal:      true,
+    width:      params.width,
+    height:     params.height,
+    buttons:    params.buttons,
+    maxHeight:  $(window).height() - 50
   });
 }
 

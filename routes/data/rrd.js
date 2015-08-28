@@ -1,5 +1,5 @@
 var RRDTool		= require('node-rrdtool-custom');
-var path      = config.rrd_path;//'/opt/plentystars/store/rrd/';
+var path      = config.rrdDir;//'/opt/plentystars/store/rrd/';
 
 exports.list = function(req, res) {
   getDashboardItems(req, res, function(error, results) {
@@ -83,7 +83,7 @@ var getDashboardItems = function(req, res, callback) {
 	var param		= req.param('param');
 	
 	if (param) {
-		getRRDFetch(rrd, config.rrd_path, '-1440min', '-1min', '60', function(response) {
+		getRRDFetch(rrd, config.rrdDir, '-1440min', '-1min', '60', function(response) {
 			var result = {};
 			result[param] = [];
 			//console.log(response);
@@ -129,7 +129,10 @@ exports.get_data_interval = function(req, res) {
     if (error) res.json({success: false, message: error.message});
     else {
       files = items;
-      getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
+      if (files.length > 0)
+        getRRDFetch(rrd, path + files[0], time.start, time.end, time.step, onGetRRDFetch);
+      else
+        res.json({success: false, message: "Files not found"});
     }
   });
 
@@ -172,16 +175,19 @@ exports.data_item = function (req, res) {
     else {
       files = items;
       
-      getDashboardItems(req, res, function(error, results) {
-        if (!error && results.length > 0) {
-          results.forEach(function(item) {
-            paramsCalc[item.name] = item.calculation;
-          });
-          
-          getRRDInfo(rrd, path + files[0], onGetRRDInfo);
-        } else
-          res.json({success: false, message: error});
-      });
+      if (files.length > 0)
+        getDashboardItems(req, res, function(error, results) {
+          if (!error && results.length > 0) {
+            results.forEach(function(item) {
+              paramsCalc[item.name] = item.calculation;
+            });
+            
+            getRRDInfo(rrd, path + files[0], onGetRRDInfo);
+          } else
+            res.json({success: false, message: error});
+        });
+      else 
+        res.json({success: false, message: "Files not found"});
     }
   });
   

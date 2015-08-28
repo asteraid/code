@@ -1,0 +1,14 @@
+applicationName=Plentystars
+phoneReleaseTime=108000
+execScriptDir=/usr/bin/
+storeDir=/opt/plentystars/store/
+soundDir=sounds/custom
+rrdDir=rrd
+dumpDir=lifeboat
+serverHostsFile=/etc/ansible/hosts
+multi=false
+db_port=3306
+db_version=0.2.01234
+cdr_version=1.0.0
+webserver_port=443
+webserver_ipAllowed=0.0.0.0

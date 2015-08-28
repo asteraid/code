@@ -91,7 +91,7 @@ exports.rename = function (req, res) {
 // получение списка звуковых файлов
 exports.get_sounddir = function(req, res){
   if ( req.session.dbuser && req.session.password ){
-     var sounddir = config.soundpath;
+     var sounddir = config.soundDir;
      if ( sounddir != '' ){
          fs.readdir(sounddir, function(err, files){
              var sound_files = [];
@@ -128,7 +128,7 @@ exports.get_sounddir = function(req, res){
 // получение звуковыго файла
 exports.get_soundfile = function(req, res){
   if ( req.session.dbuser && req.session.password ){
-     var sounddir = config.soundpath;
+     var sounddir = config.soundDir;
      if ( sounddir != '' ){
         var file_name = req.param('file');
 

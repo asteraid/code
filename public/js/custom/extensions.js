@@ -151,6 +151,37 @@ var btnsAddExtension = [
             var self  = this;
             var valid = true;
             var idModal = '#modal-dialog';
+            var ignoreSteps = [];
+            var validator = [];
+            
+            // check all form fields is empty and apply validation
+            $('[id^="tab"] form').each(function(index) {
+              
+              var isEmpty = false;
+              
+              var moduleFieldsForm = $(this).find('[name^="module"]');
+              
+              if (moduleFieldsForm.length) {
+                isEmpty = true;
+                
+                $.each(moduleFieldsForm, function(index, field) {
+                  console.log($(field).val());
+                  if ($(field).attr('name').indexOf('item_id') == -1)
+                    if ($(field).val() != '')
+                      isEmpty = false;
+                });
+              }
+              
+              ignoreSteps.push(isEmpty);
+              console.log(ignoreSteps);
+                
+              $(this).validate({
+                ignore: [],
+                rules: isEmpty ? {rules: {}} : currentValidate[index].rules,
+                messages: isEmpty ? {messages: {}} : currentValidate[index].messages
+              });
+            });
+            //
             
             $(idModal).find('form').each(function() {
               if (!$(this).valid())
@@ -182,7 +213,7 @@ var btnsAddExtension = [
                   //$(this).find('input[name="id_ext"]').val(current.id);
                   
                 } else if (index > 0) {
-                  if (steps[steps.length - 1].status == true) {
+                  if ((steps[steps.length - 1].status == true) && !ignoreSteps[index]) {
                     current = saveForm(form, [{name: "item_id", value: steps[0].id}]);
                     steps.push({status: current.status, id: current.id});
                     

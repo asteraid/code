@@ -5,6 +5,8 @@ exports.index = function(req, res) {
 exports.step1 = function(req, res) {
     if(config.db && !config.db.database) {
       var db = require('../modules/db');
+      var config_default = require('../modules/config/config_default');
+
       db.checkConnect({user: config_default.db_client.user, password: config_default.db_client.password}, function(err) {
         if (!err)
           res.render('install/step1_first_install', {title: config.application_name, sessionID: req.sessionID, default_values: config_default.db_client});

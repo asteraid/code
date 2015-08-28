@@ -3,7 +3,8 @@ var unzip = require('unzip');
 var path  = require('path');
 var rmdir = require('rimraf');
 var db    = require('../../modules/db');
-	
+var exec = require('child_process').exec;
+  
 var baseDir = path.dirname(require.main.filename);//Full path to app directory
 
 exports.get_modules_list = function(req, res){
@@ -22,93 +23,20 @@ exports.get_modules_list = function(req, res){
   });
 };
 
-/*exports.remove_module = function(req, res) {
-  var paths   = [];
-  var query   = [];
-  var m       = req.param('module');
-  
-  if (m === 'module_phonebook') {
-    paths = [
-      '/views/module_phonebook.jade',
-      '/views/module_phonebook_list.jade',
-      '/views/m_phonebook/',
-      '/views/layouts/m_phonebook.jade',
-      '/routes/data/module_phonebook.js',
-      '/public/js/custom/m_phonebook/'
-    ];
-    
-    query = [
-      'DROP TABLE IF EXISTS m_phonebook_columns',
-      'DROP TABLE IF EXISTS m_phonebook_items',
-      'DROP TABLE IF EXISTS m_phonebook_values',
-      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE href = "/module_phonebook"'
-    ].join(';');
-  }
-  
-  if (m === 'module_conference') {
-    paths = [
-      '/views/conference.jade',
-      '/views/layouts/conference.jade',
-      '/views/modal/conference/',
-      '/routes/data/conference.js'
-    ];
-    
-    query = [
-      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE href = "/conference"'
-    ].join(';');
-  }
-  
-  if (m === 'module_provisioning') {
-    paths = [
-      '/views/modal/extension/tabs/content/2.jade',
-      '/views/modal/extension/tabs/nav/2.jade',
-      '/routes/data/module_provisioning.js'
-    ];
-    
-    query = [
-      'DROP TABLE IF EXISTS `m_provisioning_files`',
-      'DROP TABLE IF EXISTS `m_provisioning_models`',
-      'DELETE m.*, us.* FROM modules m LEFT JOIN user_settings us ON (m.id = us.module_id) WHERE m.name = "Provisioning"'
-    ].join(';');
-  }
-  
-  console.log(paths, query);
-  
-  if (paths.length && query.length) {
-    paths.forEach(function(path) {
-      rmdir(baseDir + path, function(error) {
-        if (error)
-          console.log("Error while removing directory: " + baseDir + path);
-        else
-          console.log("Remove complete: " + baseDir + path);
-      });
-    });
-    
-    db.query(db.getConfig(null, true), query, function(error, results) {
-      if (error)
-        console.log(error);
-      else
-        console.log('Data from database remove completed');
-    });
-  } else {console.log('Not deleted');}
-  
-  res.json({message: "See console node.js )"});
-
-}*/
-
 exports.install_module = function(req, res) {
-	var moduleFile          = req.files.module_package.path;
-	var extractPath         = baseDir + '/tmp';
-	var packageFileName     = req.files.module_package.name;
-	var extractedDirectory  = packageFileName.substr(0, packageFileName.lastIndexOf('.'));
+  var moduleFile          = req.files.module_package.path;
+  var extractPath         = baseDir + '/tmp';
+  var packageFileName     = req.files.module_package.name;
+  var extractedDirectory  = packageFileName.substr(0, packageFileName.lastIndexOf('.'));
   var extractedPath       = '';
-//  var tmpDirecroty = '/tmp';
+  var paths   = [];
+  var packageInfo;
 
-	//Extract module archive
-	fs.createReadStream(moduleFile)
+  fs.createReadStream(moduleFile)
     .pipe(unzip.Extract({path: extractPath}).on('close', OnCloseExtractModule));
     
   function OnCloseExtractModule() {
+    
     //extractedPath = baseDir + '/tmp/' + extractedDirectory + '/' + extractedDirectory;
     extractedPath = baseDir + '/tmp/' + extractedDirectory;
     //read package info file
@@ -117,160 +45,189 @@ exports.install_module = function(req, res) {
         res.json({success: false, message: "Can not read module information file!"});
         return ;
       }
-      //var packageInfo = JSON.parse(data);
 
-      //Extract module files
-      var moduleFilesArchive = extractedPath + '/module_files.zip';
+      packageInfo = JSON.parse(data);
       
-      fs.createReadStream(moduleFilesArchive)
-        .pipe(unzip.Extract({path: baseDir}).on('close', OnCloseExtractModuleFiles));
-    });
-  }
-  
-  function OnCloseExtractModuleFiles() {
-    //read SQL file
-    fs.readFile(extractedPath + '/install.sql', 'utf8', function(error, query) {
-      if (error) {
-        res.json({success: false, message: "Can not read module SQL file!"});
-        return ;
-      }
+      var query = "SELECT * FROM modules WHERE name = ?;";
       
-      db.query(req, query, function(error, results) {
+      db.query(req, query, [packageInfo.name], function(error, results) {
         if (error) {
           res.json({success: false, message: error.code });
           return ;
         }
+        if (results.length) {
+          res.json({success: false, message: "This Module already exists!"});
+          return ;
+        } 
         
-        //Clear tmp folder
-        fs.exists(extractedPath, function(exists) {
-          if (exists) {
-            rmdir(extractedPath, function(error){
-              if (error)
-                console.log("Error while removing directory: " + extractedPath);
-            });
-          }
-        });
-        
-        res.json({success: true, message: "Module successfuly installed!"});
+      //Extract module files
+          
+          var moduleFilesArchive = extractedPath + '/module_files.zip';
+      
+          var streamUnzip = fs.createReadStream(moduleFilesArchive);
+          
+          streamUnzip
+            .pipe(unzip.Parse())
+            .on('entry', function (entry) {
+                  var fileName = entry.path;
+                  var type = entry.type;            
+                  if (type==='File')
+                    paths.push(fileName);
+                  entry.autodrain();
+                });
+                
+          streamUnzip           
+            .pipe(unzip.Extract({path: baseDir}).on('close', OnCloseExtractModuleFiles)); 
       });
     });
   }
-}
+  
+  function execSh(shScript, callback) {
+
+    fs.exists(shScript, function (exists) {
+      if (exists) {
+        exec(shScript, function (error) {
+          if (error) {
+            callback(error);
+          } else {
+            callback(null);
+          }
+        });
+      } else {
+        callback(new Error('Bash script not found!'));
+      }
+    });
+  }
+  
+  function OnCloseExtractModuleFiles() {
+
+    var shScript = extractedPath + '/' + 'install.sh';
+
+    execSh(shScript, function (err) {
+
+      if (err) {
+        console.error('exec error: ', err);
+      }
+
+      //read SQL file
+      
+      fs.readFile(extractedPath + '/install.sql', 'utf8', function(error, query) {
+        if (error) {
+          res.json({success: false, message: "Can not read module SQL file!"});
+          return ;
+        }
+
+        query += ['CREATE TABLE IF NOT EXISTS `modules_uninstall`',
+                  '(`id` int(11) NOT NULL AUTO_INCREMENT,',
+                  '`name` varchar(255) NOT NULL,',
+                  '`sql` text NOT NULL,',
+                  '`sh` text NOT NULL,',
+                  'PRIMARY KEY (`id`))',
+                  'ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;'].join(' ');
+
+        db.query(req, query, function(error, results) {
+          if (error) {
+            res.json({success: false, message: error.code });
+            return ;
+          }
+
+          var sqlUninst = "DELETE FROM modules_uninstall WHERE name = '" + packageInfo.name + "';";
+          var shUninst = "rm -f " + paths.join(" ");
+      
+          fs.readFile(extractedPath + '/uninstall.sql', 'utf8', function(error, data) {
+            if (error) {
+              console.log("Can not read module SQL file!");
+            } else sqlUninst = data + sqlUninst;
+
+            fs.readFile(extractedPath + '/uninstall.sh', 'utf8', function(error, data) {
+              if (error) {
+                console.log("Can not read module Shell file!");        
+              } else shUninst = data;           
+         
+              query = ['INSERT INTO `modules_uninstall`',
+                      '(`name`, `sql`, `sh`)',
+                      'VALUES (?, ?, ?);'].join(" "); 
+
+              db.query(req, query, [packageInfo.name, sqlUninst, shUninst], function(error, results) {
+                if (error) {
+                  res.json({success: false, message: error.code });
+                  return ;
+                }
+                
+                res.json({success: true, message: "Module successfuly installed!"});
+              });             
+            });
+
+            fs.exists(extractedPath, function(exists) {
+              if (exists) {
+                rmdir(extractedPath, function(err){
+                  if (err)
+                    console.log("Error while removing directory: " + extractedPath);
+                });
+              }
+            });
+          });
+        });      
+      });
+    });
+  }
+};
 
 exports.uninstall_module = function(req, res) {
-  //TODO: completing...
-  res.json({success: true, message: "Module successfuly uninstalled."});
-}
 
-/*exports.uninstall_module = function(req, res){
-	var db = new database(req, res);
-	
-    if(db.connect) {
-		var id = req.param('id');
-		if(parseInt(id)){
-			var query = "SELECT href FROM modules WHERE id = " + id;
-			db.connect.query(query, function (err, results, fields) {
-				if(!err) {
-					if(results.length) {
-						var href = results[0]['href'];
-						
-						var module_name = href.toLowerCase().substring(1, href.length);
-						
-						//remove router
-						var router = baseDir + '/routes/data/' + module_name + ".js";
-						fs.exists(router, function(exists){
-							if(exists){
-								fs.unlink(router);
-							}
-							else {
-								console.log('Can not find file to remove: ' + router);
-							}
-						});
-						
-						
-						//remove main view
-						var main_view = baseDir + '/views/' + module_name + ".jade";
-						fs.exists(main_view, function(exists){
-							if(exists){
-								fs.unlink(main_view);
-							}
-							else {
-								console.log('Can not find file to remove: ' + main_view);
-							}
-							
-						});
-						
-						//remove layout view
-						var layout_view = baseDir + '/views/layouts/' + module_name + ".jade";
-						
-						fs.exists(layout_view, function(exists){
-							if(exists){
-								fs.unlink(layout_view);
-							}
-							else {
-								console.log('Can not find file to remove: ' + layout_view);
-							}
-							
-						});
-						
-						//remove modal windows views
-						var modal_directory= baseDir + '/views/modal/' + module_name;
-						fs.exists(modal_directory, function(exists){
-							if(exists){
-								rmdir(modal_directory, function(error){
-									if(error){
-										console.log("Error while removing directory: " + modal_directory);
-									}
-								});
-							}
-							else {
-								console.log('Can not find directory to remove: ' + modal_directory);
-							}
-							
-						});
-						
-						
-						
-						//remove from modules table
-						var query = "DELETE FROM modules WHERE id = " + id;
-						db.connect.query(query, function (err, results, fields) {
-							if(!err) {
-								//remove from user_settings table
-								var query = "DELETE FROM user_settings WHERE module_id = " + id;
-								db.connect.query(query, function (err, results, fields) {
-									if(!err) {
-										res.json({success: true, message: "Module successfuly uninstalled."});
-										db.destroy();
-									}
-									else {
-										res.json({success: false, message: err.code });
-										db.destroy();
-									}
-								});
-							}
-							else{
-								res.json({success: false, message: err.code });
-								db.destroy();
-							}
-						})
-						
+  var id = req.param('id');
+ 
+  var query = "SELECT name FROM modules WHERE id = ?;";
+ 
+  db.query(req, query, [id], function(error, results) {
+    if (error) {
+      console.log(error.code);
+      res.json({success: false, message: error.code });
+      return ;
+    }
+    if (!results.length) {
+      console.log("Module is broken!");
+      res.json({success: false, message: "Module is broken!"});
+      return ;
+    }
 
-					} else {
-						res.json( {success: false,  message: "The are no installed modules!" });  
-						db.destroy();
-					}
-				}
-				else {
-					res.json({success: false, message: err.code });
-					db.destroy();
-				}
-			});
-		}
-		else {
-			res.json({success: false, message: "Specify module id please."});
-		}
-	}
-	else {
-		res.json({ success: false, message: 'Error sesisons'});
-	}
-}*/
+    var nameModule = results[0]['name'];
+
+    query = "DELETE FROM modules WHERE name = ?;";
+      
+    db.query(req, query, [nameModule], function(error, results) {
+      if (error) {
+        console.log(error.code);
+        res.json({success: false, message: error.code });
+        return ;
+      }
+
+      query = "SELECT * FROM modules_uninstall WHERE name = ?;";
+
+      db.query(req, query, [nameModule], function(error, results) {
+        if (error) {
+          console.log(error.code);
+        }
+        if (!results.length) {
+          console.log("Uninstall not found!");          
+        } else {
+          query = results[0]['sql'];
+
+          query && db.query(req, query, function(error, results) {
+                      if (error) {
+                        console.log(error.code);              
+                      }        
+                   });
+
+              var sh = exec(results[0]['sh'], function (error) {        
+                if (error) {
+                  console.log('exec error: ' + error);              
+                }       
+              });              
+          }             
+      });
+    });
+  });
+
+  res.json({success: true, message: "Module successfuly uninstalled"});
+};
