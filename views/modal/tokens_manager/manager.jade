@@ -1,0 +1,221 @@
+
+extends ../layout
+
+block content
+
+    div.widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        input#user_id(type="hidden", name="user_id", value=req_params.id)
+        table#tblTokens.table.table-bordered.table-striped.table-hover
+            thead
+                tr
+                    th ID
+                    th Token
+                    th Expiration
+                    th Active
+        .buttons_operation(style="margin: 5px; margin-top: -35px;", align="center")
+            button#btnAddToken.btn
+                i.icon-plus
+                &nbsp;Add
+            button#btnEditToken.btn.dependent
+                i.icon-pencil
+                &nbsp;Edit
+            button#btnDeleteToken.btn.dependent
+                i.icon-remove
+                &nbsp;Delete
+
+    script.
+
+        var currentRowTokens = {},
+            columnsTokens = [{"mData": "id"}, {"mData": "token"}, {"mData": "end_date"}, {"mData": "vActive"}],
+            columnsDefsTokens = [
+                {"bSearchable": false, "bVisible": false, "aTargets": [0]},
+                { "sWidth": "65%", "aTargets": [1] },
+                { "sWidth": "20%", "aTargets": [2] },
+                { "sWidth": "15%", "aTargets": [3] }],
+            oTableTokens = setDataTableTokens('tblTokens', 'data/tokens_manager/listAllTokens?id=' + $('input#user_id').val(), columnsTokens, columnsDefsTokens);
+
+        function setDataTableTokens(idTable, sAjaxSource, aoColumns, aoColumnDefs, type, aaSorting) {
+            if (aaSorting == undefined) aaSorting = [];
+            if (type === undefined) type = '';
+            return $('#' + idTable).dataTable({
+                "bJQueryUI": true,
+                "bProcessing": false,
+                "sAjaxSource": sAjaxSource,
+                "aLengthMenu": [
+                    [10, 20, -1],
+                    [10, 20, 'All']
+                ],
+                "iDisplayLength": 10,
+                "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+                    sPre = [iStart, '-', iEnd, 'of', iTotal, '(filtered). '].join(' ');
+                    if (oTableTokens && oTableTokens.find('input[type="checkbox"]').length > 0) {
+                        sPre += oTableTokens.getCheckedItems().length + ' selected';
+                    }
+                    return sPre;
+                },
+                "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                    $(nRow).click(function () {
+                        $(nRow).siblings('tr').removeClass('row_selected');
+                        $(nRow).addClass('row_selected');
+                        if (!aData.readonly)
+                            setButtonsState($(nRow).parent().parent().attr('id'));
+                        else
+                            setButtonsState($(nRow).parent().parent().attr('id'), 1);
+                        currentRowTokens = aData;
+                    });
+                },
+                "fnServerData": function (sSource, aoData, fnCallback) {
+                    aoData.push({"name": "type", "value": type});
+                    $.ajax({
+                        type: "GET",
+                        url: sSource,
+                        data: aoData,
+                        success: function (json) {
+                            if (type == 'context')
+                                $.each(json.rows, function (index, el) {
+                                    if (el.readonly == 1)
+                                        json.rows[index].comment = 'system context';
+                                });
+                            fnCallback(json);
+                        }
+                    });
+                },
+                "sAjaxDataProp": "rows",
+                "aoColumnDefs": aoColumnDefs,
+                "aoColumns": aoColumns,
+                "aaSorting": aaSorting,
+                "bAutoWidth": false
+            });
+        }
+
+        var btnsAddEditToken = [
+            {
+                text: "Save",
+                "class": 'btn btn-primary',
+                click: function () {
+                    if ($('#form-main').valid()) {
+                        var self = this,
+                            formData = $(self).find('form:first').serializeArray();
+                        $.ajax({
+                            type: 'POST',
+                            url: '/data/tokens_manager/saveToken',
+                            data: formData,
+                            dataType: 'json',
+                            async: false,
+                            success: function (data) {
+                                if (data.success) {
+                                    oTableTokens.fnReloadAjax();
+                                    $(self).dialog('close');
+                                }
+                                else
+                                    modal(
+                                        {
+                                            additional: true,
+                                            title: 'Information',
+                                            body: '<p align="center">' + data.message + '</p>',
+                                            width: 'auto',
+                                            height: 'auto'
+                                        }
+                                    );
+                            }
+                        });
+                    }
+                }
+            },
+            {
+                text: 'Cancel',
+                "class": 'btn',
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ];
+
+        $('#tblTokens tr').live('dblclick', function () {
+            modal(
+                {
+                    additional: true,
+                    title: 'Edit access token',
+                    body: {url: '/modal/tokens_manager/token?id=' + currentRowTokens.id},
+                    width: '800',
+                    height: 'auto',
+                    buttons: btnsAddEditToken
+                }
+            );
+        });
+
+        $('#btnAddToken').click(function () {
+            modal(
+                {
+                    additional: true,
+                    title: 'Add new access token',
+                    body: {url: '/modal/tokens_manager/token?id=0&user_id=' + $('input#user_id').val()},
+                    width: '800',
+                    height: 'auto',
+                    buttons: btnsAddEditToken
+                }
+            );
+        });
+
+        $('#btnEditToken').click(function () {
+            modal(
+                {
+                    additional: true,
+                    title: 'Edit access token',
+                    body: {url: '/modal/tokens_manager/token?id=' + currentRowTokens.id},
+                    width: '800',
+                    height: 'auto',
+                    buttons: btnsAddEditToken
+                }
+            );
+        });
+
+        $('#btnDeleteToken').click(function () {
+            var btnsDelete =
+                [
+                    {
+                        text: 'Ok',
+                        "class": 'btn btn-primary',
+                        click: function () {
+                            $(this).dialog('close');
+                            $.ajax({
+                                type: 'POST',
+                                data: {id: currentRowTokens.id},
+                                url: '/data/tokens_manager/deleteToken',
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.success) {
+                                        oTableTokens.fnReloadAjax();
+                                    }
+                                    modal(
+                                        {
+                                            additional: true,
+                                            title: 'Information',
+                                            body: '<p align="center">' + data.message + '</p>',
+                                            width: 'auto',
+                                            height: 'auto'
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        "class": 'btn',
+                        click: function () {
+                            $(this).dialog('close');
+                        }
+                    }
+                ];
+            modal(
+                    {
+                        additional: true,
+                        title: 'Information',
+                        body: ' <p align="center">Delete this access token?</p>',
+                        width: 'auto',
+                        height: 'auto',
+                        buttons: btnsDelete
+                    }
+            );
+        });

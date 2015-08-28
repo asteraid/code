@@ -73,6 +73,19 @@ function doAuthentification(req, res, callback) {
     });
 };
 
+function controllerAvaliable(req, moduleHref){
+
+    var result = false;
+    for(var iCounter in req.session.user_modules){
+        if(req.session.user_modules[iCounter].href === moduleHref){
+            result = true;
+            break;
+        }
+    }
+    return result;
+
+};
+
 exports.index = function(req, res) {
 
     var fs          = require('fs'),
@@ -97,13 +110,13 @@ exports.index = function(req, res) {
     }
 
     var apiController = require(path.join(baseDir + '/routes/api/' + controller));
-    if (action === 'index'){
+    if (controller === 'index' && action === 'index'){
         apiController[action](req, res);
         return;
     }
 
     if (!token){
-        res.send(403);
+        res.json({succes: false, message:'Token is not detected.'});
         return;
     }
 
@@ -114,29 +127,32 @@ exports.index = function(req, res) {
                 if(!results[0].tokenErrCode == 0){
                     db.destroy();
                     res.json({succes: false, message: results[0].tokenErrText});
-                    return;
                 } else {
                     db.destroy();
                     if (!req.session.user || !req.session.token === token){
                         doAuthentification(req, res, function(result) {
                             if(result.success)
-                                apiController[action](req, res);
+                                if(req.session.user_type_id === 1 || controllerAvaliable(req, apiController.moduleHref))
+                                    apiController[action](req, res);
+                                else
+                                    res.json({succes: false, message:'You are not allowed to work with this module.'});
                             else
                                 res.json(result);
                         });
                     } else {
-                        apiController[action](req, res);
+                        if(req.session.user_type_id === 1 || controllerAvaliable(req, apiController.moduleHref))
+                            apiController[action](req, res);
+                        else
+                            res.json({succes: false, message:'You are not allowed to work with this module.'});
                     }
                 }
             } else {
                 db.destroy();
                 res.json({succes: false, message:'Token not registered'});
-                return;
             }
         } else {
             db.destroy();
             res.json({succes: false, message: err});
-            return;
         };
     });
 };

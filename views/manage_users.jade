@@ -28,12 +28,21 @@ block content
 								button(id="btnAddMamageUsers", class="btn")
 									i.icon-plus
 									&nbsp;Add
-								button(id="btnEditMamageUsers", class="btn dependent", disabled)
-									i.icon-pencil
-									&nbsp;Edit
+								.btn-group
+									button#btnEditMamageUsers.btn.dependent(disabled)
+										i.icon-pencil
+										&nbsp;Edit
+									button.btn.dropdown-toggle.dependent(data-toggle="dropdown", disabled)
+										span.caret
+									ul.dropdown-menu
+										li
+											a#btnUserTokens(href='#', align="left")
+												i.icon-tags
+												&nbsp;&nbsp;Access tokens
 								button(id="btnDeleteMamageUsers", class="btn dependent", disabled)
 									i.icon-remove
 									&nbsp;Delete
+
 	style
 		.select2-drop {z-index: 99999;}
 		.left {text-align: left;}
@@ -51,7 +60,7 @@ block content
 		}
 		.table-hover tbody > tr.row_selected > td {background: #c3c3c3; color: #fff;}
 
-	script
+	script.
 
 		var currentRow = {};
 		var templateJSON = {};
@@ -142,4 +151,27 @@ block content
 				];
 
 			showDialog('Information', '<p align="center">Delete this User?</p>', 'auto', 'auto', btnsDelete);
+		});
+
+		$('a#btnUserTokens').click(function() {
+			var btnsUserTokens =
+				[
+					{
+						text: 'Close',
+						"class": 'btn btn-primary',
+						click: function() {
+							$(this).dialog('close');
+						}
+					}
+				];
+			modal(
+				{
+					additional: false,
+					title: 'Access tokens for user: ' + currentRow.login,
+					body: {url:'/modal/tokens_manager/manager?id=' + currentRow.id},
+					width: '800',
+					height: 'auto',
+					buttons: btnsUserTokens
+				}
+			);
 		});

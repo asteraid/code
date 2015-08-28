@@ -1,8 +1,5 @@
-/config.js
-/config.dev.js
 /npm-debug.log
 /node_modules/*
 /dump/*
 /.idea/*
 /config_dev
-/config.user.js

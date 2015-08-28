@@ -5,37 +5,33 @@ block content
 
     div.widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
         form#form-main.form-horizontal(action='#', method='POST', enctype="multipart/form-data")
+            input#id(type='hidden', name='id', readonly, value=req_params.id)
+            input#user_id(type='hidden', name='user_id', value=req_params.user_id)
             .control-group
-                label.control-label(for='id') ID:
-                .controls
-                    input#id(type='text', name='id', readonly, value=req_params.id)
-            .control-group
-                label.control-label(for='user_id') User:
-                .controls
-                    input#user_id.input-select2(type='text', name='user_id', style='width: 82%;')
-            .control-group
-                label.control-label(for='token') Token:
-                .controls.left
+                label.control-label(for='token', style='width: 100px;') Token:
+                .controls.left(style='margin-left: 110px;')
                     input#token(type='text', name='token')
+                    &nbsp;
                     a#btnGenerateToken.btn
                         i.icon.icon-refresh
-                        span &nbsp;Generate
+                        &nbsp;Generate
             .control-group
-                label.control-label(for='begin_date') Start:
-                .controls
-                    input#begin_date.datepicker(type='text', name='begin_date', data-date-format='dd.mm.yyyy')
+                .row-fluid
+                    .span6(style='width: 43% !important;')
+                        label.control-label(for='begin_date', style='width: 100px;') Start:
+                        .controls(style='margin-left: 110px;')
+                            input#begin_date.datepicker(type='text', name='begin_date', data-date-format='dd.mm.yyyy')
+                    .span6(style='width: 43% !important;')
+                        label.control-label(for='end_date', style='width: 100px;') Expires:
+                        .controls(style='margin-left: 110px;')
+                            input#end_date.datepicker(type='text', name='end_date', data-date-format='dd.mm.yyyy')
+                label.control-label(for='active', style='width: 100px;') Active:
+                .controls(style='margin-left: 110px;')
+                    input#active.input-select2(type='text', name='active', style='width: 81.5%;')
             .control-group
-                label.control-label(for='end_date') Expiration:
-                .controls
-                    input#end_date.datepicker(type='text', name='end_date', data-date-format='dd.mm.yyyy')
-            .control-group
-                label.control-label(for='active') Active:
-                .controls
-                    input#active.input-select2(type='text', name='active', style='width: 82%;')
-            .control-group
-                label.control-label(for='comment') Comment:
-                .controls
-                    textarea#comment(name='comment', rows='3')
+                label.control-label(for='comment', style='width: 100px;') Comment:
+                .controls(style='margin-left: 110px;')
+                    textarea#comment(name='comment', rows='3', style='width: 80% !important;')
 
     script(type='text/javascript').
 
@@ -52,36 +48,6 @@ block content
                 }
             });
             return result;
-        };
-
-        function getDataByUrlForSelect2(url, params) {
-            var list = [],
-                    data = getDataByUrl(url, params);
-            if (data.success)
-                $.each(data.rows, function (index, el) {
-                    list.push({id: el.id, text: el.name});
-                });
-            return list;
-        };
-
-        function select2InputSearch(obj, json, multiple, custom) {
-            if (custom)
-                $(obj).select2({
-                    createSearchChoice: function (term, data) {
-                        if ($(data).filter(function () {
-                                    return this.text.localeCompare(term) === 0;
-                                }).length === 0) {
-                            return {id: term, text: term};
-                        }
-                    },
-                    multiple: multiple,
-                    data: json.data
-                }).select2('data', json.data[json.selected]);
-            else
-                $(obj).select2({
-                    multiple: multiple,
-                    data: json.data
-                }).select2('data', json.data[json.selected]);
         };
 
         function select2InputNoSearch(obj, json, multiple, custom) {
@@ -131,11 +97,10 @@ block content
             $('input#end_date').datepicker();
 
             select2InputNoSearch('input#active', {data: [{id: 1, text: 'Yes'}, {id: 0, text: 'No'}]}, false, false);
-            select2InputSearch('input#user_id', {data: getDataByUrlForSelect2('/data/tokens_manager/listAllUsers')}, false, false);
 
             var dataToken = getDataByUrl('/data/tokens_manager/getToken', {id: $('input#id').val()});
             if (dataToken.success) {
-                $('input#user_id').select2('val', dataToken.rows[0].user_id);
+                $('input#user_id').val(dataToken.rows[0].user_id);
                 $('input#active').select2('val', dataToken.rows[0].active);
 
                 $('input#token').val(dataToken.rows[0].token);
