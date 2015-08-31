@@ -32,7 +32,7 @@ exports.listAllTokens = function(req, res) {
 
                 if(!err)
                     db.query(req, 'CREATE PROCEDURE get_userIdByToken(IN token VARCHAR(36), OUT result TINYINT, OUT userId INT) ' +
-                        'SQL SECURITY INVOKER BEGIN DECLARE EXIT HANDLER FOR SQLEXCEPTION SET result = FALSE; ' +
+                        'BEGIN DECLARE EXIT HANDLER FOR SQLEXCEPTION SET result = FALSE; ' +
                         'SELECT user_id FROM user_tokens WHERE user_tokens.token = token INTO userId; ' +
                         'IF userId > 0 THEN SET result = TRUE; ELSE SET result = FALSE; END IF; END', function(err, results) {
 
