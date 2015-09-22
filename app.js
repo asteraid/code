@@ -5,10 +5,10 @@ var express   = require('express');
 var routes    = require('./routes/index');
 //var dataStore = require('./routes/data');
 var https     = require('https');
-var http      = require('http');
+//var http      = require('http');
 var io        = require('socket.io');
 var fs        = require('fs');
-var hash      = require('./hash_table');
+//var hash      = require('./hash_table');
 var path      = require('path');
 var db        = require('./modules/db');
 var scheduler = require('./modules/scheduler');
@@ -38,7 +38,7 @@ if (fs.existsSync('./config.dev.js'))
 
 //config          = require('./config.js');
 //config_default  = require('./modules/config/config_default.js');
-operators       = new hash();
+//operators       = new hash();
 mysql           = require('mysql');
 database        = function(req, res, sysuser) {
     this.success = false;
@@ -110,21 +110,21 @@ getSQL = function(p) {
 }
 
 // MemoryStore
-var MemoryStore = express.session.MemoryStore
-    ,sessionsStore = new MemoryStore();
+var MemoryStore   = express.session.MemoryStore;
+var sessionsStore = new MemoryStore();
 
 var opts = {
-		  // Specify the key file for the server
-		  key: fs.readFileSync('./cert/ccc-key.pem'),
-		  // Specify the certificate file
-		  cert: fs.readFileSync('./cert/ccc-cert.pem'),
-		  rejectUnauthorized: true
-	   };
+  // Specify the key file for the server
+  key: fs.readFileSync('./cert/ccc-key.pem'),
+  // Specify the certificate file
+  cert: fs.readFileSync('./cert/ccc-cert.pem'),
+  rejectUnauthorized: true
+};
 
 app = express();
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 8000);
+  //app.set('port', process.env.PORT || 8000);
   app.set('portssl', process.env.PORTSSL || config.webserver.port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -135,23 +135,25 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.cookieParser());
   app.use(express.session({
-      secret: 'ccc', 
-      key: 'ccc.sid',
-     // cookie: { maxAge: new Date(Date.now() + 1200000) } , // 20 min
-      store: sessionsStore
-    }));
+    secret: 'ccc', 
+    key: 'ccc.sid',
+    // cookie: { maxAge: new Date(Date.now() + 1200000) } , // 20 min
+    store: sessionsStore
+  }));
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
-  app.use(function(req,res){
-    res.render('404.jade',{ title: 'MAGUI'
-                      , item: req.url.substr(1)
-                      , itemUrl: req.url
-                      , callflow_items: []
-                      , context_items: []
-                      , itemId: ''
-                      , itemName: ''
-                      });
+  app.use(function(req,res) {
+    res.render('404.jade', {
+      title: config.applicationName,
+      item: req.url.substr(1), 
+      itemUrl: req.url,
+      callflow_items: [],
+      context_items: [],
+      itemId: '',
+      itemName: ''
+    });
   });
+
 });
 
 app.configure('development', function(){
@@ -159,7 +161,7 @@ app.configure('development', function(){
 });
 
 app.all('/api*', api.index);
-app.all('*', routes.ttt);
+app.all('*', routes.index);
 
 var serverssl = https.createServer(opts,app).listen(app.get('portssl'), function(){
 	console.log("Express server listening on port " + app.get('portssl'));
@@ -180,68 +182,57 @@ io.set('transports', ['xhr-polling', 'jsonp-polling']);
 io.set('transportOptions','{"xhr-polling": {timeout: 30000},"jsonp-polling": {timeout: 30000}');
 
 var Session = require('connect').middleware.session.Session;
-//socket.io
-io.configure(function (){
-	  io.set('authorization', function (data, callback) {
-		console.log('autorization');
-		if (data.headers.cookie) {
-			data.cookie = parseCookie.parse(data.headers.cookie,{secure:true});
-			data.sessionID = parseSignedCookie(data.cookie['ccc.sid'],'ccc');
-                        data.sessionStore = sessionsStore;
-			sessionsStore.get(data.sessionID, function(err, session){
-                            if (err) {
-                                     return callback('Error in session store.', false);
-                                } else if (!session) {
-                                     return callback('Session not found.', false);
-                                }
-                            // success! we're authenticated with a known session.
-                            data.session = new Session(data, session);
-                            console.log(session);
-                            return callback(null, true);
-                        });
-		}
-		else{
-			console.log('error cookie');
-			callback('Session cookie required.', false); // error first callback style
-		}
-	  });
-	});
 
-io.sockets.on('connection', function (socket) {
- console.log('Operator socketId: '+socket.id + ' connected, sessionID: '+socket.handshake.sessionID);
- //console.log('A socket with sessionID ' + socket.handshake.sessionID + ' connected!');
-          var hs = socket.handshake;
-          // Освежаем сессию
-          var intervalFreshID = setInterval(function(){
-             console.log('session fresh');
-             hs.session.reload( function () { 
-            // "touch" it (resetting maxAge and lastAccess)
-            // and save it back again.
-                     hs.session.touch().save();
-             });
-          }, 60000);
- 	  
- 	 // socket.emit('news', { hello: 'world' });
-	  socket.on('my other event', function (data) {
-		  //console.log('my other event');
-		  console.log(data);
-		  console.log(socket.id);
-	  });
-	  
-	  socket.on('disconnect', function() {
-                   // удаляем сессию ;
-                  clearInterval(intervalFreshID);
-                   
-		  console.log('клиент отключился - удаляем оператора по сессии '+socket.handshake.sessionID);
-		  var ind = operators.find_sid(socket.handshake.sessionID);
-			if ( ind != -1 ){
-				operators.remove(ind);
-			}
-			else
-				console.log('Оператор с такой сессией не найден '+socket.handshake.sessionID);
-			console.log(operators.get_hash());
-	  });
+//socket.io
+io.configure(function() {
+
+  /*io.set('authorization', function (data, callback) {
+
+    if (data.headers.cookie) {
+      data.cookie = parseCookie.parse(data.headers.cookie,{secure:true});
+      data.sessionID = parseSignedCookie(data.cookie['ccc.sid'],'ccc');
+      data.sessionStore = sessionsStore;
+      sessionsStore.get(data.sessionID, function(err, session) {
+        if (err) {
+          return callback('Error in session store.', false);
+        } else if (!session) {
+          return callback('Session not found.', false);
+        }
+        
+        // success! we're authenticated with a known session.
+        data.session = new Session(data, session);
+          return callback(null, true);
+        });
+		} else {
+      // error first callback style
+      callback('Session cookie required.', false);
+		}
+
+  });*/
+
 });
+
+/*io.sockets.on('connection', function (socket) {
+ //console.log('Operator socketId: '+socket.id + ' connected, sessionID: '+socket.handshake.sessionID);
+  var hs = socket.handshake;
+  // Освежаем сессию
+  var intervalFreshID = setInterval(function() {
+    hs.session.reload(function() {
+    // "touch" it (resetting maxAge and lastAccess)
+    // and save it back again.
+      hs.session.touch().save();
+    });
+  }, 60000);
+
+  socket.on('disconnect', function() {
+    // удаляем сессию ;
+    clearInterval(intervalFreshID);
+    var ind = operators.find_sid(socket.handshake.sessionID);
+    if (ind != -1){
+      operators.remove(ind);
+    }
+  });
+});*/
 
 exports.io = io;
 // -- socket.io

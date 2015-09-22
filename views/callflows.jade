@@ -7,6 +7,8 @@ block content
 
     include includes/style-switcher
     
+    #modal-dialog
+    
     #item-switcher
         #switcher
             i.icon-arrow-left.icon-white
@@ -18,7 +20,7 @@ block content
         include includes/content-header
         p( style='margin:5px;')
             button( data-action='save_conf', class="btn btn-success tip-bottom", type="button", title='Save Callflow' ) Save
-            button( data-action='view_json', class="btn btn-info tip-bottom", type="button", title='View result json for debug version only' ) View JSON
+            // button( data-action='view_json', class="btn btn-info tip-bottom", type="button", title='View result json for debug version only' ) View JSON
             button( data-action='view_conf', class="btn btn-inverse tip-bottom", type="button", title='View result config' ) View Config
 
         .container-fluid

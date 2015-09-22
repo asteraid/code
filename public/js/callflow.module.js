@@ -58,6 +58,7 @@ function CallflowBlock(conf){
 
         form += '</form>';
         showDialog(this.title + ' property', form, 600, 'auto',
+        //modalShow(this.title + ' property', form, 600, 'auto',
             // buttons
             [{
               text: 'Cancel',

@@ -246,6 +246,7 @@ function callFlowChart(){
 					      </div> ';
 				    form += '</div></form>';	
 				    showDialog('Select callflow item', form, '600', "180", 
+            //modalShow('Select callflow item', form, '600', "180", 
 					[{
 					  text: 'Cancel',
 					  class: "btn",

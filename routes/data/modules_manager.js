@@ -4,6 +4,7 @@ var path  = require('path');
 var rmdir = require('rimraf');
 var db    = require('../../modules/db');
 var exec = require('child_process').exec;
+var converter = require('../../modules/config/converter');
   
 var baseDir = path.dirname(require.main.filename);//Full path to app directory
 
@@ -36,8 +37,7 @@ exports.install_module = function(req, res) {
     .pipe(unzip.Extract({path: extractPath}).on('close', OnCloseExtractModule));
     
   function OnCloseExtractModule() {
-    
-    //extractedPath = baseDir + '/tmp/' + extractedDirectory + '/' + extractedDirectory;
+
     extractedPath = baseDir + '/tmp/' + extractedDirectory;
     //read package info file
     fs.readFile(extractedPath + '/module_info.json', 'utf8', function(error, data) {
@@ -153,6 +153,8 @@ exports.install_module = function(req, res) {
                   res.json({success: false, message: error.code });
                   return ;
                 }
+                //reload config
+                global.config = converter.mergeJSConfigs();
                 
                 res.json({success: true, message: "Module successfuly installed!"});
               });             

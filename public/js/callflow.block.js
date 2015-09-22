@@ -210,6 +210,7 @@ function blockRoot(){
                   </div> ';
         form += '</div>';
         showDialog('Rule property', form, '600', 'auto', 
+        //modalShow('Rule property', form, '600', 'auto', 
             [{
               text: 'Cancel',
               class: "btn",

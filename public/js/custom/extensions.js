@@ -156,7 +156,7 @@ var btnsAddExtension = [
             
             // check all form fields is empty and apply validation
             $('[id^="tab"] form').each(function(index) {
-              
+
               var isEmpty = false;
               
               var moduleFieldsForm = $(this).find('[name^="module"]');
@@ -174,7 +174,7 @@ var btnsAddExtension = [
               
               ignoreSteps.push(isEmpty);
               console.log(ignoreSteps);
-                
+              
               $(this).validate({
                 ignore: [],
                 rules: isEmpty ? {rules: {}} : currentValidate[index].rules,

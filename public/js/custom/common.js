@@ -8,7 +8,7 @@ if($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
 }
 
 //modal window
-function showDialog_old(title, body, width, height, buttons, beforeOpen, onClose) {
+function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
 	
     var objModal = $('#modal-dialog');
 
@@ -36,7 +36,8 @@ function showDialog_old(title, body, width, height, buttons, beforeOpen, onClose
 	else {
 		objModal.off( "dialogclose");
 		objModal.on('dialogclose', function(event, ui) { 
-			$(this).dialog('destroy') 
+			//$(this).dialog('destroy') 
+      $(this).dialog('close') 
 		} );
 	}
     
@@ -66,7 +67,7 @@ function showDialog_old(title, body, width, height, buttons, beforeOpen, onClose
 }
 
 //modal window ver 2
-function showDialog(title, body, width, height, buttons, beforeOpen, onClose, additional) {
+function showDialog_new(title, body, width, height, buttons, beforeOpen, onClose, additional) {
   
   var idDialog  = 'modal-dialog';
   var objModal  = $('#' + idDialog);
