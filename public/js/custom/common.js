@@ -199,18 +199,23 @@ function modal(params) {
 	}
   
   if (typeof params.buttons == 'undefined') {
-    buttons = [
+    params.buttons = [
       {
         text    : 'OK',
         "class" : 'btn btn-primary',
         click   : function() {
-          $(this).dialog('close');
+          //$(this).dialog('close');
+          $(this).dialog('destroy');
         }
       }
     ];
   }
     
+  //params.autoOpen = params.autoOpen ? true : false;
+    
   objModal.dialog({
+    //autoOpen:   params.autoOpen,
+    open:       params.open,
     title:      params.title,
     modal:      true,
     width:      params.width,

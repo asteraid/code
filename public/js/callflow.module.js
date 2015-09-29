@@ -57,40 +57,40 @@ function CallflowBlock(conf){
         }
 
         form += '</form>';
-        showDialog(this.title + ' property', form, 600, 'auto',
-        //modalShow(this.title + ' property', form, 600, 'auto',
-            // buttons
-            [{
-              text: 'Cancel',
-              class: "btn",
-              click: function(e){
-                $(this).dialog('close');
-              }
-            },
-              {
-              text: 'Confirm',
-              class: "btn btn-primary",
-              click: function(e){
-		  var custom_name = $('#custom_name').val();
+        var btns = [
+          {
+            text: 'Cancel',
+            class: "btn",
+            click: function(e){
+              //$(this).dialog('close');
+              $(this).dialog('destroy');
+            }
+          },
+          {
+            text: 'Confirm',
+            class: "btn btn-primary",
+            click: function(e) {
+              var custom_name = $('#custom_name').val();
 
-                  if ( $("#form_block").valid() ) {
-                      json.name = custom_name;
-                      for (var i = 0,length = json.structure.length; i < length; i++) {
-                          if ( $.inArray(json.structure.field_type,['string','textarea']) ) {
-                            json.structure[i].value = $('#field_' + json.structure[i].id).val().replace(/,/g,'|');
-                          } else {
-                            json.structure[i].value = $('#field_' + json.structure[i].id).val();
-                          }
-                      }
-                      json.extens[0].apps = self.formApps(json);
-                      callflow.update_detail(json);
-                      $(this).dialog('close');
+              if ( $("#form_block").valid() ) {
+                json.name = custom_name;
+                for (var i = 0,length = json.structure.length; i < length; i++) {
+                  if ( $.inArray(json.structure.field_type,['string','textarea']) ) {
+                    json.structure[i].value = $('#field_' + json.structure[i].id).val().replace(/,/g,'|');
+                  } else {
+                    json.structure[i].value = $('#field_' + json.structure[i].id).val();
                   }
+                }
+                json.extens[0].apps = self.formApps(json);
+                callflow.update_detail(json);
+                //$(this).dialog('close');
+                $(this).dialog('destroy');
               }
-             }
-            ],
-            // beforeopen function
-            function(){
+            }
+          }
+        ];
+        
+        var beforeOpen = function(){
                 var fieldId;
                 // Выставляем list fields
                 for (var i = 0,length = json.structure.length; i < length; i++) {
@@ -270,7 +270,20 @@ function CallflowBlock(conf){
                                     $(element).parents('.control-group').addClass('success');
                             }
                     });
-            });
+            };
+        /*showDialog(this.title + ' property', form, 600, 'auto',
+            // buttons
+            btns,
+            // beforeopen function
+            beforeOpen);*/
+        modal({
+          title: this.title + ' property',
+          body: form,
+          width: 600,
+          height: 'auto',
+          buttons: btns,
+          beforeOpen: beforeOpen
+        });
 
 
     }
@@ -434,13 +447,27 @@ CallflowBlock.prototype.blockBeforeDrop = function(callflow, target, draggable, 
                                             name: item.name
                                         };
                                         callback(target, draggable, branch);
-                                        $(this).dialog("close");
+                                        //$(this).dialog("close");
+                                        $(this).dialog('destroy');
                                     }
                      });
                  }
         });
         var form = "<p style='text-align:center;'>Select the branch transition</p>";
-        $("#modal-dialog").html(form);
+        modal({
+          autoOpen: true,
+          title: this.title + ' selection of branches',
+          body: form,
+          width: 480,
+          height: 170,
+          buttons: buttons,
+          'open': function(event, ui) {
+            // find all the buttons - note that the 'ui' argument is an empty object
+            var buttonset = $(event.target).parent().find('.ui-dialog-buttonset');
+            buttonset.css({"width": "100%", "text-align": "center"});
+          }
+        });
+        /*$("#modal-dialog").html(form);
         $("#modal-dialog").dialog({
                 autoOpen: true,
                 title: this.title + ' selection of branches',
@@ -454,7 +481,7 @@ CallflowBlock.prototype.blockBeforeDrop = function(callflow, target, draggable, 
                     buttonset.css({"width": "100%", "text-align": "center"});
                   }
 
-        });
+        });*/
     } else {
         callback(target, draggable, '');
     }

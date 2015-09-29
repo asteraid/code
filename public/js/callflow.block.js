@@ -209,49 +209,61 @@ function blockRoot(){
                         </div> \
                   </div> ';
         form += '</div>';
-        showDialog('Rule property', form, '600', 'auto', 
-        //modalShow('Rule property', form, '600', 'auto', 
-            [{
-              text: 'Cancel',
-              class: "btn",
-              click: function(e){
-                $(this).dialog('close');
-              }
-            },
-              {
-              text: 'Confirm',
-              class: "btn btn-primary",
-              click: function(e){
-                var name_rule = $('#name').val();  
-                var custom_name = $('#custom_name').val();
+        
+        var btns = [
+          {
+            text: 'Cancel',
+            class: "btn",
+            click: function(e) {
+              //$(this).dialog('close');
+              $(this).dialog('destroy');
+            }
+          },
+          {
+            text: 'Confirm',
+            class: "btn btn-primary",
+            click: function(e){
+              var name_rule = $('#name').val();  
+              var custom_name = $('#custom_name').val();
 
-                json.property.custom_name = custom_name;
+              json.property.custom_name = custom_name;
+              json.property.name = name_rule;
+		
+              var pattern = $('#pattern').val();
+              json.property.pattern = pattern;
+		
+              callflow.update_detail(json);
+              $('#node_'+json.id).find('.details').html(custom_name + " " + pattern);
+		
+              var patterns = json.property.pattern.split(",");
+              json.extens[0].key = patterns[0];
+              
+              // Удаляем текущие копии
+              if ( json.extens.length > 1 )
+                json.extens.splice( 1, (json.extens.length-1) );
                 
-                json.property.name = name_rule;
-		
-		var pattern = $('#pattern').val();
-                json.property.pattern = pattern;
-		
-		callflow.update_detail(json);
-		$('#node_'+json.id).find('.details').html(custom_name + " " + pattern);
-		
-                var patterns = json.property.pattern.split(",");
-                json.extens[0].key = patterns[0];
-                // Удаляем текущие копии
-                if ( json.extens.length > 1 )
-                    json.extens.splice( 1, (json.extens.length-1) );
-                // Делаем копии паттернов
-                var apps = json.extens[0].apps.slice(0);
+              // Делаем копии паттернов
+              var apps = json.extens[0].apps.slice(0);
                 if ( patterns.length > 1 ) {
-                    for ( var i=1,length=patterns.length;i< length; i++){
-                        json.extens.push({key:patterns[i], apps: apps});
-                    }
+                  for ( var i=1,length=patterns.length;i< length; i++){
+                    json.extens.push({key:patterns[i], apps: apps});
+                  }
                 }
                 
-                $(this).dialog('close');
+                //$(this).dialog('close');
+                $(this).dialog('destroy');
               }
-             }
-            ]);
+          }
+        ];
+        
+        //showDialog('Rule property', form, '600', 'auto', btns);
+        modal({
+          title: 'Rule property',
+          body: form,
+          width: 600,
+          height: 'auto',
+          buttons: btns
+        });
         
     }
 

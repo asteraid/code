@@ -5,9 +5,9 @@ block content
 
     include includes/sidebar
 
-    include includes/style-switcher
+    //include includes/style-switcher
     
-    #modal-dialog
+    //#modal-dialog
     
     #item-switcher
         #switcher
@@ -19,7 +19,7 @@ block content
     #content
         include includes/content-header
         p( style='margin:5px;')
-            button( data-action='save_conf', class="btn btn-success tip-bottom", type="button", title='Save Callflow' ) Save
+            button(data-action='save_conf', class="btn btn-success tip-bottom", type="button", title='Save Callflow', style="margin-right: 5px;") Save
             // button( data-action='view_json', class="btn btn-info tip-bottom", type="button", title='View result json for debug version only' ) View JSON
             button( data-action='view_conf', class="btn btn-inverse tip-bottom", type="button", title='View result config' ) View Config
 
@@ -35,7 +35,6 @@ block content
                 .modal-footer
                     a( data-dismiss="modal", class="btn", href="#") Cancel
                     button( class="btn btn-primary", type="submit") Confirm
-
     include includes/footer
 
     style
@@ -105,12 +104,24 @@ block content
         //Реакция на кнопки 
         $('button[data-action=view_json]').click(function(){
             var text = "\"data\": "+printJSON(callflow.jsonData);
-            dialogShow('View JSON',text,700,500);
+            //dialogShow('View JSON',text,700,500);
+            modal({
+              title: 'View JSON',
+              body: text,
+              width: 700,
+              height: 500
+            });
         });
 
         $('button[data-action=view_conf]').click(function(){
             var text = printConfig(callflow.jsonData);
-            dialogShow('View Config',text,700,500);
+            //dialogShow('View Config',text,700,500);
+            modal({
+              title: 'View Config',
+              body: text,
+              width: 700,
+              height: 500
+            });
         });
 
         $('button[data-action=save_conf]').click(function(){
@@ -122,11 +133,23 @@ block content
                 },
                 function(data){
                     if ( data.success ){
-                        showDialog('Rule','Rule success save',300,'auto');
+                        //showDialog('Rule','Rule success save',300,'auto');
+                        modal({
+                          title: 'Rule',
+                          body: 'Rule success save',
+                          width: 300,
+                          height: 'auto'
+                        });
                         changeBtnApply(1);
                     }
                     else
-                        showDialog('Rule',data.message,'auto','auto');
+                        //showDialog('Rule',data.message,'auto','auto');
+                        modal({
+                          title: 'Rule',
+                          body: data.message,
+                          width: 'auto',
+                          height: 'auto'
+                        });
                     $('body').unmask();
                 }
             );

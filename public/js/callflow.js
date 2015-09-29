@@ -245,104 +245,114 @@ function callFlowChart(){
 						    </div> \
 					      </div> ';
 				    form += '</div></form>';	
-				    showDialog('Select callflow item', form, '600', "180", 
-            //modalShow('Select callflow item', form, '600', "180", 
-					[{
-					  text: 'Cancel',
-					  class: "btn",
-					  click: function(e){
-					    $(this).dialog('close');
-					  }
-					},
-					  {
-					  text: 'Select',
-					  class: "btn btn-primary",
-					  click: function(e){
-					      if ( $('#items_form').valid() ){    
-						  var item_id = $('#item').val(),
-                                                      data = $.extend({},$('#item').select2('data'));
-                                                      data.itemId = item_id;
-                                                      data.extens = [{apps:[]}];
+            var btns = [
+              {
+                text: 'Cancel',
+                class: "btn",
+                click: function(e){
+                  //$(this).dialog('close');
+                  $(this).dialog('destroy');
+                }
+              },
+              {
+                text: 'Select',
+                class: "btn btn-primary",
+                click: function(e){
+                  if ( $('#items_form').valid() ) {    
+                    var item_id = $('#item').val(),
+                    data = $.extend({},$('#item').select2('data'));
+                    data.itemId = item_id;
+                    data.extens = [{apps:[]}];
 
-                                                  var get_structure = function() {
-                                                      // Получаем item
-                                                        $.getJSON('/data/callflow_load/get_callflow_structure',
-                                                          {
-                                                              item_id: draggable_data.itemId,
-                                                              id_class: draggable_data.id_class,
-                                                              unique_item_id: draggable_data.unique_item_id
-                                                           },
-                                                          function(result){
-                                                                 if (result.success) {
-                                                                     draggable_data.structure = result.data.structure;
-                                                                     draggable_data.list_branches = result.data.branches;
-                                                                     go_drop();
-                                                                 }
-                                                                 else {
-                                                                     alert('Ошибка получения контекста',result.message);
-                                                                 }
-                                                                 $('body').unmask();
-                                                            }
-                                                        );	
-                                                  }
+                    var get_structure = function() {
+                    // Получаем item
+                      $.getJSON('/data/callflow_load/get_callflow_structure',
+                        {
+                            item_id: draggable_data.itemId,
+                            id_class: draggable_data.id_class,
+                            unique_item_id: draggable_data.unique_item_id
+                         },
+                        function(result){
+                               if (result.success) {
+                                   draggable_data.structure = result.data.structure;
+                                   draggable_data.list_branches = result.data.branches;
+                                   go_drop();
+                               }
+                               else {
+                                   alert('Ошибка получения контекста',result.message);
+                               }
+                               $('body').unmask();
+                          }
+                      );
+                    }
 
-						  if ( item_id > 0 ){
-                                                      $.extend(draggable_data,data);
-                                                      // получаем ид блока
-                                                      $.ajax({
-                                                              type: 'POST',
-                                                              dataType: 'json',
-                                                              url: '/data/callflow_save/insert_config_relation',
-                                                              //data: 'name='+json_source.context_name+'&type='+json_source.module_class,
-                                                              data: {
-                                                                    item_id: item_id,
-                                                                    rule_id: self.callflowId,
-                                                                    parent_id: target_data.id
-                                                              },
-                                                              success: function(res){
-                                                                 draggable_data.id = res.id;
-                                                                 draggable_data.unique_item_id = res.id;
-								 get_structure();
-                                                              },
-                                                              error: function(jqXHR, textStatus, errorThrown){
-                                                                  alert(textStatus);
-                                                              }
-                                                            });
+                    if ( item_id > 0 ){
+                      $.extend(draggable_data,data);
+                      // получаем ид блока
+                      $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '/data/callflow_save/insert_config_relation',
+                        data: {
+                              item_id: item_id,
+                              rule_id: self.callflowId,
+                              parent_id: target_data.id
+                        },
+                        success: function(res){
+                           draggable_data.id = res.id;
+                           draggable_data.unique_item_id = res.id;
+                           get_structure();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                          alert(textStatus);
+                        }
+                      });
+                    } else {
+                      // если новый блок - создаем item
+                      $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '/data/callflow_save/insert_callflow',
+                        data: {
+                              data: draggable_data,
+                              rule_id: self.callflowId,
+                              parent_id: target_data.id
+                        },
+                        success: function(res){
+                          draggable_data.itemId = res.item_id;
+                          draggable_data.id = res.id;
+                          draggable_data.unique_item_id = res.id;
+                          get_structure();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown){
+                            alert(textStatus);
+                        }
+                      });
 
-						  }
-						  else {
-                                                            // если новый блок - создаем item
-                                                            $.ajax({
-                                                              type: 'POST',
-                                                              dataType: 'json',
-                                                              url: '/data/callflow_save/insert_callflow',
-                                                              //data: 'name='+json_source.context_name+'&type='+json_source.module_class,
-                                                              data: {
-                                                                    data: draggable_data,
-                                                                    rule_id: self.callflowId,
-                                                                    parent_id: target_data.id
-                                                              },
-                                                              success: function(res){
-                                                                 draggable_data.itemId = res.item_id;
-                                                                 draggable_data.id = res.id;
-                                                                 draggable_data.unique_item_id = res.id;
-								 get_structure();
-                                                              },
-                                                              error: function(jqXHR, textStatus, errorThrown){
-                                                                  alert(textStatus);
-                                                              }
-                                                            });
-
-						  }
-						  $(this).dialog('close');
+                    }
+                    //$(this).dialog('close');
+                    $(this).dialog('destroy');
 					      }
 					  }
 					 }
-					],
-					function(){
-					     $("#item").select2({multiple: false, data: list_item, width: "300"});
-                                             $("#item").select2("val",0);
-					} );				    
+					];
+				  /*showDialog('Select callflow item', form, '600', "180", btns,
+            function(){
+              $("#item").select2({multiple: false, data: list_item, width: "300"});
+              $("#item").select2("val",0);
+            }
+          );*/
+          modal({
+            title: 'Select callflow item',
+            body: form,
+            width: 600,
+            height: 180,
+            buttons: btns,
+            beforeOpen: function(){
+              $("#item").select2({multiple: false, data: list_item, width: "300"});
+              $("#item").select2("val",0);
+            }
+          });
 				 }
 				 else {
 				    go_drop();
@@ -829,7 +839,7 @@ function modalShow(title, body, callback, beforeopen ){
 /*
  *  Диалоговое окно
  */
-function dialogShow(title,body,width,height){
+/*function dialogShow(title,body,width,height){
     if ( typeof(height) == 'undefined' )
         var height = 'auto';
     
@@ -841,7 +851,7 @@ function dialogShow(title,body,width,height){
         height: height,
         buttons: []
     });
-}
+}*/
 
 // выводим объект, используется в функции printJSON
 function printObject(json,offset){
@@ -1080,7 +1090,7 @@ function configToExtens(config){
 
 
 // Создание callflow
-function create_callflow(root_extens){
+/*function create_callflow(root_extens){
     var form = '';
         form += ' <div class="control-group"> \
                     <label class="control-label" for="callflow_name">Name callflow:</label> \
@@ -1107,5 +1117,5 @@ function create_callflow(root_extens){
                 }
             );
         });
-}
+}*/
 
