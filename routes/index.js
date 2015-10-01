@@ -1,4 +1,5 @@
-//
+var db = require('../modules/db');
+
 function checkAuth(req, moduleUrl) {
 	var user_id = req.session.user_id;
   var userTypeId = req.session.user_type_id;
@@ -187,7 +188,7 @@ exports.index = function(req, res) {
 				var query = "SELECT us.id, CONCAT('{', '\"position\": ', m.position, ', ', '\"type\": \"', m.type, '\"',  ', ',  '\"name\": \"', m.name, '\"',  ', ', '\"icon\" :\"', m.icon, '\"',  ', ', '\"href\" :\"', m.href, '\"',  ', ', '\"class\" :\"', m.class, '\"',  IF(m.count = 1, CONCAT(', \"count\" : ', m.count), \"\"), '}') as var_val FROM `user_settings` us LEFT JOIN modules m ON us.module_id = m.id WHERE `module` = 'menu' AND `category` = 'item' AND `var_name` = 'settings' AND user_id = " + user_id + " ORDER BY m.position";
 			}
             
-            db.connect.query(query, function(err, results, fields) {
+            db.query(req, query, function(err, results, fields) {
 				
 				//Add Home Dashboard
 				if(results){
@@ -201,14 +202,14 @@ exports.index = function(req, res) {
         
         function getMenuItemsCount(callback) {
             var query = "SELECT `type`, COUNT(DISTINCT(`name`)) `count` FROM `vItems` WHERE `visible` = 1 GROUP BY `type`";
-            db.connect.query(query, function(err, results, fields) {
+            db.query(req, query, function(err, results, fields) {
                 if (!err) err = results;
                 callback(err);
             });
         };
         
-        var db = new database(req, res, true);
-        if(db.connect) {
+        //var db = new database(req, res, true);
+        //if(db.connect) {
             getMenuItems(function(result) {
                 var sidebar_items = [];
                 if(result.length > 0) {
@@ -257,11 +258,11 @@ exports.index = function(req, res) {
                             , statusBtnApply: req.cookies.statusBtnApply
                         });
                         
-                        db.destroy();
+                        //db.destroy();
                     });
                 }
             });
-        }
+        //}
     }
 };
 

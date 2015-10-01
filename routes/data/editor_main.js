@@ -1,108 +1,107 @@
-exports.list_configs = function(req, res){
-    var db = new database(req, res);
-    if(db.connect) {
-		var query = "SELECT DISTINCT `filename` FROM `vConfigAll` ORDER BY `editortabname` ASC";
-		db.connect.query(query, function (err, results, fields) {
-	    	var configs = [];
-			var custom_configs = ['extensions.conf', 'extensions-custom.conf', 'sip-custom.conf'];
-		
-			if(results.length == 0){
-				res.json({success: true, configs: custom_configs});
-				db.destroy();
-			}
-		
-			results.forEach(function(row){
-				configs.push(row['filename']);
-		
-			});
-		
-			// check if config files have customs
-			custom_configs.forEach(function(custom_config){
-				var custom_config_exists = false;
+var db = require('../../modules/db');
 
-				results.forEach(function(row){
-					if(row['filename'] == custom_config){
-						custom_config_exists = true;
-						return;
-					}
-				});
-			
-				// append custom config if not exists
-				if(! custom_config_exists){
-					configs.push(custom_config);
-		            configs.sort();
-				}
-			});
+exports.list_configs = function(req, res) {
+  var query = "SELECT DISTINCT `filename` FROM `vConfigAll` ORDER BY `editortabname` ASC";
+  
+  db.query(req, query, function (err, results, fields) {
+    var configs         = [];
+    var custom_configs  = ['extensions.conf', 'extensions-custom.conf', 'sip-custom.conf'];
+    
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
+    }
 
-		    if(!err) {
-		        if(results.length>0) {
-		            res.json({success: true, configs: configs});
-					db.destroy();
-		        }
-		    } else {
-		    	res.json({success: false, message: 'db error', 'err': err});
-				db.destroy();
-		    }
-		});
-	} else res.json({success: false, message: 'Error sessions'});
+    if (results.length == 0) {
+      res.json({success: true, configs: custom_configs});
+      return;
+    }
+		
+    results.forEach(function(row){
+      configs.push(row['filename']);
+    });
+		
+    // check if config files have customs
+    custom_configs.forEach(function(custom_config){
+      var custom_config_exists = false;
+
+      results.forEach(function(row){
+        if(row['filename'] == custom_config){
+          custom_config_exists = true;
+          return;
+        }
+      });
+    
+      // append custom config if not exists
+      if (!custom_config_exists) {
+        configs.push(custom_config);
+        configs.sort();
+      }
+    });
+
+    if (results.length > 0)
+      res.json({success: true, configs: configs});
+  });
 }
 
 exports.get_context_id = function(req, res) {
-	var db = new database(req, res);
-    if(db.connect) {
-		var context_name = req.param('context_name');
-		var query = "SELECT `id` FROM `config_items` WHERE `type`='context' AND `name`='" + context_name + "'";
-        db.connect.query(query, function (err, results, fields) {
-            if(!err) {
-                if(results.length>0) {
-                    res.json({success: true, id: results[0].id});
-		            db.destroy();
-                } else {
-                    var sql = new getSQL({
-                        itemtype: "context",
-                        name: context_name,
-                        out_2: "@id_tmpl"
-                    });
+  var context_name  = req.param('context_name');
+  var query         = 'SELECT `id` FROM `config_items` WHERE `type`= ? AND `name`= ?';
 
-                    var query = sql.save_item();
+  db.query(req, query, ['context', context_name], function(err, results, fields) {
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
+    }
+    
+    if (results.length > 0) {
+      res.json({success: true, id: results[0].id});
+      return;
+    }
+    
+    var sql = new getSQL({
+      itemtype  : "context",
+      name      : context_name,
+      out_2     : "@id_tmpl"
+    });
 
-			        db.connect.query(query, function (err, results, fields) {
-						if(!err) {
-							db.connect.query("SELECT @result, @id_tmpl", function (err, results, fields) {
-								var result = results[0]['@result'];
-								var id_tmpl = results[0]['@id_tmpl'];
-								if(result)
-									res.json({success: true,  id: id_tmpl});
-								else
-									res.json({success: false});
-								db.destroy();
-							});
-						} else res.json({success: false, message: err.code });
-					});
-				}
-            } else res.json({success: false, message: err.code});
-        });
-	} else res.json({success: false, message: 'Error sessions'});
-};
+    query = sql.save_item() + '; ' + 'SELECT @result, @id_tmpl';
+
+    db.query(req, query, function(err, results, fields) {
+      if (err) {
+        res.json({success: false, message: err.code});
+        return;
+      }
+    
+      var result  = results[1][0]['@result'];
+      var id_tmpl = results[1][0]['@id_tmpl'];
+
+      if (result)
+        res.json({success: true,  id: id_tmpl});
+      else
+        res.json({success: false});
+          
+    });    
+  });
+}
 
 exports.get_config = function(req, res) {
-	var db = new database(req, res);
-    if(db.connect) {
-		var config_name = req.param('config_name');
+  var config_name = req.param('config_name');
+  var query;
 
-		if(config_name == 'extensions.conf' || config_name == 'extensions-custom.conf')
-		    var query = "SELECT * FROM `vExtensionsConfAll` WHERE editortabname='" + config_name + "' ORDER BY `cat_metric`, `var_metric`";
-		else if(config_name == 'sip.conf' || config_name == 'sip-custom.conf')
-		    var query = "SELECT * FROM `vSipConfAll` WHERE `editortabname`='" + config_name + "' ORDER BY `cat_metric`, `var_metric`";
-		else
-		    var query = "SELECT * FROM `vConfigAll` WHERE `editortabname`='" + config_name + "' ORDER BY `cat_metric`, `var_metric`";
+  if (config_name == 'extensions.conf' || config_name == 'extensions-custom.conf')
+    query = "SELECT * FROM `vExtensionsConfAll` WHERE editortabname = ? ORDER BY `cat_metric`, `var_metric`";
+  else if (config_name == 'sip.conf' || config_name == 'sip-custom.conf')
+    query = "SELECT * FROM `vSipConfAll` WHERE `editortabname`= ? ORDER BY `cat_metric`, `var_metric`";
+  else
+    query = "SELECT * FROM `vConfigAll` WHERE `editortabname`= ? ORDER BY `cat_metric`, `var_metric`";
 
-		db.connect.query(query, function (err, results, fields) {
-            var editor              = '';
-            var category            = '';
-			var old_category        = '';
-			var key_val_separator   = ' = ';
-            var msg_attention       = ' \
+  db.query(req, query, [config_name], function (err, results, fields) {
+    var editor              = '';
+    var category            = '';
+    var old_category        = '';
+    var key_val_separator   = ' = ';
+    var msg_attention       = ' \
 ; ------------------------------ ATTENTION ---------------------------\n \
 ; This configuration is automatically created. You can not change it manually.\n \
 ; But you can OVERRIDE any section of this configuration in the *-custom.conf\n \
@@ -111,63 +110,57 @@ exports.get_config = function(req, res) {
 ; begins with __ (double underscore) are not available for the include menu\n \
 ; ---------------------------------------------------------------------\n \
 \n\n';
+    if (err) {
+      res.json({success: false, message: err.code, 'err': err, query: query});
+      return;
+    }
+    
+    var prep_inc    = '';
+    var post_inc    = '';
+    var contexts_id = [];
 
-	        if(!err) {
-				var prep_inc    = '';
-                var post_inc    = '';
-                var contexts_id = [];
+    switch(config_name) {
+      case 'extensions.conf':
+        prep_inc = msg_attention;
+        post_inc = '\n\n#include extensions-custom.conf\n\n';
+      break;
+      case 'sip.conf':
+        prep_inc = msg_attention;
+        post_inc = '\n\n#include sip-custom.conf\n\n';
+      break;
+    }
 
-                switch(config_name) {
-                    case 'extensions.conf':
-                        prep_inc = msg_attention;
-    					post_inc = '\n\n#include extensions-custom.conf\n\n';
-                    break;
-                    case 'sip.conf':
-                        prep_inc = msg_attention;
-    					post_inc = '\n\n#include sip-custom.conf\n\n';
-                    break;
-                }
+    if (results.length > 0) {
+      results.forEach(function(row){
+        if (old_category != row['category']) {
+          if (old_category != '') category = '\n';
 
-	            if(results.length > 0) {
-    	        	results.forEach(function(row){
-		        		if(old_category != row['category']) {
-				    		if(old_category != '') category = '\n';
+          category += '['+row['category']+']\n';
+          old_category = row['category'];
 
-                            category += '['+row['category']+']\n';
-				    		old_category = row['category'];
+          if (config_name == 'extensions-custom.conf')
+            contexts_id.push({name: row['category'], id: row['cat_metric']});
+        } else category = '';
+          
+        switch(row['var_name']) {
+          case 'exten':
+          case 'same':
+          case 'include':
+            key_val_separator = ' => ';
+          break;
+          default:
+            key_val_separator = ' = ';
+        }
 
-                            if(config_name == 'extensions-custom.conf')
-                                contexts_id.push({name: row['category'], id: row['cat_metric']});
-		        		} else category = '';
-                        
-		        		switch(row['var_name']){
-		        			case 'exten':
-		        			case 'same':            			
-		        			case 'include':
-		        				key_val_separator = ' => ';
-		        			break;
-		        			default:
-		        				key_val_separator = ' = ';
-		        		}
-                        
-                        editor += category + row['var_name'] + key_val_separator + row['var_val'] + '\n';
-            		});
-
-					res.json({ success: true, config_name: config_name, contexts_id: contexts_id, content: editor});
-					db.destroy();
-				} else {
-					res.json({ success: true, config_name: config_name, contexts_id: contexts_id, content: editor});
-					db.destroy();
-				}
-                
-        } else res.json({ success: false, message: 'db error', 'err': err, query: query });
-    });
-	}
+        editor += category + row['var_name'] + key_val_separator + row['var_val'] + '\n';
+      });
+    }
+    
+    res.json({success: true, config_name: config_name, contexts_id: contexts_id, content: editor});
+  });
 }
 
 exports.save_config = function(req, res) {
-  var db = require('../../modules/db');
-
   var mysql = require('mysql');
   var param = {
     data    : req.param('data'),

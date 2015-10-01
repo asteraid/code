@@ -1,4 +1,5 @@
-﻿exports.save_view_setting = function (req, res) {
+﻿var db = require('../../modules/db');
+/*exports.save_view_setting = function (req, res) {
    if ( req.session.dbuser && req.session.password ){
     var conf = {};
     conf.user = req.session.dbuser;
@@ -44,10 +45,9 @@
     });
     
    }
-};
+};*/
 
 exports.cdr_to_xls = function(req, res) {
-  var db        = new database(req, res);
   var date_from = req.param('date_from');
   var date_to   = req.param('date_to');
   var where     = '';
@@ -62,31 +62,31 @@ exports.cdr_to_xls = function(req, res) {
     where += " start <= '" + date_to + " 23:59:59'";
   }
 
-  if (db.connect)
-    getColumns();
-  else
-    res.json({ success: false, rows: [], message: 'Error sessions'});
-  
+  getColumns();
+
   function getColumns() {
     var query = 'SHOW COLUMNS FROM `' + config.cdr.database + '`.`cdr`';
-    db.connect.query(query, onGetData);
+    db.query(req, query, onGetData);
   }
   
   function onGetData(err, results) {
-    if (!err) {
-      fields = results.map(function(item) {return item.Field;});
-      
-      var query = [
-        'SELECT ',
-        fields.map(function(item) {return '`' + item + '`';}),
-        ' FROM ',
-        '`' + config.cdr.database + '`.`cdr`',
-        ' WHERE ',
-        where
-      ].join('');
-
-      db.connect.query(query, onCreateCsv);
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
     }
+    
+    fields = results.map(function(item) {return item.Field;});
+    
+    var query = [
+      'SELECT ',
+      fields.map(function(item) {return '`' + item + '`';}),
+      ' FROM ',
+      '`' + config.cdr.database + '`.`cdr`',
+      ' WHERE ',
+      where
+    ].join('');
+
+    db.query(req, query, onCreateCsv);
   }
   
   function onCreateCsv(err, results) {
@@ -105,7 +105,6 @@ exports.cdr_to_xls = function(req, res) {
       }
       
       to_csv(csv);
-      db.destroy();
     }
   }
   
@@ -114,4 +113,4 @@ exports.cdr_to_xls = function(req, res) {
     res.set('Content-disposition', 'attachment; filename=export.csv');
     res.send(data);
   }
-};
+}

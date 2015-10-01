@@ -2,145 +2,129 @@
  * Голосовые сообщение
  */
 //var JSFtp = require("jsftp");
+var db = require('../../modules/db');
 
 exports.list = function(req, res) {
-    var db = new database(req, res);
-    if(db.connect) {
-        var id = req.param('id'),
-            dStart = req.param('iDisplayStart'),
-            dLength = req.param('iDisplayLength'),
-            limit = '',
-            query;
+  var id      = req.param('id');
+  var dStart  = req.param('iDisplayStart');
+  var dLength = req.param('iDisplayLength');
+  var limit   = '';
 
-        if (dStart && dLength != -1) {
-            limit = 'LIMIT ' + dStart + ',' + dLength;
-        }
+  if (dStart && dLength != -1)
+    limit = 'LIMIT ' + dStart + ',' + dLength;
 
-        var query = "SELECT SQL_CALC_FOUND_ROWS date_format(start,'%Y-%m-%d %H:%i:%s') as start,src,dst,duration,uniqueid, \
-SUBSTRING( linkedid,1,LENGTH(linkedid) - LENGTH(SUBSTRING_INDEX(linkedid,'-',-1) ) -1 ) as host,voice_message \
-FROM " + config.cdr.database + ".cdr WHERE voice_message <> '' AND disposition = 'ANSWERED' order by start desc " + limit + '; SELECT FOUND_ROWS();';
-		console.log(query);
-        db.connect.query(query, function (err, results, fields) {
-            var success = false;
-            if(!err) {
-                if(results[0].length >0 ) {
-                    success = true;
-                }
-                res.json({  success: success,
-                            rows: results[0],
-                            iTotalRecords: results[1][0]['FOUND_ROWS()'],
-                            iTotalDisplayRecords: results[1][0]['FOUND_ROWS()'],
-                            sEcho: req.param('sEcho')
-                 });
-            }
-	    else {
-		res.json({success: false, message: err.code });
-	    }
-            db.destroy();
-        });
-   } 
-   else {
-       res.json({ success: false, message: 'Error sesisons'});
-   }
-};
-
-exports.delete = function(req, res) {
-  if (req.session.user) {
-    var fs       = require('fs');
-    var filename = req.param('filename');
-    var host     = req.param('host');
-    var filePath = [config.voiceDir, filename].join('');
-    var query    = [
-      'UPDATE ',
-        config.cdr.database, '.`cdr`',
-      ' SET `voice_message` = "" ',
-      'WHERE `voice_message` != "" AND `voice_message` = "', filename, '"'
-    ].join('');
+  var query = [
+    "SELECT SQL_CALC_FOUND_ROWS date_format(start,'%Y-%m-%d %H:%i:%s') as start,src,dst,duration,uniqueid,",
+    "SUBSTRING( linkedid,1,LENGTH(linkedid) - LENGTH(SUBSTRING_INDEX(linkedid,'-',-1) ) -1 ) as host,voice_message ",
+    "FROM " + config.cdr.database + ".cdr WHERE voice_message <> '' AND disposition = 'ANSWERED' order by start desc " + limit + "; SELECT FOUND_ROWS();"
+  ].join(' ');
+  
+  db.query(req, query, function(err, results, fields) {
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
+    }
     
-    var db = new database(req, res);
-    if(db.connect) {
-      db.connect.query(query, function (err, results, fields) {
-        if (!err) {
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            exec_command(['ssh', host, 'rm -f', '/var/log/asterisk/monitor/', fileName].join(' '), function(error, out) {});
-            res.json({success: true, message: 'File deleted success'});
-          } else {
-            res.json({success: false, message: 'Error: file not exists'});
-          }
-        } else {
-          res.json({success: false, message: err.code});
-        }
-        db.destroy();
-      });
-    } else res.json({ success: false, message: 'Error sesisons'});
-  }
+    var success = false;
+    
+    if (results[0].length > 0)
+        success = true;
+    
+    res.json({
+      success: success,
+      rows: results[0],
+      iTotalRecords: results[1][0]['FOUND_ROWS()'],
+      iTotalDisplayRecords: results[1][0]['FOUND_ROWS()'],
+      sEcho: req.param('sEcho')
+    });
+  });
+}
+
+exports.delete = function(req, res) {  
+  var fs       = require('fs');
+  var filename = req.param('filename');
+  var host     = req.param('host');
+  var filePath = [config.voiceDir, filename].join('');
+  var query    = [
+    'UPDATE ',
+      config.cdr.database, '.`cdr`',
+    ' SET `voice_message` = "" ',
+    'WHERE `voice_message` != "" AND `voice_message` = "', filename, '"'
+  ].join('');
+
+  db.query(req, query, function(err, results, fields) {
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
+    }
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      //TODO: need move path to config
+      exec_command(['ssh', host, 'rm -f', '/var/log/asterisk/monitor/', fileName].join(' '), function(error, out) {});
+      res.json({success: true, message: 'File deleted success'});
+    } else
+      res.json({success: false, message: 'Error: file not exists'});
+  });
 }
 
 exports.get_voice_file = function(req, res) {
-    if (req.session.user) {
+  if (req.session.user) {
+    var fs          = require('fs');
+    var fileName    = req.param('filename');
+    var fileNameArr = fileName.split('/');
+    var file  = {};
+    file.src  = {};
+    file.src.name   = fileNameArr[fileNameArr.length - 1].split('.').slice(0, -1).join('.');
+    file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
+    file.src.path   = config.voiceDir + fileNameArr.slice(0, -1).join('/') + '/';
+
+    file.dest = {};
+    file.dest.name    = file.src.name + req.session.user;
+    file.dest.format  = 'mp3';
+    file.dest.path    = '/tmp/' + [file.dest.name, file.dest.format].join('.');
+
+    fs.exists([file.src.path, file.src.name, '.', file.src.format].join(''), function(exists) {    
+      if (exists) {
+        sendFile(file.src.name, file.src.path, file.src.format)
+      } else {
+        res.writeHead(404, {"Content-Type": "text/plain"});
+        res.write("File " + file.src.name + "." + file.src.format + " not found\n");
+        res.end();
+      }
+    });
         
-        var fs          = require('fs');
-        /*
-        var fileNameSrc     = req.param('filename');
-        var clearFileName   = fileNameSrc.split('/').pop();
-        var fileNameSrcArr  = fileNameSrc.split('.');
-        var fileFormatSrc;
-        var filePathSrc;
-        var convert         = true;
-        */
-        var fileName = req.param('filename');
-        var fileNameArr = fileName.split('/');
-        var file  = {};
-          file.src  = {};
-            file.src.name   = fileNameArr[fileNameArr.length - 1].split('.').slice(0, -1).join('.');
-            file.src.format = fileNameArr[fileNameArr.length - 1].split('.').pop();
-            file.src.path   = config.voiceDir + fileNameArr.slice(0, -1).join('/') + '/';
-            
-          file.dest = {};
-            file.dest.name    = file.src.name + req.session.user;
-            file.dest.format  = 'mp3';
-            file.dest.path    = '/tmp/' + [file.dest.name, file.dest.format].join('.');
-            
-        console.log('file => ', file);
-        
-        
-        fs.exists([file.src.path, file.src.name, '.', file.src.format].join(''), function(exists) {
-          console.log('exists => ', exists);
-          console.log('fs.exists', [file.src.path, file.src.name, '.', file.src.format].join(''));
-          //console.log(file.src.name, file.src.path, file.src.format);
-          if (exists) {
-            sendFile(file.src.name, file.src.path, file.src.format)
-          } else {
-            res.writeHead(404, {"Content-Type": "text/plain"});
-            res.write("File " + file.src.name + "." + file.src.format + " not found\n");
-            res.end();
-          }
-        });
-        
-        var sendFile = function(fileName, filePath, fileFormat) {
-          var stat        = fs.statSync(filePath + fileName + '.' + fileFormat);
-          
-          res.writeHead(200, {
-            'Content-Type': 'audio/mpeg', 
-            'Content-Length': stat.size,
-            'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
-          });
-          
-          var readStream = fs.createReadStream(filePath + fileName + '.' + fileFormat);
-          
-          readStream.on('data', function(data) {
-              res.write(data);
-          });
+    var sendFile = function(fileName, filePath, fileFormat) {
+      var stat = fs.statSync(filePath + fileName + '.' + fileFormat);
+
+      res.writeHead(200, {
+        'Content-Type': 'audio/mpeg', 
+        'Content-Length': stat.size,
+        'Content-Disposition': 'attachment; filename=' + [fileName, fileFormat].join('.')
+      });
+
+      var readStream = fs.createReadStream(filePath + fileName + '.' + fileFormat);
+
+      readStream.on('data', function(data) {
+        res.write(data);
+      });
       
-          readStream.on('end', function() {
-              res.end();
-              //fs.unlinkSync([filePath, fileFormat].join('.'));
-          });
-        }
-        
-        
-        /*
+      readStream.on('end', function() {
+          res.end();
+      });
+    }
+  } else res.json({success: false, message: 'Error session'});
+}
+
+function exec_command(cmd, callback ) {
+  var exec = require('child_process').exec, child;
+ 
+  child = exec(cmd, function(error, stdout, stderr) {
+    callback(error, stdout);
+  });
+}
+
+/*
         var cmdSox  = ['sox ', filePathSrc, ' -e signed-integer ', filePathDest, '.wav'].join('');
         var cmdLame = ['lame -h ', filePathDest, '.wav', ' -s ', filePathDest, '.', fileFormatDest].join('');
         
@@ -228,13 +212,3 @@ exports.get_voice_file = function(req, res) {
                 fs.unlinkSync([filePath, fileFormat].join('.'));
           });
         } */
-    } else res.json({success: false, message: 'Error sessions'});
-}
-
-function exec_command(cmd, callback ) {
-    var exec = require('child_process').exec, child;
-   
-    child = exec(cmd, function(error,stdout,stderr) {
-        callback(error,stdout);
-    });
-}

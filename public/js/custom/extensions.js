@@ -1,6 +1,6 @@
 var currentRow = {};
 //var templateJSON = {};
-var modalId = '#modalWindow';
+//var modalId = '#modalWindow';
 
 // получение темплейтов
 /**/
@@ -113,36 +113,9 @@ filterInput.unbind('keyup search input').bind('keyup search input', function (ev
   if (nWords.length > 0)
     nRegex = '(?=^((?!(' + nWords.join('|') + ')).)*$)';
 
-  //console.info(pRegex+nRegex);
   oTable.fnFilter(pRegex+nRegex, null, true, false, true, true);
 });
 
-
-/*var btnsAddExtension = [
-    {
-        text: "Save",
-        "class": 'btn',
-        click: function() {
-            if($('#form-main').valid()) {
-                var self = this;
-                $.ajax({
-                    type: 'POST',
-                    url: '/data/extensions/save_ext',
-                    data: $(self).find('form:first').serializeArray(),
-                    dataType: 'json',
-                    async: false,
-                    success: function(data) {
-                        if(data.success) {
-                            oTable.fnReloadAjax();
-                            $(self).dialog('close');
-                            changeBtnApply(1);
-                        } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
-                    }
-                });
-            }
-        }
-    }
-];*/
 var btnsAddExtension = [
     {
         text: "Save",
@@ -205,7 +178,13 @@ var btnsAddExtension = [
                   steps.push({status: current.status, id: current.id});
 
                   if (!current.status) {
-                    showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                    //showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                    modal({
+                      title: 'Information',
+                      body: '<p align="center">' + current.message + '</p>',
+                      width: 'auto',
+                      height: 'auto'
+                    });
                     return ;
                   }
                   
@@ -218,7 +197,13 @@ var btnsAddExtension = [
                     steps.push({status: current.status, id: current.id});
                     
                     if (!current.status) {
-                      showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                      //showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
+                      modal({
+                        title: 'Information',
+                        body: '<p align="center">' + current.message + '</p>',
+                        width: 'auto',
+                        height: 'auto'
+                      });
                       return ;
                     }
                   }
@@ -227,7 +212,7 @@ var btnsAddExtension = [
               
               if (steps[steps.length - 1].status == true) {
                 oTable.fnReloadAjax();
-                $(self).dialog('close');
+                $(self).dialog('destroy');
                 changeBtnApply(1);
               } else {
                 console.info(steps);
@@ -278,9 +263,15 @@ var btnsAddGroupExtension = [
           success: function(data) {
             if(data.success) {
               oTable.fnReloadAjax();
-              $(self).dialog('close');
+              $(self).dialog('destroy');
               changeBtnApply(1);
-            } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
+            } else //showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
+              modal({
+                title: 'Information',
+                body: '<p align="center">'+data.message+'</p>',
+                width: 'auto',
+                height: 'auto'
+              });
           }
         });
       }
@@ -289,29 +280,57 @@ var btnsAddGroupExtension = [
 ];
 
 $('#tblExtensions tbody tr').live('dblclick', function() {
-    showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
+    //showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
+    modal({
+      title: 'Edit Extension',
+      body: {url:'/modal/extension/add?id_ext=' + currentRow.extid},
+      width: '800',
+      height: 'auto',
+      buttons: btnsAddExtension
+    });
 });
 
-$('#btnAddExtension').click(function() {
-    showDialog('Add Extension', {url:'/modal/extension/add'}, '800', 'auto', btnsAddExtension);
+$('#btnAddExtension').on('click', function() {
+    //showDialog('Add Extension', {url:'/modal/extension/add'}, '800', 'auto', btnsAddExtension);
+    modal({
+      title: 'Add Extension',
+      body: {url:'/modal/extension/add'},
+      width: '800',
+      height: 'auto',
+      buttons: btnsAddExtension
+    });
 });
 
-$('#btnEditExtension').click(function() {
+$('#btnEditExtension').on('click', function() {
   if (oTable.getCheckedItems().length > 1)
-    showDialog('Group Edit Extensions', {url:'/modal/extension/edit_group'}, '800', 'auto', btnsAddGroupExtension);
+    //showDialog('Group Edit Extensions', {url:'/modal/extension/edit_group'}, '800', 'auto', btnsAddGroupExtension);
+    modal({
+      title: 'Group Edit Extensions',
+      body: {url:'/modal/extension/edit_group'},
+      width: '800',
+      height: 'auto',
+      buttons: btnsAddGroupExtension
+    });
   else
     if (oTable.isSelectedRow())
       //showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
-      showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
+      //showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
+      modal({
+        title: 'Edit Extension',
+        body: {url:'/modal/extension/add?id_ext=' + currentRow.extid},
+        width: '800',
+        height: 'auto',
+        buttons: btnsAddExtension
+      });
 });
 
-$('#btnDeleteExtension').click(function() {
+$('#btnDeleteExtension').on('click', function() {
   var btnsDelete = [
     {
       text: 'Ok',
       "class": 'btn btn-primary',
       click: function() {
-        $(this).dialog('close');
+        $(this).dialog('destroy');
         var id = [];
         if (oTable.getCheckedItems().length > 0)
           id = oTable.getCheckedItems('extid');
@@ -329,7 +348,13 @@ $('#btnDeleteExtension').click(function() {
               //$('#btnDeleteExtension').attr('disabled', true);
               changeBtnApply(1);
             }
-            showDialog('Information', data.message, '300','auto');
+            //showDialog('Information', data.message, '300','auto');
+            modal({
+              title: 'Information',
+              body: data.message,
+              width: '300',
+              heigth: 'auto'
+            });
           }
         });
       }
@@ -338,14 +363,28 @@ $('#btnDeleteExtension').click(function() {
       text: 'Cancel',
       "class": 'btn btn-primary',
       click: function() {
-        $(this).dialog('close');
+        $(this).dialog('destroy');
       }
     }
   ];
 
     if (oTable.getCheckedItems().length > 0)
-      showDialog('Warning!', '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>', 'auto', 'auto', btnsDelete);
+      //showDialog('Warning!', '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>', 'auto', 'auto', btnsDelete);
+      modal({
+        title: 'Warning!',
+        body: '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>',
+        width: 'auto',
+        height: 'auto',
+        buttons: btnsDelete
+      });
     else
       if (oTable.isSelectedRow())
-        showDialog('Warning', '<p align="center">Delete this Extension?</p>', 'auto', 'auto', btnsDelete);
+        //showDialog('Warning', '<p align="center">Delete this Extension?</p>', 'auto', 'auto', btnsDelete);
+        modal({
+          title: 'Warning!',
+          body: '<p align="center">Delete this Extension?</p>',
+          width: 'auto',
+          height: 'auto',
+          buttons: btnsDelete
+        });
 });

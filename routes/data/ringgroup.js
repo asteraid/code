@@ -1,61 +1,40 @@
-/* 
- * 
- */
+var db = require('../../modules/db');
 
-exports.get_ringgroup = function(req, res){
-  if ( req.session.dbuser && req.session.password ){
-    var conf = {};
-    conf.user = req.session.dbuser;
-    conf.password = req.session.password;
-    conf.host = config.db.host;
-    conf.database = config.db.database;
-    conf.database = config.db.database;
-    conf.port = config.db.port;
-
-    var db = mysql.createConnection(conf);
-    db.connect(function(err) {
-              // connected! (unless `err` is set)
-    });
+exports.get_ringgroup = function(req, res) {
+  var context_name = req.param('context_name');
+  var timeout = 0;
+  var strategy = '';
+  var extension = [];
+  var query = "SELECT var_name as name,var_val as value from vConfig WHERE category = '"+context_name+"'";
   
-    var context_name = req.param('context_name');
+  db.query(req, query, function(err, results, fields) {
+    if (err) {
+      res.json({success: false, message: err.code});
+      return;
+    }
     
-    var timeout = 0,
-        strategy = '',
-        extension = [];
+    for (var i = 0, length = results.length; i < length; i++ ) {
+      if (i in results) {
+        switch ( results[i].name ){
+          case 'timeout' :
+            timeout = results[i].value;
+            break;
+          case 'strategy' :
+            strategy = results[i].value;
+            break;
+          case 'member' :
+            extension.push(results[i].value);
+            break;
+        }
+      }
+    }
     
-    db.query("SELECT var_name as name,var_val as value from vConfig WHERE category = '"+context_name+"'", function (err, results, fields) {
-                                    if ( !err ) {
-                                        for( var i = 0, length = results.length; i < length; i++ ){
-                                            if ( i in results ){
-                                                switch ( results[i].name ){
-                                                    case 'timeout' :
-                                                        timeout = results[i].value;
-                                                        break;
-                                                    case 'strategy' :
-                                                        strategy = results[i].value;
-                                                        break;
-                                                    case 'member' :
-                                                        extension.push(results[i].value);
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                        res.json({success: true, timeout: timeout, strategy: strategy, extension: extension });
-                                        db.destroy();
-                                        
-                                    }
-                                    else {
-                                        res.json({success: false, message: err.code });
-                                        db.destroy();
-                                    }
-                                });
-    
-    
-  }
+    res.json({success: true, timeout: timeout, strategy: strategy, extension: extension });
+  });
 }
 
 
-exports.save_ringgroup = function(req, res){
+/*exports.save_ringgroup = function(req, res){
   if ( req.session.dbuser && req.session.password ){
     var conf = {};
     conf.user = req.session.dbuser;
@@ -221,9 +200,9 @@ exports.save_ringgroup = function(req, res){
      
    } // end if session
   
-}
+}*/
 
-exports.del_ringgroup = function(req, res){
+/*exports.del_ringgroup = function(req, res){
   if ( req.session.dbuser && req.session.password ){
     var conf = {};
     conf.user = req.session.dbuser;
@@ -263,4 +242,4 @@ exports.del_ringgroup = function(req, res){
         });
   }
   
-}
+}*/

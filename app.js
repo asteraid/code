@@ -25,8 +25,8 @@ scheduler.getJobsList(function(error, results) {
   }
 });
 
-mysql     = require('mysql');
-database  = db.database;
+//mysql     = require('mysql');
+//database  = db.database;
 getSQL    = db.getSQL;
 
 var opts = {
