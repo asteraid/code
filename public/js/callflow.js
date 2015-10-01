@@ -336,12 +336,7 @@ function callFlowChart(){
 					  }
 					 }
 					];
-				  /*showDialog('Select callflow item', form, '600', "180", btns,
-            function(){
-              $("#item").select2({multiple: false, data: list_item, width: "300"});
-              $("#item").select2("val",0);
-            }
-          );*/
+
           modal({
             title: 'Select callflow item',
             body: form,

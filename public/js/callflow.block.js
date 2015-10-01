@@ -256,7 +256,6 @@ function blockRoot(){
           }
         ];
         
-        //showDialog('Rule property', form, '600', 'auto', btns);
         modal({
           title: 'Rule property',
           body: form,

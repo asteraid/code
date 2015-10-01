@@ -271,11 +271,7 @@ function CallflowBlock(conf){
                             }
                     });
             };
-        /*showDialog(this.title + ' property', form, 600, 'auto',
-            // buttons
-            btns,
-            // beforeopen function
-            beforeOpen);*/
+
         modal({
           title: this.title + ' property',
           body: form,

@@ -178,7 +178,6 @@ var btnsAddExtension = [
                   steps.push({status: current.status, id: current.id});
 
                   if (!current.status) {
-                    //showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
                     modal({
                       title: 'Information',
                       body: '<p align="center">' + current.message + '</p>',
@@ -197,7 +196,6 @@ var btnsAddExtension = [
                     steps.push({status: current.status, id: current.id});
                     
                     if (!current.status) {
-                      //showDialog('Information', '<p align="center">' + current.message + '</p>', 'auto', 'auto');
                       modal({
                         title: 'Information',
                         body: '<p align="center">' + current.message + '</p>',
@@ -265,7 +263,7 @@ var btnsAddGroupExtension = [
               oTable.fnReloadAjax();
               $(self).dialog('destroy');
               changeBtnApply(1);
-            } else //showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
+            } else
               modal({
                 title: 'Information',
                 body: '<p align="center">'+data.message+'</p>',
@@ -280,7 +278,6 @@ var btnsAddGroupExtension = [
 ];
 
 $('#tblExtensions tbody tr').live('dblclick', function() {
-    //showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
     modal({
       title: 'Edit Extension',
       body: {url:'/modal/extension/add?id_ext=' + currentRow.extid},
@@ -291,7 +288,6 @@ $('#tblExtensions tbody tr').live('dblclick', function() {
 });
 
 $('#btnAddExtension').on('click', function() {
-    //showDialog('Add Extension', {url:'/modal/extension/add'}, '800', 'auto', btnsAddExtension);
     modal({
       title: 'Add Extension',
       body: {url:'/modal/extension/add'},
@@ -303,7 +299,6 @@ $('#btnAddExtension').on('click', function() {
 
 $('#btnEditExtension').on('click', function() {
   if (oTable.getCheckedItems().length > 1)
-    //showDialog('Group Edit Extensions', {url:'/modal/extension/edit_group'}, '800', 'auto', btnsAddGroupExtension);
     modal({
       title: 'Group Edit Extensions',
       body: {url:'/modal/extension/edit_group'},
@@ -313,8 +308,6 @@ $('#btnEditExtension').on('click', function() {
     });
   else
     if (oTable.isSelectedRow())
-      //showDialog('Edit Extension', {url:'/modal/extension/edit'}, '800', 'auto', btnsAddExtension);
-      //showDialog('Edit Extension', {url:'/modal/extension/add?id_ext=' + currentRow.extid}, '800', 'auto', btnsAddExtension);
       modal({
         title: 'Edit Extension',
         body: {url:'/modal/extension/add?id_ext=' + currentRow.extid},
@@ -348,7 +341,7 @@ $('#btnDeleteExtension').on('click', function() {
               //$('#btnDeleteExtension').attr('disabled', true);
               changeBtnApply(1);
             }
-            //showDialog('Information', data.message, '300','auto');
+
             modal({
               title: 'Information',
               body: data.message,
@@ -369,7 +362,6 @@ $('#btnDeleteExtension').on('click', function() {
   ];
 
     if (oTable.getCheckedItems().length > 0)
-      //showDialog('Warning!', '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>', 'auto', 'auto', btnsDelete);
       modal({
         title: 'Warning!',
         body: '<p align="center">Delete extensions: ' + oTable.getTextInfo('extension') + '?</p>',
@@ -379,7 +371,6 @@ $('#btnDeleteExtension').on('click', function() {
       });
     else
       if (oTable.isSelectedRow())
-        //showDialog('Warning', '<p align="center">Delete this Extension?</p>', 'auto', 'auto', btnsDelete);
         modal({
           title: 'Warning!',
           body: '<p align="center">Delete this Extension?</p>',
