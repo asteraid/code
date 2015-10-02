@@ -1,5 +1,5 @@
-
-var logger = require('../modules/logger');
+var mysql   = require('mysql');
+var logger  = require('../modules/logger');
 
 function doAuthentification(req, res, callback) {
 
