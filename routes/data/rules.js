@@ -1,12 +1,12 @@
 var db = require('../../modules/db');
 
 exports.save = function (req, res) {
-  var action = req.param('action');
-  var id = req.param('id');
-  var context_id = req.param('context_id') || 'NULL';
-  var name = req.param('name');
-  var comment = req.param('comment');
-  var mask = req.param('mask');
+  var action      = req.param('action');
+  var id          = req.param('id');
+  var context_id  = req.param('context_id') || 'NULL';
+  var name        = req.param('name');
+  var comment     = req.param('comment');
+  var mask        = req.param('mask');
 
   //save
   var save_rule = function() {
