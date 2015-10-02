@@ -1,3 +1,5 @@
+var mysql = require('mysql');
+
 exports.create = function (req, res) {
     //--- common functions
     
