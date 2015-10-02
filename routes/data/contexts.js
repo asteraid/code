@@ -134,7 +134,7 @@ exports.save_context = function (req, res) {
       db.query(req, query_update, [name, name_old, name, name_old], function(err, results, fields) {});
     }
 
-    var query = sql.save_item() + ';' + 'SELECT @result, @id_context';
+    var query = sql.save_item() + 'SELECT @result, @id_context';
 
     db.query(req, query, function(err, results, fields) {
       if (err) {

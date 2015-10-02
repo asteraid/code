@@ -103,7 +103,7 @@ exports.delete = function (req, res) {
     // delete callflows and configs
     var query = "CALL delete_rule(" + item_id + ", @result);";
         
-    query += ';SELECT @result';
+    query += 'SELECT @result';
     
     db.query(req, query, function (err, results, fields) {
       if (err) {
@@ -112,7 +112,6 @@ exports.delete = function (req, res) {
       }
       
       var result = results[1][0]['@result'];
-      console.log(results);
       
       if (result)
         res.json({success: true,  results: result , message: "Rule deleted success!"});

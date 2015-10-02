@@ -17,6 +17,7 @@ exports.get_serverList = function(req, res){
       if ( match ) {
         var servers       = [];
         var servlist      = match[1].split('\n');
+        console.log(servlist);
         var regexp_server = /(\S*)\ssid=(\d+)/;
 
         for ( var i = 0, length=servlist.length; i<length; i++) {
