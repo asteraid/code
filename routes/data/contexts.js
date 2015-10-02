@@ -49,7 +49,7 @@ exports.get_path = function (req, res) {
 }
 
 exports.list = function (req, res) {
-  var query = "SELECT DISTINCT `id`, `name`, `type`, `comment` FROM `vItems` WHERE (`type`='context' OR `type`='rule') AND `visible` = 1 ORDER BY `name` ASC";
+  var query = "SELECT DISTINCT `id`, `name`, `type`, `comment` FROM `vContext` WHERE (`type`='context' OR `type`='rule') AND `visible` = 1 ORDER BY `name` ASC";
   db.query(req, query, function (err, results, fields) {
     if (err) {
       res.json({success: false, rows: [], message: err.code});
