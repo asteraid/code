@@ -1,4 +1,3 @@
-//- div(id="modal-dialog", style="display: none;") -//
 div(id="modal-dialog", style="display: none;")
 #footer.span12
 
@@ -33,9 +32,9 @@ link( rel="stylesheet", href="/js/modal/loadmask/jquery.loadmask.spin.css" )
 style
     input.error {border: 1px #ff0000 solid;}
     div.error {color: #ff0000; font-size: 13px;}
-script( src="/js/modal/loadmask/spin.min.js")
-script( src="/js/modal/loadmask/jquery.loadmask.spin.js")
-script( src="/js/custom/common.js")
+script(src="/js/modal/loadmask/spin.min.js")
+script(src="/js/modal/loadmask/jquery.loadmask.spin.js")
+script(src="/js/custom/common.js")
 script
     // spinner
     var opts = {
@@ -59,43 +58,5 @@ script
         },
         delay: 1000
     };
-
-    $(document).ready(function(){
-        if(statusBtnApply == "1") changeBtnApply(1);
-
-        //$('#user-nav a[title="Apply config"]').click(function() {
-        $('#user-nav #execApply').click(function() {
-            //console.log('apply config');
-            //var spinner = new Spinner(opts).spin(document.body);
-            $('body').mask(opts);
-            $.post("/data/exec/apply_config",
-                {
-                },
-                function(data){
-                    //spinner.stop();
-                    $('body').unmask();
-                    if ( data.success ){
-                       showDialog('Apply command', "<p>Apply command executed</p>", 300, 'auto');
-                       changeBtnApply(2);
-                    }
-                    else
-                       showDialog('Apply command', "<p>"+data.message+"</p>", 'auto', 'auto');
-                }
-            );
-        });
-        
-        $('#execAsteriskRestart').click(function() {
-            $('body').mask(opts);
-            $.post("/data/exec/asterisk_restart", {},
-                function(data){
-                    //spinner.stop();
-                    $('body').unmask();
-                    if ( data.success ){
-                       showDialog('Apply command', "<p>Asterisk restart command executed</p>", 300, 'auto');
-                    }
-                    else
-                       showDialog('Asterisk restart command', "<p>"+data.message+"</p>", 'auto', 'auto');
-                }
-            );
-        });
-    });
+    $('title').html($('title').html() + ' - ' + location.hostname);
+script(src="/js/custom/header-nav.js")

@@ -75,3 +75,82 @@ exports.get_serverList = function(req, res){
     } else res.json({success:false, rows: [], message: err});
   });
 }
+
+exports.send_config = function(req, res) {
+  var db    = require('../../modules/db');
+  var exec  = require('child_process').exec, child;
+
+  var params = {
+    type: req.param('type')
+  };
+    
+  executeApply({type: params.type}, function(error, result) {
+    if (error) {
+      res.json({success: false, message: error.message, type: error.type});
+      return;
+    }
+    
+    res.json({success: true});
+  });
+
+  function executeApply(params, callback) {
+    if (params.type == 'send') {
+      var version = new Date().getTime();
+      
+      child = exec(config.execScriptDir + 'apply.sh send ' + version, function(error, stdout, stderr) {
+        if (error !== null) {
+          if (stderr == '')
+            stderr = error.message;
+
+          callback({message: stderr, code: stderr});
+          return;
+        }
+    
+        var query = [
+          'SELECT sl1.host, sl2.status, sl2.msg FROM syslog sl1',
+          'LEFT OUTER JOIN syslog sl2',
+          'ON(sl1.host = sl2.host and sl1.version = sl2.version and sl2.status NOT IN (?, ?))', 
+          'WHERE sl1.status = ? AND sl1.version = ?'
+        ].join(' ');
+
+        db.query(req, query, ['ATTEMPT', 'TRY', 'ATTEMPT', version], function(error, results) {
+          if (error) {
+            callback(error);
+            return;
+          }
+      
+          if (results.length == 0) {
+            callback({message: "Hosts is not available"});
+            return;
+          }
+      
+          var errors        = [];
+          var successStatus = 'OK';
+
+          results.forEach(function(item) {
+            if (item.status != successStatus)
+              errors.push([item.host, ' - ', item.msg].join(''));
+          });
+
+          if (errors.length) {
+            callback({message: "Errors: " + errors.join(', '), type: "confirm"});
+            return;
+          }
+
+          callback(null);
+        });
+      });
+    }
+    
+    if (params.type == 'reload') {
+      child = exec(config.execScriptDir + 'apply.sh reload', function(error, stdout, stderr) {
+        if (error) {
+          callback({message: stderr, code: stderr});
+          return;
+        }
+        
+        callback(null);
+      });
+    }
+  }
+}

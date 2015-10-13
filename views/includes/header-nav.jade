@@ -2,25 +2,15 @@
         h1
     #user-nav.navbar.navbar-inverse
         ul.nav.btn-group
-            //-
-                li.btn.btn-inverse#btn-apply
-                    a(title="Apply config", href="#") 
-                        i.icon.icon-check
-                        span.text Apply
-            -//
-            //-
-                li.btn.btn-inverse
-                    a( title="", href="/modules_manager")
-                        i.icon.icon-wrench
-                        span.text &nbsp;Modules
-            -//
             li.btn.btn-inverse#btn-apply
                 a.dropdown-toggle(title="Apply config", href="#", data-toggle="dropdown") 
                     i.icon.icon-check
                     span.text Apply
                 ul.dropdown-menu
                     li
-                        a(id="execApply", href="#") Apply config
+                        a(id="execSendConfig", href="#") Send Config
+                    li
+                        a(id="execModuleReload", href="#") Module Reload
                     li
                         a(id="execAsteriskRestart", href="#") Restart Asterisk
             li.btn.btn-inverse

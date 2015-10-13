@@ -122,7 +122,7 @@ exports.index = function(req, res) {
           
           res.render(pathView,
             {
-              title:      config.application_name,
+              title:      config.applicationName,
               itemId:     itemId,
               html:       {
                 nav: renderHtml(tabs.nav),
@@ -136,7 +136,7 @@ exports.index = function(req, res) {
         } else
           res.render(pathView,
             {
-              title:      config.application_name,
+              title:      config.applicationName,
               itemId:     itemId,
               itemName:   '',
               req_params: req.query,
@@ -242,7 +242,7 @@ exports.index = function(req, res) {
                                 sidebar_items.push(settings);
                         });
                         
-                        res.render(controller, { title: config.application_name
+                        res.render(controller, { title: config.applicationName
                             , item: item
                             //, itemUrl: 'test'
                             , path: ''
