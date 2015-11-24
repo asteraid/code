@@ -30,6 +30,29 @@ style
         position: relative;
         color: #EBEBEB;
     }
+    .callflow .node .node-options .collapse-node {
+        width: 5px;
+        height: 5px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        padding: 1px;
+        cursor: pointer;
+        margin-right: 15px;
+        margin-top: 3px;
+        
+        filter:alpha(opacity=1);
+        -moz-opacity:1;
+        -khtml-opacity: 1;
+        opacity: 1;
+        border: none;
+        border-bottom: 1px #ebebeb solid;
+    }
+    .callflow .node .node-options .collapse-node.close {
+        background: none;
+        border: 1px #ebebeb solid;
+    }
+    
     .callflow .node .node-options .delete {
         background-image: url(/images/btn_delete.png);
         background-repeat: no-repeat;

@@ -56,6 +56,9 @@ function callFlowChart(){
         var node = '<div class="node icons_black" id="node_'+id_node+'">';
             node += '  <div class="node-options">';
             
+            if (title == 'Menu')
+                node += '    <div id="collapse_' + id_node + '" class="collapse-node"></div>';
+            
             if ( title != 'ROOT')
                 node += '    <div id="delnode_'+id_node+'" class="delete"></div>';
             
@@ -360,7 +363,16 @@ function callFlowChart(){
 
                       }
                });
-
+               // collapse node
+               $('#collapse_' + json_data.id).on('click', function() {
+                if ($(this).hasClass('close')) {
+                    $(this).closest('.branch').find('> .children').show();
+                    $(this).removeClass('close');
+                } else {
+                    $(this).closest('.branch').find('> .children').hide();
+                    $(this).addClass('close');
+                }
+               });
                // delete node
                $('#delnode_'+json_data.id).click(function(){
                    var node = $(this).parent().parent();
@@ -566,6 +578,9 @@ function callFlowChart(){
                  if ( result.success) {
                      self.jsonData = result.data;
                      self.formFlow();
+                     
+                     //for all collapse blocks
+                     $('.collapse-node').trigger('click');
                  }
                  else {
                      alert('Ошибка чтения дерева',result.message);
