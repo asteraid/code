@@ -1,26 +1,34 @@
 #header
-        h1
-    #user-nav.navbar.navbar-inverse
-        ul.nav.btn-group
-            li.btn.btn-inverse#btn-apply
-                a.dropdown-toggle(title="Apply config", href="#", data-toggle="dropdown") 
-                    i.icon.icon-check
-                    span.text Apply
-                ul.dropdown-menu
+    h1
+#user-nav.navbar.navbar-inverse
+    ul.nav.btn-group
+        li.btn.btn-inverse#btn-apply
+            a.dropdown-toggle(title="Apply config", href="#", data-toggle="dropdown")
+                i.icon.icon-check
+                span.text Apply
+            ul.dropdown-menu
+                if (multi)
                     li
                         a(id="execSendConfig", href="#") Send Config
                     li
                         a(id="execModuleReload", href="#") Module Reload
                     li
                         a(id="execAsteriskRestart", href="#") Restart Asterisk
-            li.btn.btn-inverse
-                a.dropdown-toggle(title="Settings", href="#", data-toggle="dropdown") 
-                    i.icon.icon-wrench
-                    span.text Settings
-                ul.dropdown-menu
+                else
                     li
-                        a(href="/password") Change password
-            li.btn.btn-inverse
-                a(title="", href="/data/auth/logout")
-                    i.icon.icon-share-alt
-                    span.text Logout
+                        a(id="execSendConfigAndRestart", href="#") Send Config & Restart Asterisk
+                    li
+                        a(id="execModuleReload", href="#") Module Reload
+                    li
+                        a(id="execAsteriskRestart", href="#") Restart Asterisk
+        li.btn.btn-inverse
+            a.dropdown-toggle(title="Settings", href="#", data-toggle="dropdown")
+                i.icon.icon-wrench
+                span.text Settings
+            ul.dropdown-menu
+                li
+                    a(href="/password") Change password
+        li.btn.btn-inverse
+            a(title="", href="/data/auth/logout")
+                i.icon.icon-share-alt
+                span.text Logout

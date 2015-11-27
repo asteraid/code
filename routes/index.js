@@ -256,6 +256,7 @@ exports.index = function(req, res) {
                             , sessionID: req.sessionID
                             , style_css: style_css
                             , statusBtnApply: req.cookies.statusBtnApply
+                            , multi: (config.multi === 'true')
                         });
                         
                         //db.destroy();
