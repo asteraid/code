@@ -19,32 +19,32 @@ $(document).ready(function () {
     $('#execModuleReload').on('click', function (event) {
 
         event.preventDefault();
-        //$('body').mask(opts);
-        //
-        //$.ajax({
-        //    type: 'POST',
-        //    url: '/data/exec/send_config',
-        //    data: {type: 'reload'},
-        //    dataType: 'json',
-        //    success: function (data) {
-        //        $('body').unmask();
-        //        if (data.success) {
-        //            modal({
-        //                title: 'Information',
-        //                body: 'Reloaded!',
-        //                width: '300',
-        //                height: '200'
-        //            });
-        //            changeBtnApply(2);
-        //        } else
-        //            modal({
-        //                title: 'Error',
-        //                body: data.message,
-        //                width: '300',
-        //                height: '200'
-        //            });
-        //    }
-        //});
+        $('body').mask(opts);
+
+        $.ajax({
+            type: 'POST',
+            url: '/data/exec/send_config',
+            data: {type: 'reload'},
+            dataType: 'json',
+            success: function (data) {
+                $('body').unmask();
+                if (data.success) {
+                    modal({
+                        title: 'Information',
+                        body: 'Reloaded!',
+                        width: '300',
+                        height: '200'
+                    });
+                    changeBtnApply(2);
+                } else
+                    modal({
+                        title: 'Error',
+                        body: data.message,
+                        width: '300',
+                        height: '200'
+                    });
+            }
+        });
 
     });
 
@@ -185,7 +185,7 @@ $(document).ready(function () {
         }
     });
 
-    $('#execSendConfigAndRestart').on('click', function (event) {
+    $('#execSendConfigAndReload').on('click', function (event) {
         event.preventDefault();
 
         applySend();
