@@ -5,25 +5,25 @@ block content
             input(type='hidden', name='action', value='edit')
             input(type='hidden', name='id', value='')
             .control-group
-              label.control-label Name
-              .controls.left
-                input.span6(type='text', name='name')
-                input(type='hidden', name='name_old')
-            .control-group
-              label.control-label Comment
-              .controls.left
-                textarea.span6(name='comment')
-        script(type='text/javascript')
+                label.control-label Name
+                .controls.left
+                    input.span6(type='text', name='name')
+                    input(type='hidden', name='name_old')
+            .control-group(style='border-bottom: 1px solid #ccc;')
+                label.control-label Comment
+                .controls.left
+                    textarea.span6(name='comment')
+        script(type='text/javascript').
             $('input[name="id"]').val(currentRow.id);
-            
-            $.each(currentRow, function(index, el) {
-                if($('[name="' + index + '"]').length) {
+
+            $.each(currentRow, function (index, el) {
+                if ($('[name="' + index + '"]').length) {
                     $('[name="' + index + '"]').val(el);
                     if (index == 'name') $('[name="' + index + '_old"]').val(el);
                 }
             });
-          
-            $(document).ready(function() {
+
+            $(document).ready(function () {
                 $('form[name="form-basic"]').validate({
                     errorElement: 'div',
                     rules: {
@@ -42,7 +42,7 @@ block content
                     }
                 });
 
-                $('input').focus(function() {
+                $('input').focus(function () {
                     $(this).valid();
                 });
             });

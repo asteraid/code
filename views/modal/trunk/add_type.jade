@@ -4,11 +4,11 @@ block content
         form.form-horizontal(method='post')
             input(type='hidden', name='action', value='create')
             input(type='hidden', name='id', value='0')
-            .control-group
-              label.control-label Trunk type
-              .controls.left
-                select(name='trunk_type')
-                  option(value='SIP') SIP
-                  option(value='H323') H323
-                  option(value='IAX') IAX
-                  select
+            .control-group(style='border-bottom: 1px solid #ccc;')
+                label.control-label Trunk type
+                .controls.left
+                    select(name='trunk_type', style='width: 80%;')
+                        option(value='SIP') SIP
+                        option(value='H323') H323
+                        option(value='IAX') IAX
+                        select

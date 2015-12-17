@@ -5,45 +5,45 @@ block content
             input(type='hidden', name='action', value='')
             input(type='hidden', name='id_ext')
             .control-group
-              label.control-label Internal Number
-              .controls.left
-                input.span6(type='text', name='ext')
+                label.control-label Internal Number
+                .controls.left
+                    input.span6(type='text', name='ext')
             .control-group
-              label.control-label Name
-              .controls.left
-                input.span6(type='text', name='ext_name')
+                label.control-label Name
+                .controls.left
+                    input.span6(type='text', name='ext_name')
             .control-group
-              label.control-label Password
-              .controls.left
-                input#secret.span6(type='text', name='secret')
-                a#generatePassword.btn.btn-small(data-clipboard-target='secret')
-                  i.icon-refresh
-                  | generate
+                label.control-label Password
+                .controls.left
+                    input#secret.span6(type='text', name='secret')
+                    a#generatePassword.btn.btn-small(data-clipboard-target='secret')
+                        i.icon-refresh
+                        | generate
             .control-group
-              label.control-label Template
-              .controls.left
-                input(name='ext_template', style='width: 200px;', 'class'='input-select2')
+                label.control-label Template
+                .controls.left
+                    input(name='ext_template', style='width: 200px;', 'class'='input-select2')
             .control-group
-              label.control-label Context
-              .controls.left
-                input(name='context', style='width: 200px;', 'class'='input-select2')
-        script(type='text/javascript')
+                label.control-label Context
+                .controls.left
+                    input(name='context', style='width: 200px;', 'class'='input-select2')
+        script(type='text/javascript').
             var contextsList = getContextsList('all');
             var templatesList = getTemplatesList();
 
             select2Input('input[name="context"]', {data: contextsList}, false, false);
             select2Input('input[name="ext_template"]', {data: templatesList}, false, false);
-            
+
             $('input[name="id_ext"]').val(currentRow.extid);
-            
-            $('#generatePassword').click(function() {
+
+            $('#generatePassword').click(function () {
                 $('input[name="secret"]').val(getRandomPassword());
             });
-            
+
             //fill form
             fillFormSimple('/data/extensions/load_ext', currentRow.extid);
-            
-            $(document).ready(function() {
+
+            $(document).ready(function () {
                 $("#form-main").validate({
                     //errorElement: 'div',
                     rules: {

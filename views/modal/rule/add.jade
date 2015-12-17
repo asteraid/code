@@ -3,43 +3,44 @@ block content
     .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
         .tab-pane.active
             .form-horizontal
-              form(name='form-basic', method='post')
-                input(type='hidden', name='id', value='0')
-                input(type='hidden', name='action', value='create')
-                input(type='hidden', name='context_id', value='')
-                .control-group
-                  label.control-label Name
-                  .controls.left
-                    input.span6(type='text', name='name')
-                .control-group
-                  label.control-label Pattern
-                  .controls.left
-                    input.span6(type='text', name='mask')
-                .control-group
-                  label.control-label Comment
-                  .controls.left
-                    textarea.span6(name='comment')
-        script(type='text/javascript')
-          $('input[name="context_id"]').val(itemId);
-          $(document).ready(function() {
-          $('form[name="form-basic"]').validate({
-          errorElement: 'div',
-          rules: {
-          'name': {
-          required: true,
-          regexp: regexpPattern.name_object,
-          maxlength: 50
-          }
-          },
-          messages: {
-          'name': {
-          required: "Please enter name",
-          regexp: regexpMessage.name_object,
-          maxlength: regexpMessage.max_character
-          }
-          }
-          });
-          $('input').focus(function() {
-          $(this).valid();
-          });
-          });
+                form(name='form-basic', method='post')
+                    input(type='hidden', name='id', value='0')
+                    input(type='hidden', name='action', value='create')
+                    input(type='hidden', name='context_id', value='')
+                    .control-group
+                        label.control-label Name
+                        .controls.left
+                            input.span6(type='text', name='name')
+                    .control-group
+                        label.control-label Pattern
+                        .controls.left
+                            input.span6(type='text', name='mask')
+                    .control-group(style='border-bottom: 1px solid #ccc;')
+                        label.control-label Comment
+                        .controls.left
+                            textarea.span6(name='comment')
+        script(type='text/javascript').
+            $('input[name="context_id"]').val(itemId);
+            $(document).ready(function () {
+                $('form[name="form-basic"]').validate({
+                    errorElement: 'div',
+                    rules: {
+                        'name': {
+                            required: true,
+                            regexp: regexpPattern.name_object,
+                            maxlength: 50
+                        }
+                    },
+                    messages: {
+                        'name': {
+                            required: "Please enter name",
+                            regexp: regexpMessage.name_object,
+                            maxlength: regexpMessage.max_character
+                        }
+                    }
+                });
+
+                $('input').focus(function () {
+                    $(this).valid();
+                });
+            });

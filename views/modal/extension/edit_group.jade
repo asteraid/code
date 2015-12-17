@@ -1,18 +1,18 @@
 extends ../layout
 block content
-  .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
-    form#form-main.form-horizontal
-      input(type='hidden', name='ids')
-      .control-group
-        h5(style='margin-left: 30px;')
-          span Important! You edit the following extensions: 
-          span#extensions-info
-      .control-group
-        label.control-label Template
-        .controls.left
-          input(name='template', style='width: 200px;', 'class'='input-select2')
-      .control-group
-        label.control-label Context
-        .controls.left
-          input(name='context', style='width: 200px;', 'class'='input-select2')
-  script(type='text/javascript', src='/js/custom/extensions/edit_group.js')
+    .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
+        form#form-main.form-horizontal
+            input(type='hidden', name='ids')
+            .control-group
+                h5(style='margin-left: 30px;')
+                    span Important! You edit the following extensions:
+                    span#extensions-info
+            .control-group
+                label.control-label Template
+                .controls.left
+                    input(name='template', style='width: 200px;', 'class'='input-select2')
+            .control-group
+                label.control-label Context
+                .controls.left
+                    input(name='context', style='width: 200px;', 'class'='input-select2')
+    script(type='text/javascript', src='/js/custom/extensions/edit_group.js')

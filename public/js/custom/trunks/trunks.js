@@ -116,19 +116,19 @@ $('#btnAddTrunk').click(function() {
 
           if (trunk_type == 'SIP')
               //showDialog('Add Trunk Type "SIP"', {url:'/modal/trunk/add_SIP'}, '700', '550', btnsAddTrunk);
-              modal({title: 'Add Trunk Type "SIP"', body: {url:'/modal/trunk/add_SIP'}, width: '700', height: '550', buttons: btnsAddTrunk});
+              modal({title: 'Add SIP Trunk', body: {url:'/modal/trunk/add_SIP'}, width: '700', height: '550', buttons: btnsAddTrunk});
           if (trunk_type == 'H323')
               //showDialog('Add Trunk Type "H323"', {url:'/modal/trunk/add_H323'}, '700', '550', btnsAddTrunk);
-              modal({title: 'Add Trunk Type "H323"', body: {url:'/modal/trunk/add_H323'}, width: '700', height: '550', buttons: btnsAddTrunk});
+              modal({title: 'Add H323 Trunk', body: {url:'/modal/trunk/add_H323'}, width: '700', height: '550', buttons: btnsAddTrunk});
           if (trunk_type == 'IAX')
               //showDialog('Add Trunk Type "IAX"', {url:'/modal/trunk/add_IAX'}, '700', '550', btnsAddTrunk);
-              modal({title: 'Add Trunk Type "IAX"', body: {url:'/modal/trunk/add_IAX'}, width: '700', height: '550', buttons: btnsAddTrunk});
+              modal({title: 'Add IAX Trunk', body: {url:'/modal/trunk/add_IAX'}, width: '700', height: '550', buttons: btnsAddTrunk});
         }
       }
     ];
 
     //showDialog('Choose type trunk', {url:'/modal/trunk/add_type'}, '700', '200', btns);
-    modal({title: 'Choose type trunk', body: {url:'/modal/trunk/add_type'}, width: '700', height: '200', buttons: btns});
+    modal({title: 'Select trunk type', body: {url:'/modal/trunk/add_type'}, width: '700', height: 'auto', buttons: btns});
 });
 
 $('#btnEditTrunk').click(function() {editItem();});
@@ -136,13 +136,13 @@ $('#btnEditTrunk').click(function() {editItem();});
 function editItem() {
     if(currentRow.custom_type == 'SIP')
       //showDialog('Edit Trunk Type "SIP"', {url:'/modal/trunk/edit_SIP'}, '700', '550', btnsAddTrunk);
-      modal({title: 'Edit Trunk Type "SIP"', body: {url:'/modal/trunk/edit_SIP'}, width: '700', height: '550', buttons: btnsAddTrunk});
+      modal({title: 'Edit SIP Trunk', body: {url:'/modal/trunk/edit_SIP'}, width: '700', height: '550', buttons: btnsAddTrunk});
     if(currentRow.custom_type == 'OOH323')
       //showDialog('Edit Trunk Type "OOH323"', {url:'/modal/trunk/edit_H323'}, '700', '550', btnsAddTrunk);
-      modal({title: 'Edit Trunk Type "OOH323"', body: {url:'/modal/trunk/edit_H323'}, width: '700', height: '550', buttons: btnsAddTrunk});
+      modal({title: 'Edit OOH323 Trunk', body: {url:'/modal/trunk/edit_H323'}, width: '700', height: '550', buttons: btnsAddTrunk});
     if(currentRow.custom_type == 'IAX2')
       //showDialog('Edit Trunk Type "IAX2"', {url:'/modal/trunk/edit_IAX'}, '700', '550', btnsAddTrunk);
-      modal({title: 'Edit Trunk Type "IAX2"', body: {url:'/modal/trunk/edit_IAX'}, width: '700', height: '550', buttons: btnsAddTrunk});
+      modal({title: 'Edit IAX2 Trunk', body: {url:'/modal/trunk/edit_IAX'}, width: '700', height: '550', buttons: btnsAddTrunk});
 }
 
 $('#btnDeleteTrunk').click(function() {

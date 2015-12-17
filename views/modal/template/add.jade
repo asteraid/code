@@ -3,82 +3,82 @@ block content
     .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
         .widget-title
             ul.nav.nav-tabs
-              li.active
-                a(href='#tab1', data-toggle='tab') Basic
-              li
-                a(href='#tab2', data-toggle='tab') Advanced
-              li
-                a(href='#tab3', data-toggle='tab') Expert
-          .widget-content.tab-content
+                li.active
+                    a(href='#tab1', data-toggle='tab') Basic
+                li
+                    a(href='#tab2', data-toggle='tab') Advanced
+                li
+                    a(href='#tab3', data-toggle='tab') Expert
+        .widget-content.tab-content
             #tab1.tab-pane.active
-              form(name='form-basic')
-                .form-horizontal
-                  .control-group
-                    label.control-label Name
-                    .controls.left
-                      input.span6(type='text', name='name')
-                  .control-group
-                    label.control-label Codecs
-                    .controls.left
-                      input(type='hidden', name='disallow', value='all')
-                      input(type='text', name='allow')
-                  .control-group
-                    label.control-label Access denied
-                    .controls.left
-                      input.span6(name='deny', type='text', value='0.0.0.0/0.0.0.0')
-                  .control-group
-                    label.control-label Access allowed
-                    .controls.left
-                      input.span6(name='permit', type='text', value='0.0.0.0/0.0.0.0')
-                  .control-group
-                    label.control-label Comment
-                    .controls.left
-                      textarea(name='comment')
+                form(name='form-basic')
+                    .form-horizontal
+                        .control-group
+                            label.control-label Name
+                            .controls.left
+                                input.span6(type='text', name='name')
+                        .control-group
+                            label.control-label Codecs
+                            .controls.left
+                                input(type='hidden', name='disallow', value='all', style='width: 82%;')
+                                input(type='text', name='allow', style='width: 82%;')
+                        .control-group
+                            label.control-label Access denied
+                            .controls.left
+                                input.span6(name='deny', type='text', value='0.0.0.0/0.0.0.0')
+                        .control-group
+                            label.control-label Access allowed
+                            .controls.left
+                                input.span6(name='permit', type='text', value='0.0.0.0/0.0.0.0')
+                        .control-group
+                            label.control-label Comment
+                            .controls.left
+                                textarea(name='comment')
             #tab2.tab-pane
-              form(name='form-advanced')
-                .form-horizontal
-                  .control-group
-                    label.control-label dtmfmode
-                    .controls.left
-                      input(type='text', name='dtmfmode', value='rfc2833')
-                  .control-group
-                    label.control-label canreinvite
-                    .controls.left
-                      input(type='text', name='canreinvite', style='min-width: 200px;')
-                  .control-group
-                    label.control-label host
-                    .controls.left
-                      input(type='text', name='host', value='dynamic')
-                  .control-group
-                    label.control-label type
-                    .controls.left
-                      input(type='text', name='type', style='min-width: 200px;')
-                  .control-group
-                    label.control-label call limit
-                    .controls.left
-                      input(type='hidden', name='callcounter', value='yes')
-                      input(type='text', name='call-limit', value='')
-                  .control-group
-                    label.control-label caller id
-                    .controls.left
-                      input(type='text', name='clid')
-                  .control-group
-                    label.control-label Record
-                    .controls.left
-                      input(type='text', name='record', style='min-width: 200px;')
+                form(name='form-advanced')
+                    .form-horizontal
+                        .control-group
+                            label.control-label dtmfmode
+                            .controls.left
+                                input(type='text', name='dtmfmode', value='rfc2833')
+                        .control-group
+                            label.control-label canreinvite
+                            .controls.left
+                                input(type='text', name='canreinvite', style='width: 82%;')
+                        .control-group
+                            label.control-label host
+                            .controls.left
+                                input(type='text', name='host', value='dynamic')
+                        .control-group
+                            label.control-label type
+                            .controls.left
+                                input(type='text', name='type', style='width: 82%;')
+                        .control-group
+                            label.control-label call limit
+                            .controls.left
+                                input(type='hidden', name='callcounter', value='yes')
+                                input(type='text', name='call-limit', value='')
+                        .control-group
+                            label.control-label caller id
+                            .controls.left
+                                input(type='text', name='clid')
+                        .control-group
+                            label.control-label Record
+                            .controls.left
+                                input(type='text', name='record', style='width: 82%;')
             #tab3.tab-pane(style='text-align: center;')
-              form(name='form-expert', action='/data/templates/save_tmpl', method='get')
-                input(type='hidden', name='action', value='create')
-                .row-fluid(style='text-align: left;')
-                  .span6
-                    h5 Basic + Advanced:
-                    textarea(name='config_1', style='display: none;')
-                    #config_1(style='width: 100%; height: 250px;')
-                  .span6
-                    h5 Expert:
-                    textarea(name='config_2', style='display: none;')
-                    #config_2(style='width: 100%; height: 250px;')
-        script(type='text/javascript')
+                form(name='form-expert', action='/data/templates/save_tmpl', method='get')
+                    input(type='hidden', name='action', value='create')
+                    .row-fluid(style='text-align: left;')
+                        .span6
+                            h5 Basic + Advanced:
+                            textarea(name='config_1', style='display: none;')
+                            #config_1(style='width: 100%; height: 250px;')
+                        .span6
+                            h5 Expert:
+                            textarea(name='config_2', style='display: none;')
+                            #config_2(style='width: 100%; height: 250px;')
+        script(type='text/javascript').
             var config_1 = ace.edit('config_1');
             $('#config_1 textarea').attr('disabled', true);
             var config_2 = ace.edit('config_2');
@@ -117,4 +117,4 @@ block content
                     }
                 });
             });
-        script(type='text/javascript', src='/js/custom/jquery.validate.focus.js')
+script(type='text/javascript', src='/js/custom/jquery.validate.focus.js')

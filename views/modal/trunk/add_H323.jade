@@ -2,91 +2,91 @@ extends ../layout_trunk
 block content
     script(type='text/javascript', src='/js/modal/trunk/create.js')
     if multi
-      script(type='text/javascript', src='/js/modal/trunk/typeH323_multi.js')
+        script(type='text/javascript', src='/js/modal/trunk/typeH323_multi.js')
     else
-      script(type='text/javascript', src='/js/modal/trunk/typeH323.js')
+        script(type='text/javascript', src='/js/modal/trunk/typeH323.js')
     .widget-box(style='min-width: 500px; margin-bottom: 0; margin-top: 0;')
         .widget-title
             ul.nav.nav-tabs
-              li.active
-                a(href='#tab1', data-toggle='tab') Basic
-              li
-                a(href='#tab2', data-toggle='tab') Advanced
-              li
-                a(href='#tab3', data-toggle='tab') Expert
-          .widget-content.tab-content
-            
-            #tab1.tab-pane.active
-              form(name='form-basic', method='get')
-                .form-horizontal
-                  .control-group
-                    label.control-label Name
-                    .controls.left
-                      input.span6(type='text', name='name')
-                  .control-group
-                    label.control-label Host
-                    .controls.left
-                      input(type='text', name='host', value='dynamic')
-                  .control-group
-                    label.control-label Codecs
-                    .controls.left
-                      input(type='hidden', name='disallow', value='all')
-                      input(type='text', name='allow')
-                  .control-group
-                    label.control-label Context
-                    .controls.left
-                      input.span6(name='context', type='text', value='from-trunk')
-                  include includes/register_string
-                  
-                  if multi
-                    .control-group
-                      label.control-label Target server
-                      .controls.left
-                        input.input-select2(name='node', type='text')
+                li.active
+                    a(href='#tab1', data-toggle='tab') Basic
+                li
+                    a(href='#tab2', data-toggle='tab') Advanced
+                li
+                    a(href='#tab3', data-toggle='tab') Expert
+        .widget-content.tab-content
 
-                  .control-group
-                    label.control-label Disabled
-                    .controls.left
-                      input.input-select2(name='commented', type='text', style='min-width: 200px;')
-                  .control-group
-                    label.control-label Comment
-                    .controls.left
-                      textarea(name='comment')
-            
+            #tab1.tab-pane.active
+                form(name='form-basic', method='get')
+                    .form-horizontal
+                        .control-group
+                            label.control-label Name
+                            .controls.left
+                                input.span6(type='text', name='name')
+                        .control-group
+                            label.control-label Host
+                            .controls.left
+                                input(type='text', name='host', value='dynamic')
+                        .control-group
+                            label.control-label Codecs
+                            .controls.left
+                                input(type='hidden', name='disallow', value='all', style='width: 82%;')
+                                input(type='text', name='allow', style='width: 82%;')
+                        .control-group
+                            label.control-label Context
+                            .controls.left
+                                input.span6(name='context', type='text', value='from-trunk')
+                        include includes/register_string
+
+                        if multi
+                            .control-group
+                                label.control-label Target server
+                                .controls.left
+                                    input.input-select2(name='node', type='text', style='width: 82%;')
+
+                        .control-group
+                            label.control-label Disabled
+                            .controls.left
+                                input.input-select2(name='commented', type='text', style='width: 82%;')
+                        .control-group
+                            label.control-label Comment
+                            .controls.left
+                                textarea(name='comment')
+
             #tab2.tab-pane
-              form(name='form-advanced', method='get')
-                .form-horizontal
-                  .control-group
-                    label.control-label Type
-                    .controls.left
-                      input(type='text', name='type', style='min-width: 200px;')
-                  .control-group
-                    label.control-label Port
-                    .controls.left
-                      input(name='port', type='text', style='min-width: 200px;', value='1720')
-                  .control-group
-                    label.control-label DTMFmode
-                    .controls.left
-                      input(type='text', name='dtmfmode', style='min-width: 200px;')
-                  .control-group
-                    label.control-label Faststart
-                    .controls.left
-                      input(name='faststart', type='text', style='min-width: 200px;')
-                  .control-group
-                    label.control-label h245Tunneling
-                    .controls.left
-                      input(name='h245Tunneling', type='text', style='min-width: 200px;')
-           
+                form(name='form-advanced', method='get')
+                    .form-horizontal
+                        .control-group
+                            label.control-label Type
+                            .controls.left
+                                input(type='text', name='type', style='width: 82%;')
+                        .control-group
+                            label.control-label Port
+                            .controls.left
+                                input(name='port', type='text', style='min-width: 200px;', value='1720')
+                        .control-group
+                            label.control-label DTMFmode
+                            .controls.left
+                                input(type='text', name='dtmfmode', style='width: 82%;')
+                        .control-group
+                            label.control-label Faststart
+                            .controls.left
+                                input(name='faststart', type='text', style='width: 82%;')
+                        .control-group
+                            label.control-label h245Tunneling
+                            .controls.left
+                                input(name='h245Tunneling', type='text', style='width: 82%;')
+
             #tab3.tab-pane(style='text-align: center;')
-              form(name='form-expert', method='get')
-                input(type='hidden', name='custom_type', value='OOH323')
-                input(type='hidden', name='action', value='create')
-                .row-fluid(style='text-align: left;')
-                  .span6
-                    h5 Basic + Advanced:
-                    textarea(name='config_1', style='display: none;')
-                    #config_1(style='width: 100%; height: 250px;')
-                  .span6
-                    h5 Expert:
-                    textarea(name='config_2', style='display: none;')
-                    #config_2(style='width: 100%; height: 250px;')
+                form(name='form-expert', method='get')
+                    input(type='hidden', name='custom_type', value='OOH323')
+                    input(type='hidden', name='action', value='create')
+                    .row-fluid(style='text-align: left;')
+                        .span6
+                            h5 Basic + Advanced:
+                            textarea(name='config_1', style='display: none;')
+                            #config_1(style='width: 100%; height: 250px;')
+                        .span6
+                            h5 Expert:
+                            textarea(name='config_2', style='display: none;')
+                            #config_2(style='width: 100%; height: 250px;')

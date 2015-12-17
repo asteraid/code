@@ -5,33 +5,34 @@ block content
             input(type='hidden', name='action', value='create')
             input(type='hidden', name='id', value='0')
             .control-group
-              label.control-label Name
-              .controls.left
-                input.span6(type='text', name='name')
-            .control-group
-              label.control-label Comment
-              .controls.left
-                textarea.span6(name='comment')
-        script(type='text/javascript')
-          $(document).ready(function() {
-          $('form[name="form-basic"]').validate({
-          errorElement: 'div',
-          rules: {
-          'name': {
-          required: true,
-          regexp: regexpPattern.name_object,
-          maxlength: 50
-          }
-          },
-          messages: {
-          'name': {
-          required: "Please enter name",
-          regexp: regexpMessage.name_object,
-          maxlength: regexpMessage.max_character
-          }
-          }
-          });
-          $('input').focus(function() {
-          $(this).valid();
-          });
-          });
+                label.control-label Name
+                .controls.left
+                    input.span6(type='text', name='name')
+            .control-group(style='border-bottom: 1px solid #ccc;')
+                label.control-label Comment
+                .controls.left
+                    textarea.span6(name='comment')
+        script(type='text/javascript').
+            $(document).ready(function() {
+                $('form[name="form-basic"]').validate({
+                    errorElement: 'div',
+                    rules: {
+                        'name': {
+                            required: true,
+                            regexp: regexpPattern.name_object,
+                            maxlength: 50
+                        }
+                    },
+                    messages: {
+                        'name': {
+                            required: "Please enter name",
+                            regexp: regexpMessage.name_object,
+                            maxlength: regexpMessage.max_character
+                        }
+                    }
+                });
+
+                $('input').focus(function() {
+                    $(this).valid();
+                });
+            });
