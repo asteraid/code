@@ -22,24 +22,25 @@ $(document).ready(function(){
         $('#loginform').on('submit', function(e){
             e.preventDefault();
             var formData = $(this).serialize();
-            //console.log('formData=',formData);
-        
-            $.post('data/auth/login', formData, function(response){
-                // выведем в лог данные, полученные от сервера
-                //console.log('response',response);
-                if ( response.success ){
-                    $('#message').prepend('<div class="alert alert-success">\
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>\
-                    <strong>Authorization!</strong> Success. </div>');
-                    window.location.href = '/';
-                }
-                else {
-                    $('#message').prepend('<div class="alert alert-error">\
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>\
-                    <strong>Authorization!</strong> Error login or password. </div>');
-                    $('#loginform')[0].reset();
-                }
-                    
+
+            $('input#login').fadeOut(function () {
+
+                $.post('data/auth/login', formData, function(response){
+                    if ( response.success ){
+                        $('#message').prepend('<div class="alert alert-success", style="display: inline-block;">\
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>\
+                        <strong>Authorization!</strong> Success. </div>');
+                        window.location.href = '/';
+                    }
+                    else {
+                        $('#message').prepend('<div class="alert alert-error", style="display: inline-block;">\
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>\
+                        <strong>Authorization!</strong> Error login or password. </div>');
+                        $('#loginform')[0].reset();
+                        $('input#login').fadeIn();
+                    }
+
+                });
             });
             // отменим стандартный сабмит формы
             return false;
@@ -64,8 +65,5 @@ $(document).ready(function(){
             }
         });
     });
-
-        
-        
     }
 });

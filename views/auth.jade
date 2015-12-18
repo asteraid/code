@@ -22,9 +22,16 @@ block content
                 // span.pull-left
                 //    input( type='button', class="btn btn-info",  value="Registration")
                 span.pull-right
-                    input( type="submit", class="btn btn-primary",  value="Login")
-                    
+                    input#login(type="submit", class="btn btn-primary",  value="Login")
+    br
     .container-fluid
+        .row-fluid
+            .span4 &nbsp;
+            .span4
+                .container-fluid(style="text-align: center;")
+                    #message
+            .span4 &nbsp;
+    //.container-fluid
         .span12 &nbsp;
             #message.span4.offset4
 
