@@ -106,39 +106,41 @@ exports.send_config = function (req, res) {
                     return;
                 }
 
-                var query = [
-                    'SELECT sl1.host, sl2.status, sl2.msg FROM syslog sl1',
-                    'LEFT OUTER JOIN syslog sl2',
-                    'ON(sl1.host = sl2.host and sl1.version = sl2.version and sl2.status NOT IN (?, ?))',
-                    'WHERE sl1.status = ? AND sl1.version = ?'
-                ].join(' ');
+                if (config.multi) {
+                    var query = [
+                        'SELECT sl1.host, sl2.status, sl2.msg FROM syslog sl1',
+                        'LEFT OUTER JOIN syslog sl2',
+                        'ON(sl1.host = sl2.host and sl1.version = sl2.version and sl2.status NOT IN (?, ?))',
+                        'WHERE sl1.status = ? AND sl1.version = ?'
+                    ].join(' ');
 
-                db.query(req, query, ['ATTEMPT', 'TRY', 'ATTEMPT', version], function (error, results) {
-                    if (error) {
-                        callback(error);
-                        return;
-                    }
+                    db.query(req, query, ['ATTEMPT', 'TRY', 'ATTEMPT', version], function (error, results) {
+                        if (error) {
+                            callback(error);
+                            return;
+                        }
 
-                    if (results.length == 0) {
-                        callback({message: "Hosts is not available"});
-                        return;
-                    }
+                        if (results.length == 0) {
+                            callback({message: "Hosts is not available"});
+                            return;
+                        }
 
-                    var errors = [];
-                    var successStatus = 'OK';
+                        var errors = [];
+                        var successStatus = 'OK';
 
-                    results.forEach(function (item) {
-                        if (item.status != successStatus)
-                            errors.push([item.host, ' - ', item.msg].join(''));
+                        results.forEach(function (item) {
+                            if (item.status != successStatus)
+                                errors.push([item.host, ' - ', item.msg].join(''));
+                        });
+
+                        if (errors.length) {
+                            callback({message: "Errors: " + errors.join(', '), type: "confirm"});
+                            return;
+                        }
+
+                        callback(null);
                     });
-
-                    if (errors.length) {
-                        callback({message: "Errors: " + errors.join(', '), type: "confirm"});
-                        return;
-                    }
-
-                    callback(null);
-                });
+                } else callback(null);
             });
         }
 
