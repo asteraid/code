@@ -22,7 +22,7 @@ $(document).ready(function(){
         $('#loginform').on('submit', function(e){
             e.preventDefault();
             var formData = $(this).serialize();
-            console.log('formData=',formData);
+            //console.log('formData=',formData);
         
             $.post('data/auth/login', formData, function(response){
                 // выведем в лог данные, полученные от сервера

@@ -61,7 +61,8 @@ function showDialog(title, body, width, height, buttons, beforeOpen, onClose) {
         width: width,
         height: height,
         buttons: buttons,
-        maxHeight: $(window).height() - 50
+        maxHeight: $(window).height() - 50,
+        resizable: false
     });
     
 }
@@ -124,7 +125,8 @@ function showDialog_new(title, body, width, height, buttons, beforeOpen, onClose
     width: width,
     height: height,
     buttons: buttons,
-    maxHeight: $(window).height() - 50
+    maxHeight: $(window).height() - 50,
+    resizable: false
   });
 }
 
@@ -221,7 +223,8 @@ function modal(params) {
     width:      params.width,
     height:     params.height,
     buttons:    params.buttons,
-    maxHeight:  $(window).height() - 50
+    maxHeight:  $(window).height() - 50,
+    resizable: false
   });
 }
 
