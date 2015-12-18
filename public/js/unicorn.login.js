@@ -4,47 +4,47 @@
 **/
 $(document).ready(function(){
 
-	var login = $('#loginform');
+	//var login = $('#loginform');
 	var recover = $('#recoverform');
 	var speed = 400;
 
-	$('#to-recover').click(function(){
-		login.fadeTo(speed,0.01).css('z-index','100');
-		recover.fadeTo(speed,1).css('z-index','200');
-	});
-
-	$('#to-login').click(function(){
-		recover.fadeTo(speed,0.01).css('z-index','100');
-		login.fadeTo(speed,1).css('z-index','200');
-	});
+	//$('#to-recover').click(function(){
+	//	login.fadeTo(speed,0.01).css('z-index','100');
+	//	recover.fadeTo(speed,1).css('z-index','200');
+	//});
+    //
+	//$('#to-login').click(function(){
+	//	recover.fadeTo(speed,0.01).css('z-index','100');
+	//	login.fadeTo(speed,1).css('z-index','200');
+	//});
         
-       // Обработка формы
-        $('#loginform').on('submit', function(e){
-            e.preventDefault();
-            var formData = $(this).serialize();
+    // Обработка формы
+    $('#loginform').on('submit', function(e){
+        e.preventDefault();
+        var formData = $(this).serialize();
 
-            $('input#login').fadeOut(function () {
+        $('input#login').fadeOut(function () {
 
-                $.post('data/auth/login', formData, function(response){
-                    if ( response.success ){
-                        $('#message').prepend('<div class="alert alert-success", style="display: inline-block;">\
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>\
-                        <strong>Authorization!</strong> Success. </div>');
-                        window.location.href = '/';
-                    }
-                    else {
-                        $('#message').prepend('<div class="alert alert-error", style="display: inline-block;">\
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>\
-                        <strong>Authorization!</strong> Error login or password. </div>');
-                        $('#loginform')[0].reset();
-                        $('input#login').fadeIn();
-                    }
+            $.post('data/auth/login', formData, function(response){
+                if ( response.success ){
+                    $('#message').prepend('<div class="alert alert-success", style="display: inline-block;">\
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>\
+                    <strong>Authorization!</strong> Success. </div>');
+                    window.location.href = '/';
+                }
+                else {
+                    $('#message').prepend('<div class="alert alert-error", style="display: inline-block;">\
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>\
+                    <strong>Authorization!</strong> Error login or password. </div>');
+                    $('#loginform')[0].reset();
+                    $('input#login').fadeIn();
+                }
 
-                });
             });
-            // отменим стандартный сабмит формы
-            return false;
         });
+        // отменим стандартный сабмит формы
+        return false;
+    });
     
     if($.browser.msie == true && $.browser.version.slice(0,3) < 10) {
         $('input[placeholder]').each(function(){ 

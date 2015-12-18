@@ -94,7 +94,7 @@ exports.save = function(req, res) {
               if (!err) {
                 if (results[0]['cnt'] === 0) { // если элемента нет - добавляем
                   // формируем ветку дерева, конфиг, получаем ид элемента дерева
-                  db.query(req, 'CALL insert_callflow_tree(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @result, @element_id); SELECT @result, @element_id;', [item_id, callflow_type, callflow_id, context_name, parent_id, '', condition, custom_name, id_class, unique_item_id, label], function (err, results, fields) {
+                  db.query(req, 'CALL insert_callflow_tree(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @result, @element_id); SELECT @result, @element_id;', [item_id, callflow_type, callflow_id, context_name, parent_id, null, condition, custom_name, id_class, unique_item_id, label], function (err, results, fields) {
                     if (!err) {
 
                       var result = results[1][0]['@result'];

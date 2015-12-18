@@ -108,7 +108,7 @@ exports.get_callflow = function(req, res){
           matched = row.var_val.match(regex);
           key = matched[1];
           if (nodes[itemId]['property'].pattern !== '') {
-              nodes[itemId]['property'].pattern += ' ,';
+              nodes[itemId]['property'].pattern += ',';
           }
           nodes[itemId]['property'].pattern += key;
           

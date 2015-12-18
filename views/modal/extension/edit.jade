@@ -22,11 +22,11 @@ block content
             .control-group
                 label.control-label Template
                 .controls.left
-                    input(type='text', name='ext_template', style='width: 82%;')
+                    input.input-select2(type='text', name='ext_template', style='width: 82%;')
             .control-group
                 label.control-label Context
                 .controls.left
-                    input(type='text', name='context', style='width: 82%;')
+                    input.input-select2(type='text', name='context', style='width: 82%;')
         script(type='text/javascript').
             var contextsList = getContextsList('all');
             var templatesList = getTemplatesList();

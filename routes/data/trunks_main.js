@@ -2,7 +2,7 @@ var db = require('../../modules/db');
 
 exports.get_itemid = function (req, res) {
   var item_name = req.param('item_name');
-  var query = "SELECT GROUP_CONCAT(`item_id` SEPARATOR ',') `item_id` FROM `vItemsConf`, `node` WHERE `name` = 'trunk_name' AND `value` = ? AND `commented` = 1 GROUP BY `name`";
+  var query = "SELECT GROUP_CONCAT(`item_id` SEPARATOR ',') `item_id`, `node` FROM `vItemsConf` WHERE `name` = 'trunk_name' AND `value` = ? AND `commented` = 1 GROUP BY `name`";
 
   db.query(req, query, [item_name], function(err, results, fields) {
     if (err) {

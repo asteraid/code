@@ -205,7 +205,6 @@ function fillFormSimple(url, id) {
                 $.each(data.data, function(index, el) {
                     var form_element = '[name="' + index + '"]';
                     if($(form_element).length) {
-                    //console.log(el);
                         if($(form_element).hasClass('input-select2'))
                             $(form_element).select2('val', el);
                         else

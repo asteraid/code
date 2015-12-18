@@ -101,7 +101,7 @@ exports.save = function(req, res) {
 
 exports.load = function (req, res) {    
   var id    = req.param('id');
-  var query = "SELECT `name`, `expert`, GROUP_CONCAT(`value` SEPARATOR ',') `value` FROM `vItemsConf` WHERE `parent_id` = ? GROUP BY `name`";
+  var query = "SELECT `name`, `expert`, GROUP_CONCAT(`value` SEPARATOR ',') `value` FROM `vItemsConf` WHERE `parent_id` = ? GROUP BY `name`, `expert`";
   
   db.query(req, query, [id], function(err, results, fields) {
     if (err) {
