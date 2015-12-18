@@ -1,57 +1,87 @@
 #tab1.tab-pane.active
-  form.form-horizontal(action='/data/extensions/save_ext', method='post')
-      input(type='hidden', name='action', value='create')
-      input(type='hidden', name='id_ext', value=req_params.id_ext)
-      .control-group
-        label.control-label Internal Number
-        .controls.left
-          input.span6(type='text', name='ext')
-      .control-group
-        label.control-label Name
-        .controls.left
-          input.span6(type='text', name='ext_name')
-      .control-group
-        label.control-label Password
-        .controls.left
-          input#secret.span6(type='text', name='secret')
-          a#generatePassword.btn.btn-small(data-clipboard-target='secret')
-            i.icon-refresh
-            | generate
-      .control-group
-        label.control-label Template
-        .controls.left
-          input(name='ext_template', style='width: 200px;', 'class'='input-select2')
-      .control-group
-        label.control-label Context
-        .controls.left
-          input(name='context', style='width: 200px;', 'class'='input-select2')
+    form.form-horizontal(name='form-basic', action='/data/extensions/save_ext', method='post')
+        input(type='hidden', name='action', value='create')
+        input(type='hidden', name='id_ext', value=req_params.id_ext)
+        .control-group
+            label.control-label Internal Number
+            .controls.left
+                input.span6(type='text', name='ext')
+        .control-group
+            label.control-label Name
+            .controls.left
+                input.span6(type='text', name='ext_name')
+        .control-group
+            label.control-label Password
+            .controls.left
+                input#secret.span6(type='text', name='secret')
+                a#generatePassword.btn.btn-small(data-clipboard-target='secret')
+                    i.icon-refresh
+                    | generate
+        .control-group
+            label.control-label Template
+            .controls.left
+                input(name='ext_template', style='width: 82%;')
+        .control-group
+            label.control-label Context
+            .controls.left
+                input(name='context', style='width: 82%;')
 
-script(type='text/javascript')
+script(type='text/javascript').
     var contextsList = getContextsList('all');
     var templatesList = getTemplatesList();
 
     select2Input('input[name="context"]', {data: contextsList}, false, false);
     select2Input('input[name="ext_template"]', {data: templatesList}, false, false);
-  
-    $('#generatePassword').click(function() {
+
+    $('#generatePassword').click(function () {
         $('input[name="secret"]').val(getRandomPassword());
     });
-    currentValidate[0] = {rules: {}, messages: {}};
-  
-    currentValidate[0].rules.ext = {
-      required: true,
-      regexp: regexpPattern.name_object,
-      maxlength: 50
-    };
-    
-    currentValidate[0].rules.ext_template = {required: true};
+    //currentValidate[0] = {rules: {}, messages: {}};
 
-    currentValidate[0].messages.ext = {
-      required: "Please enter internal number",
-      regexp: regexpMessage.name_object,
-      maxlength: regexpMessage.max_character
-    };
-    
+    //currentValidate[0].rules.ext = {
+    //    required: true,
+    //    regexp: regexpPattern.name_object,
+    //    maxlength: 50
+    //};
+
+    //currentValidate[0].rules.ext_template = {required: true};
+
+    //currentValidate[0].messages.ext = {
+    //    required: "Please enter internal number",
+    //    regexp: regexpMessage.name_object,
+    //    maxlength: regexpMessage.max_character
+    //};
+
+    $(document).ready(function () {
+        $('form[name="form-basic"]').validate({
+            errorElement: 'div',
+            rules: {
+                'ext': {
+                    required: true,
+                    regexp: regexpPattern.number_object,
+                    maxlength: 50
+                },
+                'ext_name': {
+                    required: true,
+                    regexp: regexpPattern.name_object,
+                    maxlength: 30
+                }
+            },
+            messages: {
+                'ext': {
+                    required: "Please enter internal number",
+                    regexp: regexpMessage.number_object,
+                    maxlength: 'Maximum field value - 30 characters'
+                },
+                'ext_name': {
+                    required: "Please enter Name",
+                    regexp: regexpMessage.name_object,
+                    maxlength: regexpMessage.max_character
+                }
+            }
+        });
+    });
+
     fillFormSimple('/data/extensions/load_ext', $('input[name="id_ext"]').val());
-  
-//script(type='text/javascript', src='/js/custom/jquery.validate.focus.js')
+
+script(type='text/javascript', src='/js/custom/jquery.validate.focus.js')

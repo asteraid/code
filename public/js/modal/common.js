@@ -1,11 +1,13 @@
 var regexpPattern = 
     {
-        name_object: /^(((?!__)[a-zA-Z0-9-_])+)$/
+        name_object: /^(((?!__)[a-zA-Z0-9-_])+)$/,
+        number_object: /^(((?!__)[0-9])+)$/
     };
 
 var regexpMessage = 
     {
         name_object: 'You should use: 0-9, a-z, A-Z',
+        number_object: 'You should use: 0-9',
         max_character: 'Maximum field value - 50 characters'
     };
 
