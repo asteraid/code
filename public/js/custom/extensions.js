@@ -146,13 +146,13 @@ var btnsAddExtension = [
               }
               
               ignoreSteps.push(isEmpty);
-              console.log(ignoreSteps);
+              //console.log(ignoreSteps);
               
-              $(this).validate({
-                ignore: [],
-                rules: isEmpty ? {rules: {}} : currentValidate[index].rules,
-                messages: isEmpty ? {messages: {}} : currentValidate[index].messages
-              });
+              //$(this).validate({
+              //  ignore: [],
+              //  rules: isEmpty ? {rules: {}} : currentValidate[index].rules,
+              //  messages: isEmpty ? {messages: {}} : currentValidate[index].messages
+              //});
             });
             //
             

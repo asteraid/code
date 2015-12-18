@@ -99,7 +99,7 @@ exports.save_trunk = function (req, res) {
 exports.load_trunk = function (req, res) {
   var id      = req.param('id');
   var action  = req.param('action');
-  var query   = "SELECT `name`, `expert`, `commented`, GROUP_CONCAT(`value` SEPARATOR ',') `value`, `node` FROM `vItemsConf` WHERE `item_id` = ? GROUP BY `name`";
+  var query   = "SELECT `name`, `expert`, `commented`, GROUP_CONCAT(`value` SEPARATOR ',') `value`, `node` FROM `vItemsConf` WHERE `item_id` = ? GROUP BY `name`, `expert`, `commented`, `node`";
 
   db.query(req, query, [id], function (err, results, fields) {
     if (err) {
@@ -122,7 +122,7 @@ exports.load_trunk = function (req, res) {
         if (index == 0)
           jsonObject.push({name: 'node', value: item.node, expert: 0});
       });
-        
+
       res.json( { success: true, data: jsonObject });
     } else
       res.json({success: false, message: 'Not found trunks'});

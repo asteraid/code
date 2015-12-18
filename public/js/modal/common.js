@@ -15,7 +15,7 @@ var regexpMessage =
 jQuery.validator.addMethod(
     'regexp',
     function(value, element, regexp) {
-        var re = new RegExp(regexp); console.info(re);
+        var re = new RegExp(regexp); //console.info(re);
         return this.optional(element) || re.test(value);
     },
     "Please check your input."
