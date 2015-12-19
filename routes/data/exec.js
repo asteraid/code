@@ -106,7 +106,7 @@ exports.send_config = function (req, res) {
                     return;
                 }
 
-                if (config.multi == 'true') {
+                if (config.multi.toLowerCase() == 'true') {
                     var query = [
                         'SELECT sl1.host, sl2.status, sl2.msg FROM syslog sl1',
                         'LEFT OUTER JOIN syslog sl2',
