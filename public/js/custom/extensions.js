@@ -211,7 +211,7 @@ var btnsAddExtension = [
               if (steps[steps.length - 1].status == true) {
                 oTable.fnReloadAjax();
                 $(self).dialog('destroy');
-                changeBtnApply(1);
+                //changeBtnApply(1);
               } else {
                 console.info(steps);
               }
@@ -262,7 +262,7 @@ var btnsAddGroupExtension = [
             if(data.success) {
               oTable.fnReloadAjax();
               $(self).dialog('destroy');
-              changeBtnApply(1);
+              //changeBtnApply(1);
             } else
               modal({
                 title: 'Information',
@@ -339,7 +339,7 @@ $('#btnDeleteExtension').on('click', function() {
             if(data.success) {
               oTable.fnReloadAjax();
               //$('#btnDeleteExtension').attr('disabled', true);
-              changeBtnApply(1);
+              //changeBtnApply(1);
             }
 
             modal({

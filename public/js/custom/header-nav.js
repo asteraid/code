@@ -1,6 +1,24 @@
 
+var socket = io.connect(window.location.origin);
+socket.on('statusBtnApply', function(data) {
+
+    var obj = '#btn-apply';
+    switch(data) {
+        case 0:
+            $(obj).attr('class', 'btn btn-inverse');
+            break;
+        case 1:
+            $(obj).attr('class', 'btn btn-danger btn-apply');
+            break;
+        default:
+            $(obj).attr('class', 'btn btn-inverse');
+            break;
+    }
+
+});
+
 $(document).ready(function () {
-    if (statusBtnApply == "1") changeBtnApply(1);
+    //if (statusBtnApply == "1") changeBtnApply(1);
 
     /*$('#user-nav #execApply').on('click', function(event) {
      event.preventDefault();
@@ -35,7 +53,7 @@ $(document).ready(function () {
                         width: '300',
                         height: '200'
                     });
-                    changeBtnApply(2);
+                    //changeBtnApply(2);
                 } else
                     modal({
                         title: 'Error',
@@ -144,7 +162,7 @@ $(document).ready(function () {
                         "class": 'btn btn-primary',
                         click: function () {
                             $('body').mask(opts);
-
+                            $(this).dialog('destroy');
                             $.ajax({
                                 type: 'post',
                                 url: '/data/exec/send_config',
@@ -161,7 +179,7 @@ $(document).ready(function () {
                                             width: '300',
                                             height: '200'
                                         });
-                                        changeBtnApply(2);
+                                        //changeBtnApply(2);
                                     } else
                                         modal({
                                             title: 'Error',
@@ -251,7 +269,7 @@ $(document).ready(function () {
                         "class": 'btn btn-primary',
                         click: function () {
                             $('body').mask(opts);
-
+                            $(this).dialog('destroy');
                             $.ajax({
                                 type: 'post',
                                 url: '/data/exec/send_config',
@@ -268,7 +286,6 @@ $(document).ready(function () {
                                             width: '300',
                                             height: '200'
                                         });
-                                        changeBtnApply(2);
                                     } else
                                         modal({
                                             title: 'Error',

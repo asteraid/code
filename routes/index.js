@@ -241,24 +241,25 @@ exports.index = function(req, res) {
                             } else
                                 sidebar_items.push(settings);
                         });
-                        
-                        res.render(controller, { title: config.applicationName
-                            , item: item
-                            //, itemUrl: 'test'
-                            , path: ''
-                            , sidebar_items: sidebar_items
-                            , itemId: itemId
-                            , itemName: itemName
-                            , socketio_src: socketio_src
-                            , user: req.session.user
-                            , company: req.session.company
-                            , companyId: req.session.companyId
-                            , sessionID: req.sessionID
-                            , style_css: style_css
-                            , statusBtnApply: req.cookies.statusBtnApply
-                            , multi: (config.multi === 'true')
+
+                        db.query(req, 'SELECT `config_need_update`.`need_update` FROM `a_conf`.`config_need_update`', function(err, results, fields) {
+                            res.render(controller, { title: config.applicationName
+                                , item: item
+                                //, itemUrl: 'test'
+                                , path: ''
+                                , sidebar_items: sidebar_items
+                                , itemId: itemId
+                                , itemName: itemName
+                                , socketio_src: socketio_src
+                                , user: req.session.user
+                                , company: req.session.company
+                                , companyId: req.session.companyId
+                                , sessionID: req.sessionID
+                                , style_css: style_css
+                                , statusBtnApply: results[0].need_update
+                                , multi: (config.multi === 'true')
+                            });
                         });
-                        
                         //db.destroy();
                     });
                 }

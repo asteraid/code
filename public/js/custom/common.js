@@ -359,25 +359,3 @@ function getPath(type) {
 function splitTextarea(text){
     return text.replace(/^[\n\r]+|[\n\r]+$/g,'').split(/[\n\r]+/);
 }
-
-/*
-    type = 1 - danger button, type = 2||other - inverse button
-    1 - default
-*/
-function changeBtnApply(type) {
-    var obj = '#btn-apply';
-    
-    if(type === undefined) type = 1;
-   
-    switch(type) {
-        case 1:
-            $(obj).attr('class', 'btn btn-danger btn-apply');
-            $.cookie('statusBtnApply', 1);
-        break;
-        case 2:
-        default:
-            $(obj).attr('class', 'btn btn-inverse');
-            $.cookie('statusBtnApply', 2);
-        break;
-    }
-}

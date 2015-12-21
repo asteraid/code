@@ -47,49 +47,60 @@ var checkConnect = function(req, callback) {
     .query(req, query, params, function(error, results, fields) {}); - execute from current user
     .query(query, params, function(error, results, fields) {}); - execute from system user
 */
-var query = function() {
-  var callback;
-  var req;
-  var sql;
-  var params        = [];
-  var configDb      = {};
-  var isSystemUser  = false;
-  
-  if (typeof(arguments[0]) == 'object') {
-    req           = arguments[0];
-  } else if (typeof(arguments[0]) == 'string') {
-    isSystemUser  = true;
-    sql           = arguments[0];
-  }
+var query = function () {
+    var callback;
+    var req;
+    var sql;
+    var params = [];
+    var configDb = {};
+    var isSystemUser = false;
 
-  if (typeof(arguments[1]) == 'string')
-    sql = arguments[1];
-
-  if (!isSystemUser) {
-    if (typeof(arguments[2]) == 'function') {
-      callback  = arguments[2];
-    } else if (typeof(arguments[3]) == 'function') {
-      callback  = arguments[3];
-      params    = arguments[2];
+    if (typeof(arguments[0]) == 'object') {
+        req = arguments[0];
+    } else if (typeof(arguments[0]) == 'string') {
+        isSystemUser = true;
+        sql = arguments[0];
     }
-  } else {
-    if (typeof(arguments[1]) == 'function') {
-      callback  = arguments[1];
-    } else if (typeof(arguments[2]) == 'function') {
-      callback  = arguments[2];
-      params    = arguments[1];
+
+    if (typeof(arguments[1]) == 'string')
+        sql = arguments[1];
+
+    if (!isSystemUser) {
+        if (typeof(arguments[2]) == 'function') {
+            callback = arguments[2];
+        } else if (typeof(arguments[3]) == 'function') {
+            callback = arguments[3];
+            params = arguments[2];
+        }
+    } else {
+        if (typeof(arguments[1]) == 'function') {
+            callback = arguments[1];
+        } else if (typeof(arguments[2]) == 'function') {
+            callback = arguments[2];
+            params = arguments[1];
+        }
     }
-  }
 
-  configDb = getConfig(req, isSystemUser);
+    configDb = getConfig(req, isSystemUser);
 
-  var connection  = mysql.createConnection(configDb);
+    var connection = mysql.createConnection(configDb);
 
-  connection.query(sql, params, function(err, rows, fields) {
-    callback(err, rows || [], fields || []);
-  });
+    connection.query(sql, params, function (err, rows, fields) {
+        if (sql.search('call ') === -1)
+            callback(err, rows || [], fields || []);
+        else
+            if (!err && sql.search('call get_userId') === -1)
+                query(req, 'UPDATE config_need_update SET need_update = 1 WHERE id = 1', [], function (error, results) {
+                    if (!error){
+                        var io = require('../app').io;
+                        io.sockets.emit('statusBtnApply', 1);
+                    }
+                    callback(err, rows || [], fields || []);
+                });
 
-  connection.end();
+    });
+
+    connection.end();
 };
 
 /* TODO: need refactor and take out in other module (ex: common.js) */

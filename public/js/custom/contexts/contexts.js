@@ -1,6 +1,6 @@
 var currentRow = {};
 var templateJSON = {};
-var modal = '';
+//var modal = '';
 //console.log();
 
 if(!itemId) {        
@@ -37,7 +37,7 @@ if(!itemId) {
                                 if(data.success) {
                                     oTable.fnReloadAjax();
                                     $('#btnEdit, #btnDelete').attr('disabled', true);
-                                    changeBtnApply(1);
+                                    //changeBtnApply(1);
                                 } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                             }
                         });
@@ -122,7 +122,7 @@ if(!itemId) {
                     if(data.success) {
                         oTable.fnReloadAjax();
                         showDialog('Information', 'Order is successfully saved!', 'auto', 'auto');
-                        changeBtnApply(1);
+                        //changeBtnApply(1);
                     }
                 }
             });
@@ -165,7 +165,7 @@ function deleteItem() {
                                     if(data.success) {
                                         oTable.fnReloadAjax();
                                         $('#btnEdit, #btnDelete').attr('disabled', true);
-                                        changeBtnApply(1);
+                                        //changeBtnApply(1);
                                     } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                                 }
                             });
@@ -207,7 +207,7 @@ function deleteItem() {
                                             if(data.success) {
                                                 oTable.fnReloadAjax();
                                                 $('#btnEdit, #btnDelete').attr('disabled', true);
-                                                changeBtnApply(1);
+                                                //changeBtnApply(1);
                                             } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                                         }
                                     });
@@ -229,7 +229,7 @@ function deleteItem() {
                                                             if(data.success) {
                                                                 oTable.fnReloadAjax();
                                                                 $('#btnEdit, #btnDelete').attr('disabled', true);
-                                                                changeBtnApply(1);
+                                                                //changeBtnApply(1);
                                                             } else showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                                                         }
                                                     });
@@ -307,7 +307,7 @@ function getModalBtns(type, oTable) {
 
                                     $(self).dialog('close');
                                     showDialog('Information', '<div align="center"><p>Context <strong>' + $('form').find('input[name="name"]').val() + '</strong> created.</p><p>Do you want to fill it now?</p></div>', '300', 'auto', btns);
-                                    changeBtnApply(1);
+                                    //changeBtnApply(1);
                                  } else showDialog('Information', data.message, 'auto', 'auto');
                                  setButtonsState('tblContent');
                              }
@@ -341,7 +341,7 @@ function getModalBtns(type, oTable) {
                                  if(data.success) {
                                      oTable.fnReloadAjax();
                                      $(self).dialog('close');
-                                    changeBtnApply(1);
+                                    //changeBtnApply(1);
                                  } else showDialog('Information', data.message, 'auto', 'auto');
                              }
                         });
@@ -373,7 +373,7 @@ function getModalBtns(type, oTable) {
                                  if(data.success) {
                                      oTable.fnReloadAjax();
                                      $(self).dialog('close');
-                                     changeBtnApply(1);
+                                     //changeBtnApply(1);
                                  } else showDialog('Information', data.message, 'auto', 'auto');
                              }
                         });

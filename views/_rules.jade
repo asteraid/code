@@ -84,7 +84,7 @@ block content
                                      //oTable.fnReloadAjax();
                                      window.location = $(location).attr('href').replace('rules', 'callflows') + '/' + data.id_rule;
                                      $(self).dialog('close');
-                                     changeBtnApply(1);
+                                     //changeBtnApply(1);
                                  } else showDialog('Information', data.message, 'auto', 'auto');
                              }
                         });
@@ -125,7 +125,7 @@ block content
                                              if(data.success) {
                                                  oTable.fnReloadAjax();
                                                  $(self).dialog('close');
-                                                 changeBtnApply(1);
+                                                 //changeBtnApply(1);
                                              } else showDialog('Information', data.message, 'auto', 'auto');
                                          }
                                     });

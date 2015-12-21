@@ -176,7 +176,7 @@ function loadPageConfigs(num) {
                                     loadConfig(editor_id, current_config_name, current_node_name);
                                 }
                                 showDialog('Editor',data.message, 300, 'auto');
-                                changeBtnApply(1);
+                                //changeBtnApply(1);
                             }
                         });
 

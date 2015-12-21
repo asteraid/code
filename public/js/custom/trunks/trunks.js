@@ -91,7 +91,7 @@ var btnsAddTrunk = [
                    if(data.success) {
                        oTable.fnReloadAjax();
                        $(self).dialog('close');
-                       changeBtnApply(1);
+                       //changeBtnApply(1);
                    } else //showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                       modal({title: 'Information', body: '<p align="center">'+data.message+'</p>', width: 'auto', height: 'auto'});
                }
@@ -162,7 +162,7 @@ $('#btnDeleteTrunk').click(function() {
                       if(data.success) {
                           oTable.fnReloadAjax();
                           $('#btnEditTemplate, #btnDeleteTemplate').attr('disabled', true);
-                          changeBtnApply(1);
+                          //changeBtnApply(1);
                       } else //showDialog('Information', '<p align="center">'+data.message+'</p>', 'auto', 'auto');
                         modal({title: 'Information', body: '<p align="center">'+data.message+'</p>', width: 'auto', height: 'auto'});
                   }

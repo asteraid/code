@@ -42,7 +42,7 @@ exports.save_trunk = function (req, res) {
      res.json({success: false, message: "\"Name\" is empty. Please enter the \"Name\"" });
      return false;
   }
-  
+
   // save trunk
   var save_trunk = function(){
     // create_trunk
@@ -60,7 +60,6 @@ exports.save_trunk = function (req, res) {
     });
     
     var query = sql.save_item() + 'SELECT @result, @id_trunk';
-    //console.log(query);
     db.query(req, query, function(err, results, fields) {
       if (err) {
         res.json({success: false, message: err.code});

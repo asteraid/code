@@ -30,7 +30,7 @@ var btns =
                            //oTable.fnReloadAjax();
                            window.location = $(location).attr('href').replace('rules', 'callflows') + '/' + data.id_rule;
                            $(self).dialog('close');
-                           changeBtnApply(1);
+                           //changeBtnApply(1);
                        } else showDialog('Information', data.message, 'auto', 'auto');
                    }
               });
@@ -71,7 +71,7 @@ $('#btnDelete').click(function() {
                                    if(data.success) {
                                        oTable.fnReloadAjax();
                                        $(self).dialog('close');
-                                       changeBtnApply(1);
+                                       //changeBtnApply(1);
                                    } else showDialog('Information', data.message, 'auto', 'auto');
                                }
                           });

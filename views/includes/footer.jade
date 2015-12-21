@@ -1,19 +1,17 @@
 div(id="modal-dialog", style="display: none;")
 #footer.span12
 
-//script(type='text/javascript', src=socketio_src )
+script(type='text/javascript', src=socketio_src )
 script(type='text/javascript')
     var user = '#{user}';
     var company = '#{company}';
     var companyId = '#{companyId}';
     var sessionID = '#{sessionID}';
-    var statusBtnApply = '#{statusBtnApply}';
-script
-    /*if ( typeof(io) == 'undefined' )
-          {
-              alert('socket.io error! restart ...');
-              window.location.reload();
-          }*/
+script.
+    if (typeof(io) == 'undefined') {
+        alert('socket.io error! restart ...');
+        window.location.reload();
+    }
     
 script( src="/js/jquery.min.js")
 script( src="/js/jquery.cookie.js")

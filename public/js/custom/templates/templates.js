@@ -70,7 +70,7 @@ var btns = [
                        if(data.success) {
                            oTable.fnReloadAjax();
                            $(self).dialog('destroy');
-                           changeBtnApply(1);
+                           //changeBtnApply(1);
                        } else
                         modal({
                           title: 'Information',
@@ -134,7 +134,7 @@ $('#btnDelete').on('click', function() {
                             if(data.success) {
                                 oTable.fnReloadAjax();
                                 $('#btnEdit, #btnDelete').attr('disabled', true);
-                                changeBtnApply(1);
+                                //changeBtnApply(1);
                             } else
                               modal({
                                 title: 'Information',

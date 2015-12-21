@@ -2,7 +2,7 @@
     h1
 #user-nav.navbar.navbar-inverse
     ul.nav.btn-group
-        li.btn.btn-inverse#btn-apply
+        li#btn-apply(class=(statusBtnApply == '0') ? 'btn btn-inverse' : 'btn btn-danger btn-apply')
             a.dropdown-toggle(title="Apply config", href="#", data-toggle="dropdown")
                 i.icon.icon-check
                 span.text Apply

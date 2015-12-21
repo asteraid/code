@@ -124,7 +124,7 @@ block content
                                     setEditorValue(current_container, getConfig(current_config_name).content);
                                 }
                                 showDialog('Editor',data.message, 300, 'auto');
-                                changeBtnApply(1);
+                                //changeBtnApply(1);
                             }
                         });
                     });

@@ -1,4 +1,5 @@
-var main = require('./exec_main');
+var main = require('./exec_main'),
+    io = require('../../app').io;
 
 Object.keys(main).forEach(function (item) {
     exports[item] = main[item];
@@ -89,8 +90,11 @@ exports.send_config = function (req, res) {
             res.json({success: false, message: error.message, type: error.type});
             return;
         }
-
-        res.json({success: true});
+        db.query(req, 'UPDATE config_need_update SET need_update = 0 WHERE id = 1', [], function (err, results) {
+            if (!err)
+                io.sockets.emit('statusBtnApply', 0);
+            res.json({success: true});
+        });
     });
 
     function executeApply(params, callback) {
@@ -140,7 +144,8 @@ exports.send_config = function (req, res) {
 
                         callback(null);
                     });
-                } else callback(null);
+                } else
+                    callback(null);
             });
         }
 
@@ -155,6 +160,7 @@ exports.send_config = function (req, res) {
             });
         }
     }
+
 };
 
 exports.asterisk_restart = function (req, res) {
