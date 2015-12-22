@@ -86,10 +86,10 @@ var query = function () {
     var connection = mysql.createConnection(configDb);
 
     connection.query(sql, params, function (err, rows, fields) {
-        if (sql.search('call ') === -1)
+        if (sql.toLowerCase().search('call ') === -1)
             callback(err, rows || [], fields || []);
         else
-            if (!err && sql.search('call get_userId') === -1)
+            if (!err && sql.toLowerCase().search('call get_userId') === -1)
                 query(req, 'UPDATE config_need_update SET need_update = 1 WHERE id = 1', [], function (error, results) {
                     if (!error){
                         var io = require('../app').io;
