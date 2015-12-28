@@ -2,7 +2,10 @@
 var currentRow = {};
      
 var columns = [{"mData":"id"}, {"mData":"name"}, {"mData":"pattern"}, {"mData":"comment"}];
-var columnsDefs = [{"bSearchable": false, "bVisible": false, "aTargets": [0]}];
+var columnsDefs = [{"bSearchable": false, "bVisible": false, "aTargets": [0]},
+    { "sWidth": "30%", "aTargets": [1] },
+    { "sWidth": "40%", "aTargets": [2] },
+    { "sWidth": "30%", "aTargets": [3] }];
 var oTable = setDataTableTest('tblContent', '/data/items/list', columns, columnsDefs, 'rule');
 
 $('#tblContent tr').live('dblclick', function() {openItem();});

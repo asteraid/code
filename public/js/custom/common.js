@@ -324,7 +324,8 @@ function setDataTableTest(idTable, sAjaxSource, aoColumns, aoColumnDefs, type, a
             "sAjaxDataProp": "rows",
             "aoColumnDefs": aoColumnDefs,
             "aoColumns": aoColumns,
-            "aaSorting": aaSorting
+            "aaSorting": aaSorting,
+            "bAutoWidth": false
         });
 }
 

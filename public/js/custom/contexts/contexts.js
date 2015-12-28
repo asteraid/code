@@ -1,6 +1,6 @@
 var currentRow = {};
 var templateJSON = {};
-//var modal = '';
+var modal = '';
 //console.log();
 
 if(!itemId) {        
