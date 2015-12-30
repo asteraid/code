@@ -180,7 +180,7 @@ exports.index = function(req, res) {
 			
 			if(user_id == 1){
 				
-				var query = "SELECT CONCAT('{', '\"position\": ', m.position, ', ', '\"type\": \"', m.type, '\"',  ', ',  '\"name\": \"', m.name, '\"',  ', ', '\"icon\" :\"', m.icon, '\"',  ', ', '\"href\" :\"', m.href, '\"',  ', ', '\"class\" :\"', m.class, '\"',  IF(m.count = 1, CONCAT(', \"count\" : ', m.count), \"\"), '}') as var_val FROM modules m WHERE m.active > 0 ORDER BY m.position";
+				var query = "SELECT CONCAT('{', '\"position\": ', m.position, ', ', '\"type\": \"', m.type, '\"',  ', ',  '\"name\": \"', m.name, '\"',  ', ', '\"icon\" :\"', m.icon, '\"',  ', ', '\"href\" :\"', m.href, '\"',  ', ', '\"class\" :\"', m.class, '\"',  IF(m.count = 1, CONCAT(', \"count\" : ', m.count), \"\"), '}') as var_val FROM modules m WHERE m.active > 0 AND m.hidden <> 1 ORDER BY m.position";
 				
 			}
 			else {
