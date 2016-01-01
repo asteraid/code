@@ -65,6 +65,10 @@
                       '<label for="daterangepicker_context">Context</label>' +
                       '<input type="text" autocomplete="off" name="daterangepicker_context" autocorrect="off" autocapitalize="off" spellcheck="false" class="select2-input" id="field_context" tabindex="0" placeholder="" style="width: 150px;">'+
                      '</div>'+
+            '<div class="daterangepicker_gmt_input" style="margin-bottom:2px">' +
+            '<label for="daterangepicker_gmt">GMT</label>' +
+            '<input type="text" autocomplete="off" name="daterangepicker_gmt" autocorrect="off" autocapitalize="off" spellcheck="false" class="select2-input" id="field_gmt" tabindex="0" placeholder="" style="width: 150px;">'+
+            '</div>'+
                     '<button class="applyBtn" disabled="disabled"></button>&nbsp;' +
                     '<button class="cancelBtn"></button><button class="remBtn">Del</button>' +
                   '</div>' +
@@ -568,6 +572,7 @@
         },
 
         move: function () {
+            return;
             var parentOffset = { top: 0, left: 0 },
             	containerTop;
             var parentRightEdge = $(window).width();
