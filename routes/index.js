@@ -242,10 +242,9 @@ exports.index = function(req, res) {
                                 sidebar_items.push(settings);
                         });
 
-                        db.query(req, 'SELECT `config_need_update`.`need_update` FROM `a_conf`.`config_need_update`', function(err, results, fields) {
+                        db.query(req, 'SELECT need_update FROM config_need_update', function(err, results, fields) {
                             res.render(controller, { title: config.applicationName
                                 , item: item
-                                //, itemUrl: 'test'
                                 , path: ''
                                 , sidebar_items: sidebar_items
                                 , itemId: itemId
