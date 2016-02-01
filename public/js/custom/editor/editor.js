@@ -115,7 +115,7 @@ function loadPageConfigs(num) {
                 var editors = $('div[id*="editor_' + num + '_"]');
                 $.each(editors, function(index, el) {
                     var editor = ace.edit(el);
-                    editor.setTheme("ace/theme/tomorrow_night_bright");
+                    editor.setTheme("ace/theme/twilight");
                     editor.getSession().setMode(new JavaScriptMode());
 
                     node_name = $(el).attr('node-name');
